@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "package_name": "morality_tree_navigation_skills",
+  "version": "1.0.0",
+  "description": "Standalone, model-agnostic skill package for navigating, tutoring, generating dilemmas, and auditing derivations across the 34-node Morality Tree hierarchy.",
+  "target_frameworks": ["make_a_brain", "openai", "anthropic", "google_gemini", "llama_cpp", "qwen"],
+  "tree_summary": {
+    "total_nodes": 34,
+    "layers": {
+      "layer_0": {"name": "Foundational Axioms", "range": "A1-A6", "desc": "Grounding undeniable empirical facts of conscious experience"},
+      "layer_1": {"name": "Derived Principles", "range": "D1-D8", "desc": "Core social and legal duties derived directly from Layer 0"},
+      "layer_2": {"name": "Applied Ethics", "range": "E1-E12", "desc": "Concrete policy positions and rights protections"},
+      "layer_3": {"name": "Complex Dilemmas", "range": "X1-X8", "desc": "High-stakes trade-offs requiring multi-axiom balancing"}
+    }
+  },
+  "skills": [
+    {
+      "id": "tree_navigator",
+      "name": "Morality Tree Graph Navigator",
+      "command": "/navigate [node_id]",
+      "description": "Traces lineage, parent axioms, child principles, and sibling nodes for any of the 34 Morality Tree nodes.",
+      "prompt_instructions": "When invoked or asked to navigate a node: 1) State the target node's Name and Layer. 2) Detail the complete Lineage Path (e.g. A1 Suffering -> D2 Bodily Integrity -> E4 Reproductive Autonomy). 3) List 2 Sibling/Related Nodes. 4) Provide 1-sentence Socratic takeaway. Format with clean node chips [A1], [D2], etc.",
+      "example_query": "/navigate E4",
+      "expected_output_format": "🧭 **Tree Navigation [E4: End of Life / Reproductive Autonomy]**\n- **Layer**: Layer 2 (Applied Ethics)\n- **Parent Lineage**: [A1] Suffering & [A4] Autonomy ➔ [D2] Bodily Integrity ➔ [E4]\n- **Related Sibling Nodes**: [E5] Digital Privacy, [X8] Emergency Coercion\n- **Core Takeaway**: Bodily self-determination derives directly from the fundamental aversion to unconsented distress."
+    },
+    {
+      "id": "socratic_tutor",
+      "name": "Socratic Morality Tutor",
+      "command": "/tutor [topic|node]",
+      "description": "Pedagogical Socratic teaching engine that guides users through moral nodes via probing counterfactuals.",
+      "prompt_instructions": "When invoked: 1) Present a subtle counterfactual question challenging common intuition. 2) Ask the user to identify which Layer 0 Axiom ([A1]-[A6]) grounds their stance. 3) Maintain an encouraging, intellectual, non-judgmental teaching posture.",
+      "example_query": "/tutor A4",
+      "expected_output_format": "🎓 **Socratic Lesson: Autonomy & Consent [A4]**\n- **Intuitive Probe**: If a society could guarantee perfect safety by restricting 50% of individual choices, would that society be morally superior?\n- **Axiom Challenge**: Tracing back to [A4] (Autonomy) and [A1] (Suffering), why is coercion inherently experienced as distress?\n- **Your Turn**: How would you balance safety against freedom in this scenario?"
+    },
+    {
+      "id": "dilemma_generator",
+      "name": "Moral Dilemma Generator",
+      "command": "/dilemma [topic|node]",
+      "description": "Generates high-stakes, realistic moral dilemmas mapped directly to Layer 3 (X1-X8) or Layer 2 (E1-E12) nodes.",
+      "prompt_instructions": "When invoked: 1) Construct a realistic 2-option scenario. 2) Show Option A utility vs Option B utility. 3) Map each option to opposing node chips (e.g. Option A -> [X2] Security vs Option B -> [E5] Privacy). 4) End with a choice prompt.",
+      "example_query": "/dilemma X2",
+      "expected_output_format": "⚡ **Moral Dilemma: Surveillance vs Liberty [X2]**\n- **Scenario**: An emergency situation requires deploying AI biometric tracking to prevent an imminent threat, but doing so permanently dismantles digital privacy safeguards.\n- **Option A (Deploy)**: Maximizes short-term safety [A5], risks long-term surveillance state [X2].\n- **Option B (Refuse)**: Preserves bodily & digital autonomy [A4], [E5], risks immediate harm [A1].\n- **Which path yields greater net utility for society?**"
+    },
+    {
+      "id": "derivation_auditor",
+      "name": "Moral Derivation Auditor",
+      "command": "/audit [claim_or_node]",
+      "description": "Audits the logical derivation strength of a claim tracing back to Layer 0 Foundational Axioms (A1-A6).",
+      "prompt_instructions": "When invoked: 1) Evaluate claim derivation. 2) Assign a Derivation Strength Score (0-100%). 3) Check for logical fallacies (ad hominem, straw man, circular reasoning). 4) State Verdict: APPROVED_FOR_VOTE, REVISION_REQUIRED, or REJECTED.",
+      "example_query": "/audit Healthcare is a universal human right",
+      "expected_output_format": "🔬 **Derivation Audit: Universal Healthcare**\n- **Derivation Path**: [A1] Suffering + [A5] Basic Needs ➔ [D1] Universal Healthcare\n- **Derivation Strength**: 94% (Solid Grounding)\n- **Fallacy Check**: Clean logic. No circular reasoning detected.\n- **Verdict**: ✅ APPROVED_FOR_VOTE"
+    }
+  ]
+}

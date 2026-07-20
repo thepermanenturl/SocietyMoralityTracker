@@ -29,7 +29,10 @@ class AIChatWindow {
     this.sendBtn = document.getElementById("ai-chat-send-btn");
 
     this.quickVetBtn = document.getElementById("quick-vet-btn");
-    this.quickAxiomsBtn = document.getElementById("quick-axioms-btn");
+    this.quickNavBtn = document.getElementById("quick-nav-btn");
+    this.quickTutorBtn = document.getElementById("quick-tutor-btn");
+    this.quickDilemmaBtn = document.getElementById("quick-dilemma-btn");
+    this.quickAuditBtn = document.getElementById("quick-audit-btn");
     this.devilsBtn = document.getElementById("devils-advocate-toggle-btn");
     this.devilsStatusText = document.getElementById("devils-status-text");
 
@@ -117,6 +120,38 @@ class AIChatWindow {
       });
     }
 
+    if (this.quickNavBtn) {
+      this.quickNavBtn.addEventListener("click", () => {
+        const activeNode = window.appState?.selectedNode;
+        const targetId = activeNode ? activeNode.id : "A1";
+        this.sendUserMessage(`/navigate ${targetId}`);
+      });
+    }
+
+    if (this.quickTutorBtn) {
+      this.quickTutorBtn.addEventListener("click", () => {
+        const activeNode = window.appState?.selectedNode;
+        const targetId = activeNode ? activeNode.id : "A4";
+        this.sendUserMessage(`/tutor ${targetId}`);
+      });
+    }
+
+    if (this.quickDilemmaBtn) {
+      this.quickDilemmaBtn.addEventListener("click", () => {
+        const activeNode = window.appState?.selectedNode;
+        const targetId = activeNode ? activeNode.id : "X2";
+        this.sendUserMessage(`/dilemma ${targetId}`);
+      });
+    }
+
+    if (this.quickAuditBtn) {
+      this.quickAuditBtn.addEventListener("click", () => {
+        const activeNode = window.appState?.selectedNode;
+        const targetStr = activeNode ? activeNode.id : "Healthcare is a universal right";
+        this.sendUserMessage(`/audit ${targetStr}`);
+      });
+    }
+
     if (this.quickVetBtn) {
       this.quickVetBtn.addEventListener("click", () => {
         const activeNode = window.appState?.selectedNode;
@@ -128,19 +163,17 @@ class AIChatWindow {
       });
     }
 
-    if (this.quickAxiomsBtn) {
-      this.quickAxiomsBtn.addEventListener("click", () => {
-        this.sendUserMessage("Explain the 6 Foundational Moral Axioms (Layer 0) and how they prevent moral relativism.");
-      });
-    }
-
     if (this.messagesContainer) {
       this.messagesContainer.addEventListener("click", (e) => {
         const chip = e.target.closest(".clickable-node-chip");
         if (chip) {
           const nodeId = chip.getAttribute("data-node-id");
-          if (window.treeRenderer && nodeId) {
-            window.treeRenderer.selectNode(nodeId);
+          if (nodeId) {
+            if (window.treeRenderer) {
+              window.treeRenderer.selectNode(nodeId);
+            }
+            // Auto-trigger navigation trace on click!
+            this.sendUserMessage(`/navigate ${nodeId}`);
           }
         }
       });
