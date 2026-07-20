@@ -112,7 +112,7 @@ REQUIRED ARGUMENT WORKFLOW:
       return this.settings.remoteServerConfig.url.replace(/\/$/, "");
     }
 
-    const CLOUDFLARE_TUNNEL_URL = "https://tests-handed-thee-needle.trycloudflare.com";
+    const CLOUDFLARE_TUNNEL_URL = "https://final-town-direction-ooo.trycloudflare.com";
 
     if (typeof window !== "undefined" && window.location) {
       if (window.location.hostname && window.location.hostname.includes("github.io")) {
