@@ -1,0 +1,16 @@
+# OS Clutter
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Environment & Credentials
+.env
+.env.local
+*.log
+
+# Dependencies & Editor Settings
+node_modules/
+dist/
+build/
+.vscode/
+.idea/
