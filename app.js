@@ -622,6 +622,56 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Mobile Bottom Navigation Dock Handling
+  const mNavTree = document.getElementById("mobile-nav-tree-btn");
+  const mNavAi = document.getElementById("mobile-nav-ai-btn");
+  const mNavNews = document.getElementById("mobile-nav-news-btn");
+  const mNavPropose = document.getElementById("mobile-nav-propose-btn");
+
+  function setMobileNavActive(activeBtn) {
+    [mNavTree, mNavAi, mNavNews, mNavPropose].forEach(b => b?.classList.remove("active"));
+    if (activeBtn) activeBtn.classList.add("active");
+  }
+
+  if (mNavTree) {
+    mNavTree.addEventListener("click", () => {
+      setMobileNavActive(mNavTree);
+      aiChat.closeWindow();
+      inspector.close();
+      if (newsDrawer) newsDrawer.classList.add("hidden");
+    });
+  }
+
+  if (mNavAi) {
+    mNavAi.addEventListener("click", () => {
+      setMobileNavActive(mNavAi);
+      aiChat.openWindow();
+      inspector.close();
+      if (newsDrawer) newsDrawer.classList.add("hidden");
+    });
+  }
+
+  if (mNavNews) {
+    mNavNews.addEventListener("click", () => {
+      setMobileNavActive(mNavNews);
+      renderNewsTaskCards();
+      if (newsDrawer) {
+        newsDrawer.classList.remove("hidden");
+        newsList.classList.remove("hidden");
+        newsDetailCard.classList.add("hidden");
+      }
+      aiChat.closeWindow();
+      inspector.close();
+    });
+  }
+
+  if (mNavPropose) {
+    mNavPropose.addEventListener("click", () => {
+      setMobileNavActive(mNavPropose);
+      if (proposalModal) proposalModal.classList.remove("hidden");
+    });
+  }
+
   // Global Keyboard Shortcuts
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {

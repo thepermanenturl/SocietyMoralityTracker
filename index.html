@@ -677,7 +677,27 @@
 
   <!-- Application Scripts -->
   <script src="perspectives-data.js"></script>
-  <script src="morality-data.js"></script>
+    <!-- MOBILE BOTTOM NAVIGATION BAR (Visible on phones <= 768px) -->
+    <div id="mobile-bottom-nav" class="mobile-bottom-nav">
+      <button id="mobile-nav-tree-btn" class="mobile-nav-item active">
+        <span class="mobile-nav-icon">🌳</span>
+        <span class="mobile-nav-label">Tree</span>
+      </button>
+      <button id="mobile-nav-ai-btn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">🤖</span>
+        <span class="mobile-nav-label">AI Agent</span>
+      </button>
+      <button id="mobile-nav-news-btn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">📰</span>
+        <span class="mobile-nav-label">News Feed</span>
+      </button>
+      <button id="mobile-nav-propose-btn" class="mobile-nav-item">
+        <span class="mobile-nav-icon">💡</span>
+        <span class="mobile-nav-label">Propose</span>
+      </button>
+    </div>
+
+    <script src="morality-data.js"></script>
   <script src="morality-store.js"></script>
   <script src="morality-agent-context.js"></script>
   <script src="ai-vetting-engine.js"></script>
