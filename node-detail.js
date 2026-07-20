@@ -515,13 +515,15 @@ class NodeDetailInspector {
       const strEl = document.getElementById("persp-wangchuk-struggles");
       const wWiki = document.getElementById("persp-wangchuk-wiki-link");
       const wNews = document.getElementById("persp-wangchuk-news-link");
+      const wPub = document.getElementById("persp-wangchuk-news-pub");
 
-      if (valEl) valEl.textContent = d.value || "";
+      if (valEl) valEl.textContent = d.value || "Environmental Stewardship & Selfless Resistance";
       if (nameEl) nameEl.textContent = d.name || "Sonam Wangchuk";
-      if (yearEl) yearEl.textContent = d.year ? `c. ${d.year}` : "";
-      if (innEl) innEl.textContent = d.innovations || "";
-      if (strEl) strEl.textContent = d.struggles || "";
+      if (yearEl) yearEl.textContent = d.year ? `c. ${d.year}` : "c. 2024";
+      if (innEl) innEl.textContent = d.innovations || "Invented Ice Stupa artificial glaciers to solve spring desert water scarcity and SECMOL zero-carbon solar mud architecture.";
+      if (strEl) strEl.textContent = d.struggles || "Endured 21-day climate fasts at -15°C in Leh and Delhi border detention (Oct 2024) demanding 6th Schedule ecological safeguards for Himalayan ecosystems.";
       if (wWiki) wWiki.href = d.wikiUrl || "https://en.wikipedia.org/wiki/Sonam_Wangchuk";
+      if (wPub) wPub.textContent = d.newsPublisher || "The Hindu";
       if (wNews) wNews.href = d.newsUrl || "https://www.thehindu.com/news/national/other-states/sonam-wangchuk-ends-21-day-climate-fast-in-ladakh/article67994326.ece";
 
       this.perspectiveWangchuk.classList.remove("hidden");

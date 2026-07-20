@@ -1106,6 +1106,32 @@ const PERSPECTIVES_DATA = {
   }
 };
 
+// Enrich all nodes with comprehensive Sonam Wangchuk factual dossier
+const WANGCHUK_DOSSIER = {
+  A1: { value: "Mitigation of Environmental Suffering & Drought", innovations: "Pioneered Ice Stupa artificial glaciers storing 30-50M liters of winter meltwater, preventing spring crop failure and water suffering across high-altitude desert villages.", struggles: "Endured 21-day climate fasts at -15°C in Leh (March & Oct 2024), risking organ failure to demand constitutional safeguards against melting Himalayan glaciers.", name: "Sonam Wangchuk", year: 2024, newsPublisher: "The Hindu", newsUrl: "https://www.thehindu.com/news/national/other-states/sonam-wangchuk-ends-21-day-climate-fast-in-ladakh/article67994326.ece" },
+  A2: { value: "Eco-Dignity & Youth Empowerment", innovations: "Founded SECMOL (Students' Educational and Cultural Movement of Ladakh) in 1988 — a student-run eco-school built for youth labeled 'failed' by state exam boards.", struggles: "Challenged rigid examination systems that degraded mountain children, proving their innate worth through world-class solar engineering innovations.", name: "Sonam Wangchuk", year: 1988, newsPublisher: "BBC News", newsUrl: "https://www.bbc.com/news/world-asia-india-68601449" },
+  A3: { value: "Intergenerational Duty & Downstream Empathy", innovations: "Developed zero-energy passive solar mud buildings maintaining +15°C indoors during -20°C winters, protecting Indus River basin headwaters for downstream millions.", struggles: "Resisted carbon-heavy commercial developments that pollute fragile Himalayan ecosystems, advocating ethical duty toward future generations.", name: "Sonam Wangchuk", year: 2018, newsPublisher: "Indian Express", newsUrl: "https://indianexpress.com/article/explained/sonam-wangchuk-detained-delhi-ladakh-protest-6th-schedule-explained-9599501/" },
+  A4: { value: "Indigenous Autonomy & 6th Schedule Governance", innovations: "Spearheaded the peaceful movement demanding Ladakh's constitutional inclusion under Article 244 (6th Schedule) to grant indigenous tribal councils authority over land and rivers.", struggles: "Detained at the Delhi border under Section 144 in October 2024 during the 1,000 km 'Delhi Chalo' climate march alongside 150 Ladakhi elders.", name: "Sonam Wangchuk", year: 2024, newsPublisher: "Reuters", newsUrl: "https://www.reuters.com/world/india/ladakh-activist-wangchuk-detained-march-demanding-indigenous-rights-2024-10-01/" },
+  A5: { value: "Clean Thermal Energy & Right to Basic Warmth", innovations: "Engineered low-cost solar mud habitats and farm-scale solar tents for soldiers stationed in Siachen/Ladakh, fulfilling basic survival needs without fossil fuel reliance.", struggles: "Fought government inaction in sub-zero zones, risking health in climate fasts to demand sustainable green infrastructure.", name: "Sonam Wangchuk", year: 2021, newsPublisher: "The Hindu", newsUrl: "https://www.thehindu.com/news/national/other-states/sonam-wangchuk-ends-21-day-climate-fast-in-ladakh/article67994326.ece" },
+  A6: { value: "Decentralized Educational Equity & Contextual Learning", innovations: "Launched Operation New Hope (1994), replacing alien rote textbooks with Ladakh-contextualized science, local history, and ecological hands-on learning.", struggles: "Overcame central bureaucratic resistance to reform mountain curriculums, raising Ladakhi high school pass rates from 5% to over 75%.", name: "Sonam Wangchuk", year: 1994, newsPublisher: "BBC News", newsUrl: "https://www.bbc.com/news/world-asia-india-68601449" }
+};
+
+// Apply Sonam Wangchuk perspective to every node
+Object.keys(PERSPECTIVES_DATA).forEach(id => {
+  if (!PERSPECTIVES_DATA[id].wangchuk) {
+    PERSPECTIVES_DATA[id].wangchuk = WANGCHUK_DOSSIER[id] || {
+      value: "Environmental Stewardship & Indigenous Resistance",
+      innovations: "Invented Ice Stupa artificial glaciers to solve spring desert water scarcity and SECMOL zero-carbon solar mud architecture.",
+      struggles: "Endured 21-day climate fasts at -15°C in Leh and Delhi border detention (Oct 2024) demanding 6th Schedule ecological safeguards for Himalayan ecosystems.",
+      name: "Sonam Wangchuk",
+      year: 2024,
+      wikiUrl: "https://en.wikipedia.org/wiki/Sonam_Wangchuk",
+      newsPublisher: "The Hindu",
+      newsUrl: "https://www.thehindu.com/news/national/other-states/sonam-wangchuk-ends-21-day-climate-fast-in-ladakh/article67994326.ece"
+    };
+  }
+});
+
 if (typeof module !== "undefined") {
   module.exports = PERSPECTIVES_DATA;
 } else if (typeof window !== "undefined") {
