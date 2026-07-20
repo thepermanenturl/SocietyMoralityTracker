@@ -168,12 +168,8 @@ class AIChatWindow {
         const chip = e.target.closest(".clickable-node-chip");
         if (chip) {
           const nodeId = chip.getAttribute("data-node-id");
-          if (nodeId) {
-            if (window.treeRenderer) {
-              window.treeRenderer.selectNode(nodeId);
-            }
-            // Auto-trigger navigation trace on click!
-            this.sendUserMessage(`/navigate ${nodeId}`);
+          if (nodeId && window.treeRenderer) {
+            window.treeRenderer.selectNode(nodeId);
           }
         }
       });
