@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moral Axiom Explorer — Deconstruct & Track Ethics</title>
+  <meta name="description" content="An interactive, clickable node-tree breaking down moral reasoning from self-evident axioms to complex ethical dilemmas with evidence and logical derivation chains.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="news-feed-data.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v6M12 15v6M3 12h6M15 12h6" />
+            <path d="M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M5.6 18.4l4.2-4.2M14.2 9.8l4.2-4.2" opacity="0.5" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Morality Tree</h1>
+          <span class="tagline">Trace any moral claim back to foundational axioms</span>
+        </div>
+      </div>
+
+      <!-- Controls, Legend & Actions -->
+      <div class="header-actions">
+        <!-- AI Agent Search Box Perspective -->
+        <div class="search-box">
+          <span class="ai-search-badge" title="AI Search Perspective Agent">🤖 AI</span>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Ask AI Agent or search moral dilemma..." autocomplete="off">
+          <button id="clear-search-btn" class="clear-search-btn hidden" title="Clear AI Search">✕</button>
+        </div>
+
+        <!-- Devil's Advocate Stance Slider (0% or 100%) -->
+        <div class="devils-advocate-slider-box" title="Global Stance: 0% Strict Upholder vs 100% Devil's Advocate">
+          <span class="slider-label">😈 Stance: <strong id="devils-advocate-pct">0% (Upholder)</strong></span>
+          <input type="range" id="devils-advocate-slider" min="0" max="100" value="0" step="100" class="stance-slider">
+        </div>
+
+        <!-- News Feed Drawer Button -->
+        <button id="open-news-feed-btn" class="btn-secondary" title="View Governance News Feed & Task Cards">
+          📰 News Feed
+        </button>
+
+        <!-- AI Agent Settings Button -->
+        <button id="open-agent-settings-btn" class="btn-icon-settings" title="Agent Connection Settings (API Key, Local Port, Server Over Internet)">
+          ⚙️
+        </button>
+
+        <!-- Hidden Fallback DOM Elements for AI Chat Window Compatibility -->
+        <div style="display: none !important;">
+          <button id="toggle-ai-chat-btn"></button>
+          <button id="close-ai-chat-btn"></button>
+          <button id="minimize-ai-chat-btn"></button>
+          <span id="ai-status-dot"></span>
+          <span id="ai-status-text"></span>
+        </div>
+
+        <!-- Propose Node Button -->
+        <button id="open-propose-btn" class="btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Propose Node
+        </button>
+
+        <!-- User Persona Badge -->
+        <div class="user-badge" id="user-profile-btn" title="Switch User Persona">
+          <span id="user-avatar">👩‍🏫</span>
+          <span id="user-name">Dr. Sofia Chen</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- AI Search Perspective Guidance Banner -->
+    <div id="ai-search-banner" class="ai-search-banner hidden">
+      <div class="ai-banner-content">
+        <span class="ai-banner-badge">🤖 AI Perspective</span>
+        <div id="ai-banner-text" class="ai-banner-text">
+          <span id="ai-banner-query" class="ai-banner-query">Query:</span>
+          <span id="ai-banner-guidance" class="ai-banner-guidance">Searching morality tree...</span>
+        </div>
+        <button id="close-ai-banner-btn" class="close-banner-btn" title="Dismiss Guidance">✕</button>
+      </div>
+    </div>
+
+    <!-- Main Canvas Area -->
+    <main class="tree-container" id="tree-container">
+      <div class="canvas-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+        <span>Drag to pan &bull; Scroll to zoom &bull; Click any node to examine derivation & chat with AI Vetting Agent</span>
+      </div>
+
+      <!-- Floating Canvas Zoom Controls -->
+      <div class="canvas-controls">
+        <button id="zoom-in" title="Zoom In">+</button>
+        <button id="zoom-out" title="Zoom Out">&minus;</button>
+        <button id="reset-view" title="Reset Camera View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- SVG Tree Graph -->
+      <svg id="tree-svg" class="tree-svg">
+        <defs>
+          <filter id="glow-l0" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+
+          <!-- Line Gradients -->
+          <linearGradient id="grad-0-1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" />
+            <stop offset="100%" stop-color="#3b82f6" />
+          </linearGradient>
+          <linearGradient id="grad-1-2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#f59e0b" />
+          </linearGradient>
+          <linearGradient id="grad-2-3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#ef4444" />
+          </linearGradient>
+          <linearGradient id="grad-0-2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" />
+            <stop offset="100%" stop-color="#f59e0b" />
+          </linearGradient>
+          <linearGradient id="grad-0-3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" />
+            <stop offset="100%" stop-color="#ef4444" />
+          </linearGradient>
+          <linearGradient id="grad-1-3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#ef4444" />
+          </linearGradient>
+        </defs>
+        <g id="viewport">
+          <g id="edges-layer"></g>
+          <g id="nodes-layer"></g>
+        </g>
+      </svg>
+    </main>
+
+    <!-- Side Detail Inspector Panel -->
+    <aside id="detail-panel" class="detail-panel">
+      <button id="close-panel" class="close-btn" title="Close Panel">&times;</button>
+      
+      <div class="panel-content">
+        <div class="panel-header">
+          <div class="badge-row">
+            <span id="panel-layer-badge" class="badge">Layer 0</span>
+            <span id="panel-node-id" class="node-id-tag">A1</span>
+            <span id="panel-status-badge" class="status-badge hidden">PROPOSED</span>
+          </div>
+          <h2 id="panel-title">Existence of Suffering</h2>
+          <p id="panel-summary" class="panel-summary"></p>
+
+          <!-- Button to launch AI Chat Vetting for this node -->
+          <button id="vet-selected-node-btn" class="btn-secondary vet-node-action-btn">
+            🤖 Ask AI Agent to Vet this Claim
+          </button>
+        </div>
+
+        <!-- PERSPECTIVE LAYER — Ground Reality Lenses -->
+        <div class="section-card perspective-card">
+          <h3>🌍 Perspective & Ground Reality Layer</h3>
+          <div class="perspective-toggles">
+            <button class="perspective-pill active" data-perspective="none" title="Hide all perspectives">
+              <span class="persp-dot off"></span> None
+            </button>
+            <button class="perspective-pill" data-perspective="constitution" title="Constitution of India">
+              <span class="persp-dot constitution"></span> 🏛️ Constitution
+            </button>
+            <button class="perspective-pill" data-perspective="modernBuddha" title="Individual Citizen — Modern Buddha">
+              <span class="persp-dot buddha"></span> 🧘 Modern Buddha
+            </button>
+            <button class="perspective-pill" data-perspective="wangchuk" title="Sonam Wangchuk — Homage & Living Resistance">
+              <span class="persp-dot wangchuk"></span> 🏔️ Sonam Wangchuk
+            </button>
+            <button class="perspective-pill" data-perspective="critic" title="Government Critic">
+              <span class="persp-dot critic"></span> 📢 Critic
+            </button>
+          </div>
+
+          <!-- None Perspective: Daily Dilemma & Practical Concern -->
+          <div id="perspective-none" class="perspective-content none-perspective">
+            <div class="perspective-icon-row">
+              <span class="perspective-icon">💡</span>
+              <div>
+                <strong class="perspective-label">Daily Dilemma & Real-Life Decision Making</strong>
+                <span class="perspective-subtitle">How knowing this axiom clarifies tough choices</span>
+              </div>
+            </div>
+            <div class="dilemma-card">
+              <div class="dilemma-label">⚡ Real-World Everyday Concern</div>
+              <p id="persp-dilemma-scenario" class="dilemma-text"></p>
+              <div class="dilemma-clarity-box">
+                <strong>🎯 Ethical Decision Clarity:</strong>
+                <p id="persp-dilemma-clarity" class="clarity-text"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Constitution of India Perspective (White) -->
+          <div id="perspective-constitution" class="perspective-content constitution-perspective hidden">
+            <div class="perspective-icon-row">
+              <span class="perspective-icon">🏛️</span>
+              <div>
+                <strong class="perspective-label">Constitution of India</strong>
+                <span id="persp-const-article" class="perspective-article"></span>
+              </div>
+            </div>
+            <blockquote id="persp-const-excerpt" class="perspective-excerpt"></blockquote>
+            <p id="persp-const-promise" class="perspective-promise"></p>
+
+            <!-- Implementation Meter -->
+            <div class="meter-card">
+              <div class="meter-header">
+                <span>📊 Ground Implementation Meter</span>
+                <span id="persp-const-meter-pct" class="meter-pct-tag">70%</span>
+              </div>
+              <div class="meter-bar-track">
+                <div id="persp-const-meter-fill" class="meter-bar-fill" style="width: 70%;"></div>
+              </div>
+              <span id="persp-const-meter-label" class="meter-label-text"></span>
+            </div>
+
+            <!-- Historical / Government Enforcement Instance -->
+            <div class="enforcement-card">
+              <div class="enforcement-label">📜 Government & Court Enforcement Instance</div>
+              <p id="persp-const-enforcement" class="enforcement-text"></p>
+            </div>
+          </div>
+
+          <!-- Modern Buddha Perspective (Golden) -->
+          <div id="perspective-modernBuddha" class="perspective-content buddha-perspective hidden">
+            <div class="perspective-icon-row">
+              <span class="perspective-icon">🧘</span>
+              <div>
+                <strong class="perspective-label">Modern Buddha — Lived Virtue</strong>
+                <span id="persp-buddha-value" class="perspective-value-tag"></span>
+              </div>
+            </div>
+            <div class="buddha-story-card">
+              <div class="story-header">
+                <span id="persp-buddha-name" class="story-person-name"></span>
+                <span id="persp-buddha-year" class="story-year"></span>
+              </div>
+              <p id="persp-buddha-story" class="story-text"></p>
+              <a id="persp-buddha-wiki-link" class="external-link-btn wiki" href="#" target="_blank" rel="noopener noreferrer">
+                🌐 Read Full Wikipedia Profile &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- Sonam Wangchuk Perspective (Cyan / Sky) -->
+          <div id="perspective-wangchuk" class="perspective-content wangchuk-perspective hidden">
+            <div class="perspective-icon-row">
+              <span class="perspective-icon">🏔️</span>
+              <div>
+                <strong class="perspective-label">Sonam Wangchuk — Homage & Living Resistance</strong>
+                <span id="persp-wangchuk-value" class="perspective-value-tag"></span>
+              </div>
+            </div>
+            <div class="buddha-story-card wangchuk-card">
+              <div class="story-header">
+                <span id="persp-wangchuk-name" class="story-person-name">Sonam Wangchuk</span>
+                <span id="persp-wangchuk-year" class="story-year">c. 2024</span>
+              </div>
+              <div class="wangchuk-section-label">💡 Innovations & Good Deeds</div>
+              <p id="persp-wangchuk-innovations" class="story-text"></p>
+              <div class="wangchuk-section-label struggle">❄️ Climate Fast & 6th Schedule Struggle</div>
+              <p id="persp-wangchuk-struggles" class="story-text"></p>
+              <div class="critic-meta-row" style="margin-top: 8px;">
+                <a id="persp-wangchuk-wiki-link" class="external-link-btn wiki" href="#" target="_blank" rel="noopener noreferrer">
+                  🌐 Wikipedia Profile &rarr;
+                </a>
+                <a id="persp-wangchuk-news-link" class="external-link-btn news" href="#" target="_blank" rel="noopener noreferrer">
+                  📰 Read Report in <span id="persp-wangchuk-news-pub">The Hindu</span> &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Government Critic Perspective (Red) -->
+          <div id="perspective-critic" class="perspective-content critic-perspective hidden">
+            <div class="perspective-icon-row">
+              <span class="perspective-icon">📢</span>
+              <div>
+                <strong class="perspective-label">Ground Reality — Systemic Critique</strong>
+              </div>
+            </div>
+            <div class="critic-failure-card">
+              <div class="critic-section-label">❌ Failure Instance in India</div>
+              <p id="persp-critic-failure" class="critic-text"></p>
+              <div class="critic-meta-row">
+                <span id="persp-critic-failure-year" class="critic-year-tag"></span>
+                <a id="persp-critic-news-link" class="external-link-btn news" href="#" target="_blank" rel="noopener noreferrer">
+                  📰 Read Report in <span id="persp-critic-news-pub">The Hindu</span> &rarr;
+                </a>
+              </div>
+            </div>
+            <div class="critic-positive-card">
+              <div class="critic-section-label">✅ Positive Counter-Example</div>
+              <p id="persp-critic-positive" class="critic-text"></p>
+              <div class="critic-meta-row">
+                <span id="persp-critic-country" class="critic-country-tag"></span>
+                <span id="persp-critic-mechanism" class="critic-mechanism"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Governance Ratification Panel (Shown for proposed nodes) -->
+        <div id="governance-box" class="section-card governance-card hidden">
+          <div class="gov-header">
+            <h3>Community Governance & AI Vetting Report</h3>
+          </div>
+          <div id="ai-report-summary" class="ai-report-box"></div>
+          <div class="gov-actions">
+            <button id="vote-ratify-btn" class="btn-vote approve">👍 Ratify Node (<span id="vote-count-up">0</span>/5)</button>
+            <button id="vote-reject-btn" class="btn-vote reject">👎 Reject</button>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <!-- Full Statement Card -->
+          <div class="section-card statement-card">
+            <h3>Moral Statement</h3>
+            <p id="panel-statement"></p>
+          </div>
+
+          <!-- Derivation Path & Ancestry Chain -->
+          <div class="section-card derivation-card">
+            <h3>Logical Derivation & Ancestry</h3>
+            <div id="panel-derivation-chain" class="ancestry-chain"></div>
+            <p id="panel-derivation-text" class="derivation-text"></p>
+          </div>
+
+          <!-- Supporting Evidence Tabs -->
+          <div class="section-card evidence-card">
+            <h3>Supporting Evidence</h3>
+            <div class="evidence-tabs">
+              <button class="tab-btn active" data-tab="history">History</button>
+              <button class="tab-btn" data-tab="science">Science</button>
+              <button class="tab-btn" data-tab="psychology">Psychology</button>
+            </div>
+
+            <div class="tab-contents">
+              <div id="tab-history" class="tab-pane active"><p id="panel-evidence-history"></p></div>
+              <div id="tab-science" class="tab-pane"><p id="panel-evidence-science"></p></div>
+              <div id="tab-psychology" class="tab-pane"><p id="panel-evidence-psychology"></p></div>
+            </div>
+          </div>
+
+          <!-- Discussion Threads Section -->
+          <div class="section-card discussion-card">
+            <div class="discussion-header">
+              <h3>Community Discussion & Debates</h3>
+              <span id="discussion-count-tag" class="count-tag">0 comments</span>
+            </div>
+
+            <!-- Add Comment Form -->
+            <div class="add-comment-box">
+              <div class="comment-type-selector">
+                <label><input type="radio" name="comment-type" value="supporting" checked> 🟢 Supporting</label>
+                <label><input type="radio" name="comment-type" value="objection"> 🔴 Objection</label>
+                <label><input type="radio" name="comment-type" value="evidence"> 🔵 Evidence</label>
+                <label><input type="radio" name="comment-type" value="question"> 🟡 Question</label>
+              </div>
+              <textarea id="comment-input" placeholder="Add your philosophical argument, objection, or evidence..." rows="2"></textarea>
+              <button id="post-comment-btn" class="btn-secondary">Post Argument</button>
+            </div>
+
+            <!-- Comments List -->
+            <div id="discussion-list" class="discussion-list"></div>
+          </div>
+
+          <!-- Counterarguments Accordion -->
+          <div class="section-card counter-card">
+            <h3>Baseline Objections & Counterarguments</h3>
+            <div id="panel-counterarguments" class="counter-list"></div>
+          </div>
+
+          <!-- Philosophical Traditions -->
+          <div class="section-card frameworks-card">
+            <h3>Philosophical Frameworks</h3>
+            <div id="panel-frameworks" class="framework-tags"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- FLOATING INTERACTIVE AI AGENT CHAT WINDOW (Connected to Gateway) -->
+    <div id="ai-chat-window" class="ai-chat-window hidden">
+      <div class="ai-chat-header">
+        <div class="ai-chat-title">
+          <span class="ai-avatar">🤖</span>
+          <div>
+            <strong>AI Vetting Agent</strong>
+            <div class="ai-status">
+              <span id="ai-status-dot" class="status-dot fallback"></span>
+              <span id="ai-status-text">AI Agent Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="ai-header-controls">
+          <button id="minimize-ai-chat-btn" class="icon-btn" title="Minimize">&minus;</button>
+          <button id="close-ai-chat-btn" class="icon-btn" title="Close">&times;</button>
+        </div>
+      </div>
+
+      <div id="ai-chat-messages" class="ai-chat-messages"></div>
+
+      <div class="ai-chat-quick-actions">
+        <button id="quick-vet-btn" class="quick-chip">🤖 Vet Selected Node</button>
+        <button id="quick-axioms-btn" class="quick-chip">📜 Explain Layer 0 Axioms</button>
+      </div>
+
+      <div class="ai-chat-input-row">
+        <input type="text" id="ai-chat-input" placeholder="Ask AI Agent to vet a claim or explain logic..." autocomplete="off">
+        <button id="ai-chat-send-btn" class="btn-primary">Send</button>
+      </div>
+    </div>
+
+    <!-- PROPOSE NEW NODE MODAL -->
+    <div id="proposal-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+        
+        <div class="modal-header">
+          <h2>Propose New Moral Claim / Node</h2>
+          <p>Submit a new moral statement or derived principle to be vetted by the AI Agent before community ratification.</p>
+        </div>
+
+        <form id="proposal-form" class="modal-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Target Hierarchy Layer</label>
+              <select id="prop-layer" required>
+                <option value="1">Layer 1: Derived Principle</option>
+                <option value="2" selected>Layer 2: Applied Ethics</option>
+                <option value="3">Layer 3: Complex Dilemma</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Claim Title</label>
+              <input type="text" id="prop-title" placeholder="e.g. Right to Universal Internet Access" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Parent Axioms / Principles (Derivation Roots)</label>
+            <select id="prop-parents" multiple required size="4" class="multi-select"></select>
+            <span class="field-hint">Hold Ctrl / Cmd to select multiple parent nodes.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Moral Statement</label>
+            <textarea id="prop-statement" placeholder="Clear, precise statement of the moral claim..." rows="3" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Logical Derivation Chain</label>
+            <textarea id="prop-derivation" placeholder="Explain step-by-step how this claim derives from the selected parent nodes..." rows="3" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Historical Evidence (Optional)</label>
+              <textarea id="prop-history" placeholder="Historical precedents or legal codes..." rows="2"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Scientific/Psych Evidence (Optional)</label>
+              <textarea id="prop-science" placeholder="Empirical data, neuroscience, or psychological studies..." rows="2"></textarea>
+            </div>
+          </div>
+
+          <!-- AI Vetting Preview Output -->
+          <div id="ai-vetting-output" class="ai-vetting-card hidden">
+            <div class="vetting-header">
+              <span class="ai-badge">🤖 AI Agent Vetting Report</span>
+              <span id="vetting-score-pill" class="score-pill">90%</span>
+            </div>
+            <div id="vetting-details" class="vetting-details"></div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" id="run-ai-vetting-btn" class="btn-secondary">
+              🤖 Run AI Logical Vetting
+            </button>
+            <button type="submit" id="submit-proposal-btn" class="btn-primary" disabled>
+              Submit Proposed Node to Tree
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- AGENT CONNECTION SETTINGS MODAL -->
+    <div id="agent-settings-modal" class="modal-backdrop hidden">
+      <div class="modal-card medium">
+        <button id="close-agent-settings-btn" class="close-btn">&times;</button>
+        <div class="modal-header">
+          <h2>⚙️ AI Agent Connection Settings</h2>
+          <p>Choose how your AI Agent connects: Gemini/Cloud API key, local port, or internet server.</p>
+        </div>
+
+        <!-- Connection Mode Selector Tabs -->
+        <div class="connection-mode-tabs">
+          <button class="mode-tab active" data-mode="api_key">
+            🔑 Cloud API Key
+          </button>
+          <button class="mode-tab" data-mode="local_port">
+            💻 Local Port
+          </button>
+          <button class="mode-tab" data-mode="remote_server">
+            🌐 Internet Server
+          </button>
+        </div>
+
+        <!-- Mode 1 Panel: Cloud API Key -->
+        <div id="mode-panel-api_key" class="mode-panel active">
+          <div class="form-group">
+            <label>API Provider</label>
+            <select id="setting-api-provider">
+              <option value="gemini">Google Gemini API</option>
+              <option value="openai">OpenAI / Compatible REST API</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>API Key</label>
+            <input type="password" id="setting-api-key" placeholder="Enter your API Key (e.g., AIzaSy...)" autocomplete="off">
+            <small class="form-hint">Stored locally in your browser. Never transmitted to third parties.</small>
+          </div>
+          <div class="form-group">
+            <label>Model Name</label>
+            <input type="text" id="setting-api-model" value="gemini-1.5-flash" placeholder="e.g. gemini-1.5-flash, gemini-2.0-flash, gpt-4o">
+          </div>
+        </div>
+
+        <!-- Mode 2 Panel: Local Port -->
+        <div id="mode-panel-local_port" class="mode-panel hidden">
+          <div class="form-group">
+            <label>Local Gateway URL / Port</label>
+            <input type="text" id="setting-local-url" value="http://127.0.0.1:8000" placeholder="e.g. http://127.0.0.1:8000, http://localhost:11434">
+            <small class="form-hint">Connect to your local AI Agent server running on your computer.</small>
+          </div>
+        </div>
+
+        <!-- Mode 3 Panel: Server Over Internet -->
+        <div id="mode-panel-remote_server" class="mode-panel hidden">
+          <div class="form-group">
+            <label>Remote Server URL (HTTPS / WSS)</label>
+            <input type="text" id="setting-remote-url" placeholder="e.g. https://my-custom-ai-server.com/api/chat">
+            <small class="form-hint">Connect to a custom AI Agent server hosted over the internet.</small>
+          </div>
+        </div>
+
+        <div id="connection-status-message" class="connection-status-msg hidden"></div>
+
+        <div class="modal-footer">
+          <button type="button" id="test-connection-btn" class="btn-secondary">
+            🔍 Test Connection
+          </button>
+          <button type="button" id="save-agent-settings-btn" class="btn-primary">
+            💾 Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOVERNANCE NEWS FEED DRAWER -->
+    <aside id="news-feed-drawer" class="news-feed-drawer hidden">
+      <div class="news-drawer-header">
+        <div class="header-title">
+          <h2>📰 Governance News & Policy Feed</h2>
+          <span class="subtext">Real-world acts, bills & enforcement mapped to broken moral nodes</span>
+        </div>
+        <button id="close-news-feed-btn" class="close-btn">&times;</button>
+      </div>
+
+      <div class="news-drawer-body">
+        <!-- List of News Task Cards -->
+        <div id="news-task-cards-list" class="news-cards-list"></div>
+
+        <!-- News Task Detail Inspector (When a card is selected) -->
+        <div id="news-task-detail-card" class="news-detail-card hidden">
+          <button id="back-to-news-list-btn" class="btn-text">&larr; Back to All News Tasks</button>
+          
+          <div class="news-meta-header">
+            <span id="news-detail-category" class="news-cat-badge"></span>
+            <span id="news-detail-date" class="news-date-tag"></span>
+          </div>
+
+          <h3 id="news-detail-title"></h3>
+          <p id="news-detail-summary" class="news-summary-text"></p>
+
+          <a id="news-detail-source-link" href="#" target="_blank" rel="noopener noreferrer" class="external-link-btn news" style="margin-bottom: 12px; inline-block;">
+            📰 Cited Source: <span id="news-detail-publisher">The Hindu</span> &rarr;
+          </a>
+
+          <!-- Violated Nodes Chips -->
+          <div class="violated-nodes-box" style="margin-top: 10px;">
+            <div class="box-title">🚨 Broken Moral Axioms & Principles:</div>
+            <div id="news-detail-nodes-list" class="nodes-chips-list"></div>
+          </div>
+
+          <!-- Dual Stance Analysis View -->
+          <div class="stance-tabs-row">
+            <button id="stance-tab-upholder" class="stance-tab active">
+              🛡️ Upholder Stance
+            </button>
+            <button id="stance-tab-devils" class="stance-tab">
+              😈 Devil's Advocate
+            </button>
+          </div>
+
+          <div id="stance-content-upholder" class="stance-content-box upholder">
+            <h4 id="upholder-headline"></h4>
+            <p id="upholder-analysis" class="stance-analysis-text"></p>
+          </div>
+
+          <div id="stance-content-devils" class="stance-content-box devils hidden">
+            <h4 id="devils-headline"></h4>
+            <p id="devils-analysis" class="stance-analysis-text"></p>
+          </div>
+
+          <!-- Query AI Agent Button -->
+          <button id="query-news-ai-btn" class="btn-primary full-width" style="margin-top: 14px;">
+            🤖 Query AI Agent on this Policy (Dual Lens)
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- PERSONA SWITCHER MODAL -->
+    <div id="persona-modal" class="modal-backdrop hidden">
+      <div class="modal-card small">
+        <button id="close-persona-btn" class="close-btn">&times;</button>
+        <div class="modal-header">
+          <h2>Select User Persona</h2>
+          <p>Switch your identity for submitting arguments, votes, and node proposals.</p>
+        </div>
+        <div class="persona-list">
+          <button class="persona-option" data-name="Dr. Sofia Chen" data-role="Moral Philosopher" data-avatar="👩‍🏫">
+            <span class="avatar">👩‍🏫</span>
+            <div class="info"><strong>Dr. Sofia Chen</strong><span>Moral Philosopher & Bioethicist</span></div>
+          </button>
+          <button class="persona-option" data-name="Prof. Marcus Vance" data-role="Cognitive Scientist" data-avatar="👨‍🔬">
+            <span class="avatar">👨‍🔬</span>
+            <div class="info"><strong>Prof. Marcus Vance</strong><span>Neuroscientist & Evolutionary Psychologist</span></div>
+          </button>
+          <button class="persona-option" data-name="Elena Rostova" data-role="Legal Ethicist" data-avatar="⚖️">
+            <span class="avatar">⚖️</span>
+            <div class="info"><strong>Elena Rostova</strong><span>Human Rights Lawyer</span></div>
+          </button>
+          <button class="persona-option" data-name="Kai Thorne" data-role="AI Alignment Researcher" data-avatar="🤖">
+            <span class="avatar">🤖</span>
+            <div class="info"><strong>Kai Thorne</strong><span>AI Ethics Researcher</span></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="perspectives-data.js"></script>
+  <script src="morality-data.js"></script>
+  <script src="morality-store.js"></script>
+  <script src="morality-agent-context.js"></script>
+  <script src="ai-vetting-engine.js"></script>
+  <script src="ai-chat-gateway.js"></script>
+  <script src="ai-chat-window.js"></script>
+  <script src="tree-renderer.js"></script>
+  <script src="node-detail.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
