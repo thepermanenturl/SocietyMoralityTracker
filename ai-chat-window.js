@@ -30,6 +30,12 @@ class AIChatWindow {
 
     this.quickVetBtn = document.getElementById("quick-vet-btn");
     this.quickAxiomsBtn = document.getElementById("quick-axioms-btn");
+    this.devilsBtn = document.getElementById("devils-advocate-toggle-btn");
+    this.devilsStatusText = document.getElementById("devils-status-text");
+
+    this.isDevilsAdvocate = false;
+    this.setupListeners();
+    this.initGatewaySession();
   }
 
   async initGatewaySession() {
@@ -45,6 +51,16 @@ class AIChatWindow {
     } else {
       if (this.statusDot) this.statusDot.className = "status-dot fallback";
       if (this.statusText) this.statusText.textContent = "AI Agent (Client Streamer)";
+    }
+  }
+
+  toggleDevilsAdvocate(forceState) {
+    this.isDevilsAdvocate = typeof forceState === "boolean" ? forceState : !this.isDevilsAdvocate;
+    if (this.devilsBtn) {
+      this.devilsBtn.classList.toggle("active", this.isDevilsAdvocate);
+    }
+    if (this.devilsStatusText) {
+      this.devilsStatusText.textContent = this.isDevilsAdvocate ? "ON 😈" : "OFF";
     }
   }
 
@@ -72,6 +88,24 @@ class AIChatWindow {
         this.toggleMinimize();
       });
     }
+
+    if (this.devilsBtn) {
+      this.devilsBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleDevilsAdvocate();
+      });
+    }
+
+    // Global Delegated Close Button Event Listener Fallback
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("#close-ai-chat-btn");
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.closeWindow();
+      }
+    });
 
     if (this.sendBtn?.addEventListener) this.sendBtn.addEventListener("click", () => this.handleSend());
     if (this.inputField?.addEventListener) {
@@ -176,8 +210,13 @@ Refer to affected nodes cleanly as [A1], [D5], [D6], etc.`;
     this.currentResponseEl = this.appendMessage("agent", "");
     this.sendBtn.disabled = true;
 
+    let finalPrompt = internalPrompt || displayText;
+    if (this.isDevilsAdvocate) {
+      finalPrompt = `[DEVIL'S ADVOCATE MODE ACTIVE: Adopt an aggressive Socratic Devil's Advocate persona. Challenge the claim using extenuating circumstances, systemic policy trade-offs, historical precedents, and tough counterarguments.]\n\n${finalPrompt}`;
+    }
+
     await this.gateway.sendMessage(
-      internalPrompt || displayText,
+      finalPrompt,
       (token) => this.handleStreamToken(token),
       () => this.handleStreamComplete()
     );

@@ -1029,6 +1029,40 @@ body::before {
 .btn-vote.reject:hover { background: rgba(239, 68, 68, 0.4); }
 
 .ancestry-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.quick-chip {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+
+.quick-chip:hover { background: rgba(255, 255, 255, 0.12); color: var(--text-main); }
+
+.quick-chip.devils-chip {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  transition: all 0.2s ease;
+}
+
+.quick-chip.devils-chip:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.quick-chip.devils-chip.active {
+  background: rgba(239, 68, 68, 0.4) !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.6) !important;
+}
+
 .breadcrumb-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); cursor: pointer; transition: var(--transition-fast); }
 .breadcrumb-pill:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-main); }
 
