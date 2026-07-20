@@ -8,7 +8,12 @@
 class AIChatGateway {
   constructor() {
     this.STORAGE_KEY = "morality_agent_connection_settings_v1";
-    this.sessionId = null;
+    this.sessionId = typeof localStorage !== "undefined" && localStorage.getItem("society_morality_persistent_session_id")
+      ? localStorage.getItem("society_morality_persistent_session_id")
+      : "society-morality-persistent-line";
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("society_morality_persistent_session_id", this.sessionId);
+    }
     this.ws = null;
     this.isConnected = false;
     this.queue = [];
@@ -21,7 +26,9 @@ class AIChatGateway {
   }
 
   async createSession(sessionType, userId) {
-    this.sessionId = `session-${Date.now()}`;
+    if (!this.sessionId) {
+      this.sessionId = "society-morality-persistent-line";
+    }
     return { success: true, sessionId: this.sessionId };
   }
 

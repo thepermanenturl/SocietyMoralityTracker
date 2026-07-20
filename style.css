@@ -1139,6 +1139,42 @@ body::before {
   overflow: hidden !important;
 }
 
+/* 😈 Devil's Advocate Crimson Red Theme */
+.ai-chat-window.devils-advocate-active {
+  background: linear-gradient(135deg, rgba(35, 8, 8, 0.98), rgba(80, 12, 18, 0.98)) !important;
+  border: 1px solid rgba(239, 68, 68, 0.8) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 32px rgba(239, 68, 68, 0.5) !important;
+}
+
+.ai-chat-window.devils-advocate-active .ai-chat-header {
+  background: linear-gradient(90deg, rgba(153, 27, 27, 0.95), rgba(127, 29, 29, 0.95)) !important;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.5) !important;
+}
+
+.ai-chat-window.devils-advocate-active .quick-chip.devils-chip {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #f87171 !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.7) !important;
+  animation: pulse-red-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-red-glow {
+  0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.9); }
+  100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+}
+
+.ai-chat-window.devils-advocate-active .ai-chat-input-row input {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  background: rgba(45, 10, 12, 0.85) !important;
+}
+
+.ai-chat-window.devils-advocate-active .ai-chat-input-row input:focus {
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.7) !important;
+  border-color: #ef4444 !important;
+}
+
 .ai-chat-window.minimized .ai-chat-messages,
 .ai-chat-window.minimized .ai-chat-quick-actions,
 .ai-chat-window.minimized .ai-chat-input-row {

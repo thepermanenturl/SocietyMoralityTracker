@@ -62,6 +62,9 @@ class AIChatWindow {
     if (this.devilsBtn) {
       this.devilsBtn.classList.toggle("active", this.isDevilsAdvocate);
     }
+    if (this.windowEl) {
+      this.windowEl.classList.toggle("devils-advocate-active", this.isDevilsAdvocate);
+    }
     if (this.devilsStatusText) {
       this.devilsStatusText.textContent = this.isDevilsAdvocate ? "ON 😈" : "OFF";
     }
