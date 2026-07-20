@@ -177,6 +177,11 @@ class AIChatWindow {
         }
       });
     }
+    this.settingsBtn = document.getElementById("ai-settings-btn");
+    if (this.settingsBtn) {
+      this.settingsBtn.addEventListener("click", () => this.configureServerUrl());
+    }
+
     this.collapsedBar = document.getElementById("ai-chat-collapsed-bar");
     this.expandBarBtn = document.getElementById("expand-ai-chat-btn");
     this.mobileFab = document.getElementById("mobile-chat-fab");
@@ -192,6 +197,24 @@ class AIChatWindow {
     }
     if (this.mobileFab) {
       this.mobileFab.addEventListener("click", () => this.openWindow());
+    }
+  }
+
+  configureServerUrl() {
+    const gateway = window.aiGateway;
+    const currentUrl = gateway && gateway.settings ? (gateway.settings.remoteServerConfig?.url || gateway.settings.localPortConfig?.url || "http://127.0.0.1:8000") : "http://127.0.0.1:8000";
+    const newUrl = prompt("Enter Live make_a_brain AI Server or Cloudflare Tunnel URL:\n(e.g., https://your-tunnel.trycloudflare.com or http://127.0.0.1:8000)", currentUrl);
+    
+    if (newUrl !== null && newUrl.trim()) {
+      const cleanUrl = newUrl.trim().replace(/\/$/, "");
+      if (gateway && typeof gateway.saveSettings === "function") {
+        gateway.saveSettings({
+          mode: cleanUrl.startsWith("http://127.0.0.1") || cleanUrl.startsWith("http://localhost") ? "local_port" : "remote_server",
+          remoteServerConfig: { url: cleanUrl },
+          localPortConfig: { url: cleanUrl }
+        });
+        this.addMessage("system", `⚙️ Live Server URL updated to: ${cleanUrl}. Rechecking connection...`);
+      }
     }
   }
 
