@@ -400,39 +400,30 @@ class NodeDetailInspector {
     this.currentNode = null;
     this.hidePerspectives();
     this.activePerspective = "none";
-    // Reset toggle pills
-    const pills = this.panel.querySelectorAll(".perspective-pill");
-    pills.forEach(p => {
-      p.classList.toggle("active", p.getAttribute("data-perspective") === "none");
-    });
+    if (this.perspectiveDropdown) {
+      this.perspectiveDropdown.value = "none";
+    }
   }
 
   setPerspective(perspective) {
     this.activePerspective = perspective;
 
-    // Sync side panel pills
-    const pills = this.panel.querySelectorAll(".perspective-pill");
-    pills.forEach(p => {
-      p.classList.toggle("active", p.getAttribute("data-perspective") === perspective);
-    });
+    if (this.perspectiveDropdown && this.perspectiveDropdown.value !== perspective) {
+      this.perspectiveDropdown.value = perspective;
+    }
 
-    // Sync header pills
-    const headerPills = document.querySelectorAll(".header-persp-pill");
-    headerPills.forEach(p => {
-      p.classList.toggle("active", p.getAttribute("data-perspective") === perspective);
-    });
-
-    this.renderPerspective(perspective);
+    if (this.currentNode) {
+      this.renderPerspectives(this.currentNode.id);
+    }
   }
 
   setupPerspectiveListeners() {
-    const pills = this.panel.querySelectorAll(".perspective-pill");
-    pills.forEach(pill => {
-      pill.addEventListener("click", () => {
-        const perspective = pill.getAttribute("data-perspective");
-        this.setPerspective(perspective);
+    this.perspectiveDropdown = document.getElementById("perspective-dropdown");
+    if (this.perspectiveDropdown) {
+      this.perspectiveDropdown.addEventListener("change", (e) => {
+        this.setPerspective(e.target.value);
       });
-    });
+    }
   }
 
   hidePerspectives() {

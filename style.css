@@ -1462,6 +1462,48 @@ body::before {
   height: 7px;
   border-radius: 50%;
 }
+/* Perspective Dropdown Selector */
+.perspective-dropdown-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.perspective-select-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.perspective-dropdown {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.95);
+  color: #f8fafc;
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.perspective-dropdown:focus, .perspective-dropdown:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.perspective-dropdown option {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 8px;
+}
 
 .persp-dot.off { background: #475569; }
 .persp-dot.constitution { background: #ffffff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.6); }

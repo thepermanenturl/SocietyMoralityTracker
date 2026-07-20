@@ -178,22 +178,15 @@
         <!-- PERSPECTIVE LAYER — Ground Reality Lenses -->
         <div class="section-card perspective-card">
           <h3>🌍 Perspective & Ground Reality Layer</h3>
-          <div class="perspective-toggles">
-            <button class="perspective-pill active" data-perspective="none" title="Hide all perspectives">
-              <span class="persp-dot off"></span> None
-            </button>
-            <button class="perspective-pill" data-perspective="constitution" title="Constitution of India">
-              <span class="persp-dot constitution"></span> 🏛️ Constitution
-            </button>
-            <button class="perspective-pill" data-perspective="modernBuddha" title="Individual Citizen — Modern Buddha">
-              <span class="persp-dot buddha"></span> 🧘 Modern Buddha
-            </button>
-            <button class="perspective-pill" data-perspective="wangchuk" title="Sonam Wangchuk — Homage & Living Resistance">
-              <span class="persp-dot wangchuk"></span> 🏔️ Sonam Wangchuk
-            </button>
-            <button class="perspective-pill" data-perspective="critic" title="Government Critic">
-              <span class="persp-dot critic"></span> 📢 Critic
-            </button>
+          <div class="perspective-dropdown-box">
+            <label for="perspective-dropdown" class="perspective-select-label">Select Ground Reality Lens:</label>
+            <select id="perspective-dropdown" class="perspective-dropdown">
+              <option value="none">💡 Daily Dilemma & Real-Life Decision Making</option>
+              <option value="constitution">🏛️ Constitution of India (Article & Legal Code)</option>
+              <option value="modernBuddha">🧘 Modern Buddha (Lived Virtue Story)</option>
+              <option value="wangchuk">🏔️ Sonam Wangchuk (Homage & Climate Fast)</option>
+              <option value="critic">📢 Ground Reality — Systemic Critique</option>
+            </select>
           </div>
 
           <!-- None Perspective: Daily Dilemma & Practical Concern -->
