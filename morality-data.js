@@ -629,6 +629,9 @@ const MORALITY_DATA = {
   ]
 };
 
-if (typeof module !== "undefined") {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = MORALITY_DATA;
+}
+if (typeof window !== "undefined") {
+  window.MORALITY_DATA = MORALITY_DATA;
 }

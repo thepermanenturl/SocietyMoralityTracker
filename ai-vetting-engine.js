@@ -123,13 +123,13 @@ Task: Evaluate if this proposal logically derives from Layer 0/1 axioms without 
    * @param {AIChatGateway} gateway 
    * @returns {Promise<Object>} { matchedNodeIds, guidanceText }
    */
-  async querySearchPerspective(userQuery, allNodes, gateway) {
-    if (!userQuery || userQuery.trim().length === 0) {
-      return { matchedNodeIds: [], guidanceText: "" };
-    }
+  async querySearchPerspective(query, customStore) {
+    const qClean = (query || "").trim();
+    if (!qClean) return { matchedNodeIds: [], guidanceText: "Enter a topic or policy question to search." };
 
-    const qClean = userQuery.trim();
     const qLower = qClean.toLowerCase();
+    const st = customStore || this.store || (typeof window !== "undefined" && window.moralityStore ? window.moralityStore : (typeof moralityStore !== "undefined" ? moralityStore : null));
+    const allNodes = st ? st.getNodes() : (typeof MORALITY_DATA !== "undefined" ? MORALITY_DATA.nodes : []);
 
     // Domain Synonym Mapping for Morality Nodes
     const synonyms = {
@@ -186,4 +186,12 @@ Task: Evaluate if this proposal logically derives from Layer 0/1 axioms without 
     return { matchedNodeIds, guidanceText };
   }
 }
+const aiVettingEngine = new AIVettingEngine();
 
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { AIVettingEngine, aiVettingEngine };
+}
+if (typeof window !== "undefined") {
+  window.AIVettingEngine = AIVettingEngine;
+  window.aiVettingEngine = aiVettingEngine;
+}

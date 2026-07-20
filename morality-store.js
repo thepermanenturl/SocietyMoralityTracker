@@ -9,13 +9,19 @@ class MoralityStore {
     this.STORAGE_KEY_PROPOSALS = "morality_tree_proposals_v1";
     this.STORAGE_KEY_USER = "morality_tree_active_user_v1";
 
-    this.initialData = initialData;
+    this.initialData = initialData || (typeof window !== "undefined" && window.MORALITY_DATA ? window.MORALITY_DATA : (typeof MORALITY_DATA !== "undefined" ? MORALITY_DATA : { nodes: [] }));
     this.init();
   }
 
   init() {
-    // Load or initialize Nodes
-    const savedNodes = localStorage.getItem(this.STORAGE_KEY_NODES);
+    let savedNodes = null;
+    let savedDiscussions = null;
+
+    if (typeof localStorage !== "undefined") {
+      savedNodes = localStorage.getItem(this.STORAGE_KEY_NODES);
+      savedDiscussions = localStorage.getItem(this.STORAGE_KEY_DISCUSSIONS);
+    }
+
     if (savedNodes) {
       try {
         this.nodes = JSON.parse(savedNodes);
@@ -27,8 +33,6 @@ class MoralityStore {
       this.saveNodes();
     }
 
-    // Load or initialize Discussions
-    const savedDiscussions = localStorage.getItem(this.STORAGE_KEY_DISCUSSIONS);
     if (savedDiscussions) {
       try {
         this.discussions = JSON.parse(savedDiscussions);
@@ -41,7 +45,7 @@ class MoralityStore {
     }
 
     // Load active user persona
-    const savedUser = localStorage.getItem(this.STORAGE_KEY_USER);
+    const savedUser = typeof localStorage !== "undefined" ? localStorage.getItem(this.STORAGE_KEY_USER) : null;
     if (savedUser) {
       try {
         this.currentUser = JSON.parse(savedUser);
@@ -90,15 +94,21 @@ class MoralityStore {
   }
 
   saveNodes() {
-    localStorage.setItem(this.STORAGE_KEY_NODES, JSON.stringify(this.nodes));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(this.STORAGE_KEY_NODES, JSON.stringify(this.nodes));
+    }
   }
 
   saveDiscussions() {
-    localStorage.setItem(this.STORAGE_KEY_DISCUSSIONS, JSON.stringify(this.discussions));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(this.STORAGE_KEY_DISCUSSIONS, JSON.stringify(this.discussions));
+    }
   }
 
   saveUser() {
-    localStorage.setItem(this.STORAGE_KEY_USER, JSON.stringify(this.currentUser));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(this.STORAGE_KEY_USER, JSON.stringify(this.currentUser));
+    }
   }
 
   getNodes() {
@@ -299,8 +309,20 @@ class MoralityStore {
   }
 
   resetToDefaults() {
-    localStorage.removeItem(this.STORAGE_KEY_NODES);
-    localStorage.removeItem(this.STORAGE_KEY_DISCUSSIONS);
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(this.STORAGE_KEY_NODES);
+      localStorage.removeItem(this.STORAGE_KEY_DISCUSSIONS);
+    }
     this.init();
   }
+}
+
+const moralityStore = new MoralityStore();
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { MoralityStore, moralityStore };
+}
+if (typeof window !== "undefined") {
+  window.MoralityStore = MoralityStore;
+  window.moralityStore = moralityStore;
 }
