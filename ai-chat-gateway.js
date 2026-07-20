@@ -140,8 +140,14 @@ REQUIRED ARGUMENT WORKFLOW:
 
     const baseUrl = this.getBaseUrl();
     try {
-      const res = await fetch(`${baseUrl}/api/health`, { method: "GET" }).catch(() => null)
-        || await fetch(`${baseUrl}/api/diagnostics`, { method: "GET" }).catch(() => null);
+      const res = await fetch(`${baseUrl}/api/health`, {
+        method: "GET",
+        headers: { "bypass-tunnel-reminder": "true" }
+      }).catch(() => null)
+        || await fetch(`${baseUrl}/api/diagnostics`, {
+          method: "GET",
+          headers: { "bypass-tunnel-reminder": "true" }
+        }).catch(() => null);
       this.isConnected = Boolean(res && res.ok);
     } catch (e) {
       this.isConnected = false;
@@ -231,7 +237,10 @@ REQUIRED ARGUMENT WORKFLOW:
     try {
       const res = await fetch(`${baseUrl}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "bypass-tunnel-reminder": "true"
+        },
         body: JSON.stringify({
           session_id: `session-${Date.now()}`,
           prompt: fullPrompt,
