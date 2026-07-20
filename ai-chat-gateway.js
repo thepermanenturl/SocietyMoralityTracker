@@ -55,19 +55,57 @@ class AIChatGateway {
   }
 
   /**
-   * System Prompt Context — Packaged ONCE to give the Live AI Agent full context & skills
+   * System Prompt Context — Dynamic Online Neo4j Morality RAG Wrapper
+   * Wraps ANY selected model with sanitized online Morality graph context
    */
-  getMoralPhilosophyContext() {
+  async getMoralPhilosophyContext(nodeId = null) {
+    let basePrompt = "";
     if (typeof window !== "undefined" && window.MORALITY_AGENT_SKILLS_PACKAGE && typeof window.MORALITY_AGENT_SKILLS_PACKAGE.getCompiledSystemPrompt === "function") {
-      return window.MORALITY_AGENT_SKILLS_PACKAGE.getCompiledSystemPrompt();
-    }
-    return `YOU ARE THE LIVE MORALITY TREE AI VETTING & DEBATE AGENT.
+      basePrompt = window.MORALITY_AGENT_SKILLS_PACKAGE.getCompiledSystemPrompt();
+    } else {
+      basePrompt = `YOU ARE THE LIVE MORALITY TREE AI VETTING & DEBATE AGENT.
 You evaluate moral claims and engage in 1-vs-1 public debates based on Foundational Axioms (Layer 0) and Derived Principles (Layer 1).
 
 REQUIRED ARGUMENT WORKFLOW:
 1. 📜 Historical Precedent: Provide a short 1-sentence real historical example illustrating this moral conflict.
 2. 🎯 Highlighted Nodes: Explicitly list key node IDs (e.g., [A4, D2, D6]) highlighted on global screen.
 3. ⚔️ Clause Negation: Specify exactly WHICH clause of user input is negated by WHICH node listed.`;
+    }
+
+    try {
+      const serverUrl = this.getServerUrl();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+      const endpoint = `${serverUrl}/api/graph/morality/rag-context?tier=compact${nodeId ? `&node_id=${encodeURIComponent(nodeId)}` : ''}`;
+      const res = await fetch(endpoint, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res && res.ok) {
+        const ragData = await res.json();
+        const metaRulesStr = (ragData.meta_rules || []).map(m => `- ${m}`).join("\n");
+        const axiomsStr = (ragData.axioms || []).join(", ");
+        const newsStr = (ragData.recent_news || []).map(n => `- [${n.title || 'News'}]: ${n.summary || ''}`).join("\n");
+        const insightsStr = (ragData.persistent_insights || []).map(pi => `- ${pi.summary}`).join("\n");
+
+        return `${basePrompt}
+
+[SYSTEM CONTEXT: ONLINE NEO4J MORALITY RAG KNOWLEDGE BASE]
+📜 Layer -1 & Pyramid Grounding:
+${metaRulesStr}
+
+📌 Foundational Layer 0 Axioms:
+${axiomsStr}
+
+${newsStr ? `🗞️ Tagged Real-Time Ethical News:\n${newsStr}` : ''}
+${insightsStr ? `💡 Persistent Morality Role Insights:\n${insightsStr}` : ''}
+[END RAG KNOWLEDGE BASE]`;
+      }
+    } catch (e) {
+      // Offline fallback: return standard compiled prompt cleanly
+    }
+
+    return basePrompt;
   }
 
   loadSettings() {
@@ -182,7 +220,7 @@ REQUIRED ARGUMENT WORKFLOW:
    */
   async queryLiveModel(fullPrompt) {
     const mode = this.settings.mode;
-    const sysPrompt = this.getMoralPhilosophyContext();
+    const sysPrompt = await this.getMoralPhilosophyContext();
 
     // MODE 1: CLOUD API KEY (Gemini API or OpenAI API)
     if (mode === "api_key") {
