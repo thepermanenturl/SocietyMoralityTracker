@@ -210,9 +210,11 @@ class AIChatWindow {
     }
     if (this.collapsedBar) {
       this.collapsedBar.classList.add("hidden");
+      this.collapsedBar.style.display = "none";
     }
     if (this.mobileFab) {
       this.mobileFab.classList.add("hidden");
+      this.mobileFab.style.display = "none";
     }
     this.isOpen = true;
     this.isMinimized = false;
@@ -226,11 +228,23 @@ class AIChatWindow {
     }
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
-      if (this.mobileFab) this.mobileFab.classList.remove("hidden");
-      if (this.collapsedBar) this.collapsedBar.classList.add("hidden");
+      if (this.mobileFab) {
+        this.mobileFab.classList.remove("hidden");
+        this.mobileFab.style.display = "flex";
+      }
+      if (this.collapsedBar) {
+        this.collapsedBar.classList.add("hidden");
+        this.collapsedBar.style.display = "none";
+      }
     } else {
-      if (this.collapsedBar) this.collapsedBar.classList.remove("hidden");
-      if (this.mobileFab) this.mobileFab.classList.add("hidden");
+      if (this.collapsedBar) {
+        this.collapsedBar.classList.remove("hidden");
+        this.collapsedBar.style.display = "flex";
+      }
+      if (this.mobileFab) {
+        this.mobileFab.classList.add("hidden");
+        this.mobileFab.style.display = "none";
+      }
     }
     this.isOpen = false;
     this.isMinimized = true;

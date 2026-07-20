@@ -119,21 +119,19 @@ REQUIRED ARGUMENT WORKFLOW:
       return this.settings.remoteServerConfig.url.replace(/\/$/, "");
     }
 
-    const CLOUDFLARE_TUNNEL_URL = "https://houses-performance-deer-winners.trycloudflare.com";
-
     if (typeof window !== "undefined" && window.location) {
-      if (window.location.hostname && window.location.hostname.includes("github.io")) {
-        return CLOUDFLARE_TUNNEL_URL;
-      }
-      if (window.location.protocol === "https:" && !window.location.hostname.includes("127.0.0.1") && !window.location.hostname.includes("localhost")) {
-        return window.location.origin.includes("trycloudflare.com") ? window.location.origin : CLOUDFLARE_TUNNEL_URL;
+      if (window.location.origin.includes("trycloudflare.com")) {
+        return window.location.origin;
       }
     }
-    return (this.settings.localPortConfig?.url || "http://127.0.0.1:8000").replace(/\/$/, "");
+    
+    // Default to configured local port or custom remote URL if available
+    const configuredUrl = this.settings.remoteServerConfig?.url || this.settings.localPortConfig?.url;
+    return (configuredUrl || "http://127.0.0.1:8000").replace(/\/$/, "");
   }
 
   /**
-   * Tests connection to configured mode
+   * Tests connection to configured mode safely without throwing CORS 530 console errors
    */
   async checkConnection() {
     const mode = this.settings.mode;
@@ -146,19 +144,33 @@ REQUIRED ARGUMENT WORKFLOW:
     }
 
     const baseUrl = this.getBaseUrl();
+    if (!baseUrl || baseUrl.includes("houses-performance-deer-winners")) {
+      this.isConnected = false;
+      return false;
+    }
+
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const res = await fetch(`${baseUrl}/api/health`, {
         method: "GET",
-        headers: { "bypass-tunnel-reminder": "true" }
-      }).catch(() => null)
-        || await fetch(`${baseUrl}/api/diagnostics`, {
-          method: "GET",
-          headers: { "bypass-tunnel-reminder": "true" }
-        }).catch(() => null);
-      this.isConnected = Boolean(res && res.ok);
+        headers: { "bypass-tunnel-reminder": "true" },
+        signal: controller.signal
+      }).catch(() => null);
+
+      clearTimeout(timeoutId);
+
+      // Check if response is valid JSON 200 OK (not 530 Cloudflare error page)
+      if (res && res.ok && res.status === 200) {
+        this.isConnected = true;
+      } else {
+        this.isConnected = false;
+      }
     } catch (e) {
       this.isConnected = false;
     }
+
     if (this.isConnected) this.processQueue();
     return this.isConnected;
   }

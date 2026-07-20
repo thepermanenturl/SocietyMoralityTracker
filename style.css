@@ -2517,6 +2517,12 @@ body::before {
   border-radius: 50%;
 }
 
+.ai-chat-collapsed-bar.hidden,
+body:has(.ai-chat-window:not(.hidden)) .ai-chat-collapsed-bar,
+.ai-chat-window:not(.hidden) ~ .ai-chat-collapsed-bar {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
   .ai-chat-collapsed-bar {
     display: none !important;
