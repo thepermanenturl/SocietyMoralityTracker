@@ -111,9 +111,15 @@ REQUIRED ARGUMENT WORKFLOW:
     if (mode === "remote_server" && this.settings.remoteServerConfig?.url) {
       return this.settings.remoteServerConfig.url.replace(/\/$/, "");
     }
-    if (typeof window !== "undefined" && window.location && window.location.origin && window.location.origin.startsWith("http")) {
-      if (window.location.protocol === "https:" && (this.settings.localPortConfig?.url || "").includes("127.0.0.1")) {
-        return window.location.origin;
+
+    const CLOUDFLARE_TUNNEL_URL = "https://tests-handed-thee-needle.trycloudflare.com";
+
+    if (typeof window !== "undefined" && window.location) {
+      if (window.location.hostname && window.location.hostname.includes("github.io")) {
+        return CLOUDFLARE_TUNNEL_URL;
+      }
+      if (window.location.protocol === "https:" && !window.location.hostname.includes("127.0.0.1") && !window.location.hostname.includes("localhost")) {
+        return window.location.origin.includes("trycloudflare.com") ? window.location.origin : CLOUDFLARE_TUNNEL_URL;
       }
     }
     return (this.settings.localPortConfig?.url || "http://127.0.0.1:8000").replace(/\/$/, "");

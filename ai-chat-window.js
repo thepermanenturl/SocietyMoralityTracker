@@ -122,14 +122,16 @@ class AIChatWindow {
   }
 
   openWindow() {
+    this.windowEl.style.display = "flex";
     this.windowEl.classList.remove("hidden", "minimized");
     this.isOpen = true;
     this.isMinimized = false;
-    this.inputField.focus();
+    if (this.inputField) this.inputField.focus();
   }
 
   closeWindow() {
     this.windowEl.classList.add("hidden");
+    this.windowEl.style.display = "none";
     this.isOpen = false;
   }
 

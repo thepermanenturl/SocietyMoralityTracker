@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchDebounceTimeout = null;
 
   function clearAllSearchAndHighlights() {
+    lastExecutedSearchQuery = "";
     if (searchInput) searchInput.value = "";
     if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
     if (aiSearchBanner) aiSearchBanner.classList.add("hidden");
