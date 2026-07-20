@@ -291,6 +291,7 @@ class TreeRenderer {
   }
 
   setupPanZoom() {
+    // Mouse Event Handlers
     this.container.addEventListener("mousedown", (e) => {
       if (e.target.closest(".tree-node-group")) return;
       this.isDragging = true;
@@ -305,6 +306,51 @@ class TreeRenderer {
     });
 
     window.addEventListener("mouseup", () => { this.isDragging = false; });
+
+    // Touch Event Handlers (Single-finger pan & 2-finger pinch zoom)
+    let touchStartDist = 0;
+    let initialScale = 1;
+
+    this.container.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        if (e.target.closest(".tree-node-group")) return;
+        this.isDragging = true;
+        this.dragStart = { x: e.touches[0].clientX - this.transform.x, y: e.touches[0].clientY - this.transform.y };
+      } else if (e.touches.length === 2) {
+        this.isDragging = false;
+        touchStartDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialScale = this.transform.scale;
+      }
+    }, { passive: false });
+
+    this.container.addEventListener("touchmove", (e) => {
+      if (this.isDragging && e.touches.length === 1) {
+        e.preventDefault();
+        this.transform.x = e.touches[0].clientX - this.dragStart.x;
+        this.transform.y = e.touches[0].clientY - this.dragStart.y;
+        this.updateViewport();
+      } else if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = dist / touchStartDist;
+        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        this.zoomAt(factor * (initialScale / this.transform.scale), centerX, centerY);
+      }
+    }, { passive: false });
+
+    this.container.addEventListener("touchend", (e) => {
+      if (e.touches.length === 0) {
+        this.isDragging = false;
+        touchStartDist = 0;
+      }
+    });
 
     this.container.addEventListener("wheel", (e) => {
       e.preventDefault();
@@ -330,7 +376,7 @@ class TreeRenderer {
   }
 
   zoomAt(factor, clientX, clientY) {
-    const newScale = Math.min(Math.max(this.transform.scale * factor, 0.4), 2.5);
+    const newScale = Math.min(Math.max(this.transform.scale * factor, 0.3), 2.5);
     const rect = this.container.getBoundingClientRect();
     const mouseX = clientX - rect.left;
     const mouseY = clientY - rect.top;
@@ -350,10 +396,11 @@ class TreeRenderer {
   }
 
   resetCamera() {
-    const containerWidth = this.container.clientWidth;
-    this.transform.scale = 0.85;
-    this.transform.x = (containerWidth - 1200 * 0.85) / 2;
-    this.transform.y = 40;
+    const containerWidth = this.container.clientWidth || window.innerWidth;
+    const isMobile = window.innerWidth <= 768;
+    this.transform.scale = isMobile ? 0.52 : 0.85;
+    this.transform.x = (containerWidth - 1200 * this.transform.scale) / 2;
+    this.transform.y = isMobile ? 20 : 40;
     this.updateViewport();
   }
 

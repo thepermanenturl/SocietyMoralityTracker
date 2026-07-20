@@ -2318,3 +2318,208 @@ body::before {
   }
 }
 
+/* First Nations / Native American Pyramid Widget */
+.indigenous-pyramid-widget {
+  position: absolute;
+  top: 60px;
+  left: 20px;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 10px 12px;
+  width: 230px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.pyramid-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pyramid-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pyramid-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pyramid-tier {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: var(--text-main);
+}
+
+.pyramid-tier:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: #fbbf24;
+  transform: translateX(2px);
+}
+
+.pyramid-tier.active {
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.pyramid-tier.apex { border-left: 4px solid #ef4444; }
+.pyramid-tier.output { border-left: 4px solid #f59e0b; }
+.pyramid-tier.support { border-left: 4px solid #3b82f6; }
+.pyramid-tier.foundation { border-left: 4px solid #10b981; }
+
+.tier-level {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.tier-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+@media (max-width: 768px) {
+  .indigenous-pyramid-widget {
+    top: 50px;
+    left: 10px;
+    width: 190px;
+    padding: 8px;
+  }
+  .tier-name {
+    font-size: 0.62rem;
+  }
+}
+
+/* Collapsed Bottom-Left AI Chat Pane Bar */
+.ai-chat-collapsed-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  border-radius: 30px;
+  padding: 8px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ai-chat-collapsed-bar:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(56, 189, 248, 0.25);
+}
+
+.bar-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.bar-icon {
+  font-size: 1.1rem;
+}
+
+.bar-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.unread-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.expand-btn {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  border-radius: 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+/* Mobile Floating Action Button (<= 768px) */
+.mobile-chat-fab {
+  position: fixed;
+  bottom: 70px;
+  left: 16px;
+  z-index: 2900;
+  width: 52px;
+  height: 52px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  border: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.mobile-chat-fab:active {
+  transform: scale(0.92);
+}
+
+.fab-icon {
+  font-size: 1.4rem;
+}
+
+.mobile-unread-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border: 2px solid #0f172a;
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .ai-chat-collapsed-bar {
+    display: none !important;
+  }
+}
+

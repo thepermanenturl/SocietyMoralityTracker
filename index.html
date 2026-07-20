@@ -100,6 +100,30 @@
           <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
         </svg>
         <span>Drag to pan &bull; Scroll to zoom &bull; Click any node to examine derivation & chat with AI Vetting Agent</span>
+      <!-- Native American / First Nations Maslow Pyramid Legend Widget -->
+      <div id="indigenous-pyramid-widget" class="indigenous-pyramid-widget">
+        <div class="pyramid-header">
+          <span class="pyramid-icon">🪶</span>
+          <span class="pyramid-title">First Nations Maslow Pyramid</span>
+        </div>
+        <div class="pyramid-tiers">
+          <button class="pyramid-tier apex" data-tier="Apex" title="Filter Apex Tier (Community Perpetuity)">
+            <span class="tier-level">▲ APEX</span>
+            <span class="tier-name">Community Perpetuity</span>
+          </button>
+          <button class="pyramid-tier output" data-tier="Output" title="Filter Output Tier (Virtue & Autonomy)">
+            <span class="tier-level">▲ OUTPUT</span>
+            <span class="tier-name">Virtue & Autonomy</span>
+          </button>
+          <button class="pyramid-tier support" data-tier="Support" title="Filter Support Tier (Shared Knowledge)">
+            <span class="tier-level">▲ SUPPORT</span>
+            <span class="tier-name">Shared Knowledge</span>
+          </button>
+          <button class="pyramid-tier foundation" data-tier="Foundation" title="Filter Foundation Tier (Basic Needs)">
+            <span class="tier-level">▲ BASE</span>
+            <span class="tier-name">Basic Needs & Integrity</span>
+          </button>
+        </div>
       </div>
 
       <!-- Floating Canvas Zoom Controls -->
@@ -398,13 +422,28 @@
       </div>
     </aside>
 
+    <!-- COLLAPSED BOTTOM-LEFT AI CHAT PANE BAR -->
+    <div id="ai-chat-collapsed-bar" class="ai-chat-collapsed-bar hidden" title="Expand AI Agent Chat">
+      <span class="bar-status-dot online"></span>
+      <span class="bar-icon">🤖</span>
+      <span class="bar-title">AI Morality Agent</span>
+      <span id="ai-unread-badge" class="unread-badge hidden">1</span>
+      <button id="expand-ai-chat-btn" class="expand-btn">▲ Expand</button>
+    </div>
+
+    <!-- MOBILE FLOATING ACTION BUTTON (Visible on <= 768px) -->
+    <button id="mobile-chat-fab" class="mobile-chat-fab hidden" title="Open AI Chat">
+      <span class="fab-icon">🤖</span>
+      <span id="mobile-unread-dot" class="mobile-unread-dot hidden"></span>
+    </button>
+
     <!-- FLOATING INTERACTIVE AI AGENT CHAT WINDOW (Connected to Gateway) -->
     <div id="ai-chat-window" class="ai-chat-window hidden">
       <div class="ai-chat-header">
         <div class="ai-chat-title">
           <span class="ai-avatar">🤖</span>
           <div>
-            <strong>AI Vetting Agent</strong>
+            <strong>Unified Morality Agent</strong>
             <div class="ai-status">
               <span id="ai-status-dot" class="status-dot fallback"></span>
               <span id="ai-status-text">AI Agent Active</span>

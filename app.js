@@ -119,10 +119,36 @@ document.addEventListener("DOMContentLoaded", () => {
   filterPills.forEach(pill => {
     pill.addEventListener("click", () => {
       filterPills.forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".pyramid-tier").forEach(t => t.classList.remove("active"));
       pill.classList.add("active");
 
       const layer = pill.getAttribute("data-layer");
       renderer.setLayerFilter(layer);
+    });
+  });
+
+  // First Nations / Native American Pyramid Tier Filter
+  const pyramidTiers = document.querySelectorAll(".pyramid-tier");
+  pyramidTiers.forEach(tierBtn => {
+    tierBtn.addEventListener("click", () => {
+      const isAlreadyActive = tierBtn.classList.contains("active");
+      pyramidTiers.forEach(t => t.classList.remove("active"));
+
+      if (isAlreadyActive) {
+        renderer.setAISearchHighlights([]);
+        return;
+      }
+
+      tierBtn.classList.add("active");
+      const selectedTier = tierBtn.getAttribute("data-tier");
+      const nodes = store.getNodes();
+      
+      // Find matching nodes tagged with this Maslow tier
+      const matchedNodeIds = nodes
+        .filter(n => n.maslow_tier && n.maslow_tier.toLowerCase().includes(selectedTier.toLowerCase()))
+        .map(n => n.id);
+
+      renderer.setAISearchHighlights(matchedNodeIds);
     });
   });
 

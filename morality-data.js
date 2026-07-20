@@ -1,12 +1,53 @@
 // Morality Tree Dataset - 34 Nodes across 4 Layers
 const MORALITY_DATA = {
   layers: [
+    { id: -1, name: "Meta-Rules", color: "#8b5cf6", tag: "Layer -1", description: "Cohesive universal rules to live by across individual, communal, and cosmic scales." },
     { id: 0, name: "Foundational Axioms", color: "#10b981", tag: "Layer 0", description: "Self-evident, empirical, or empathy-grounded truths that require minimal assumptions." },
     { id: 1, name: "Derived Principles", color: "#3b82f6", tag: "Layer 1", description: "Universal principles logically derived from combining Layer 0 axioms." },
     { id: 2, name: "Applied Ethics", color: "#f59e0b", tag: "Layer 2", description: "Concrete moral stances on societal issues derived from Layer 1 principles." },
     { id: 3, name: "Complex Dilemmas", color: "#ef4444", tag: "Layer 3", description: "Scenarios where foundational axioms or principles come into direct conflict." }
   ],
   nodes: [
+    // --- LAYER -1: META-RULES ---
+    {
+      id: "R1",
+      layer: -1,
+      title: "Fractality of Stewardship",
+      statement: "Individual choices must align with communal health and ecological resilience across all fractal scales.",
+      summary: "What is good for the part must sustain the whole; personal choices must scale harmoniously.",
+      parentIds: [],
+      derivation: "Axiomatic meta-rule derived from systems biology and First Nations generational stewardship.",
+      evidence: { history: "Indigenous Seventh Generation principle", science: "Systems ecology & fractals", psychology: "Self-transcendence" },
+      counterarguments: [{ objection: "Individual liberty overrides collective duty.", response: "Unconstrained individualism destroys the commons required for liberty." }],
+      frameworks: ["First Nations Ethics", "Systems Theory", "Deep Ecology"],
+      maslow_tier: "Apex"
+    },
+    {
+      id: "R2",
+      layer: -1,
+      title: "Epistemic Integrity & Truth",
+      statement: "Actively seek objective reality, dismantle self-deception, and communicate with honest, transparent intent.",
+      summary: "Truth alignment is the prerequisite for effective moral action.",
+      parentIds: [],
+      derivation: "Meta-rule establishing truth-seeking as foundational to navigating reality without harm.",
+      evidence: { history: "Scientific revolution & Socratic dialogues", science: "Information theory", psychology: "Cognitive dissonance reduction" },
+      counterarguments: [{ objection: "Noble lies preserve social order.", response: "Deception erodes social trust and introduces hidden systemic risks." }],
+      frameworks: ["Epistemology", "Rationalism", "Socratic Method"],
+      maslow_tier: "Support"
+    },
+    {
+      id: "R3",
+      layer: -1,
+      title: "Harmonic Reciprocity",
+      statement: "Act so that your conduct, if adopted universally, strengthens social and ecological cohesion rather than inducing systemic collapse.",
+      summary: "Universalize actions to ensure systemic stability across communities.",
+      parentIds: [],
+      derivation: "Categorical meta-rule synthesizing the Golden Rule with Kantian universalizability.",
+      evidence: { history: "Universal Golden Rule across world traditions", science: "Game theory (Tit-for-Tat)", psychology: "Prosocial reciprocity" },
+      counterarguments: [{ objection: "Context varies too much for universal rules.", response: "Reciprocity adapts contextually while maintaining mutual dignity." }],
+      frameworks: ["Kantian Ethics", "Game Theory", "Ubuntu"],
+      maslow_tier: "Foundation"
+    },
     // --- LAYER 0: AXIOMS ---
     {
       id: "A1",

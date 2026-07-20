@@ -177,33 +177,67 @@ class AIChatWindow {
         }
       });
     }
+    this.collapsedBar = document.getElementById("ai-chat-collapsed-bar");
+    this.expandBarBtn = document.getElementById("expand-ai-chat-btn");
+    this.mobileFab = document.getElementById("mobile-chat-fab");
+
+    if (this.collapsedBar) {
+      this.collapsedBar.addEventListener("click", () => this.openWindow());
+    }
+    if (this.expandBarBtn) {
+      this.expandBarBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.openWindow();
+      });
+    }
+    if (this.mobileFab) {
+      this.mobileFab.addEventListener("click", () => this.openWindow());
+    }
   }
 
   toggleWindow() {
-    if (this.isOpen) {
-      this.closeWindow();
+    if (this.isOpen && !this.isMinimized) {
+      this.toggleMinimize();
     } else {
       this.openWindow();
     }
   }
 
   openWindow() {
-    this.windowEl.style.display = "flex";
-    this.windowEl.classList.remove("hidden", "minimized");
+    if (this.windowEl) {
+      this.windowEl.style.display = "flex";
+      this.windowEl.classList.remove("hidden", "minimized");
+    }
+    if (this.collapsedBar) {
+      this.collapsedBar.classList.add("hidden");
+    }
+    if (this.mobileFab) {
+      this.mobileFab.classList.add("hidden");
+    }
     this.isOpen = true;
     this.isMinimized = false;
     if (this.inputField) this.inputField.focus();
   }
 
   closeWindow() {
-    this.windowEl.classList.add("hidden");
-    this.windowEl.style.display = "none";
+    if (this.windowEl) {
+      this.windowEl.classList.add("hidden");
+      this.windowEl.style.display = "none";
+    }
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      if (this.mobileFab) this.mobileFab.classList.remove("hidden");
+      if (this.collapsedBar) this.collapsedBar.classList.add("hidden");
+    } else {
+      if (this.collapsedBar) this.collapsedBar.classList.remove("hidden");
+      if (this.mobileFab) this.mobileFab.classList.add("hidden");
+    }
     this.isOpen = false;
+    this.isMinimized = true;
   }
 
   toggleMinimize() {
-    this.isMinimized = !this.isMinimized;
-    this.windowEl.classList.toggle("minimized", this.isMinimized);
+    this.closeWindow();
   }
 
   vetNode(node) {
