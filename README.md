@@ -4,6 +4,11 @@
 
 ---
 
+### 🌐 Live Web Application
+👉 **[https://thepermanenturl.github.io/SocietyMoralityTracker/](https://thepermanenturl.github.io/SocietyMoralityTracker/)**
+
+---
+
 ## 🌟 Key Features
 
 * **Hierarchical 4-Layer Morality Tree**:
