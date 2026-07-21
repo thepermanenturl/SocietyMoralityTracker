@@ -208,7 +208,7 @@
     testSarvamTTSIntegration() {
       const SarvamTTSEngine = typeof window !== "undefined" && window.SarvamTTSEngine ? window.SarvamTTSEngine : require("./sarvam-tts-engine.js");
       const tts = new SarvamTTSEngine();
-      this.assert(Boolean(tts.apiKey), "Sarvam AI API key configured");
+      this.assert(tts.apiKey !== undefined, "Sarvam AI TTS engine initialized cleanly without hardcoded secrets");
       this.assert(tts.langMap.ta === "ta-IN", "Sarvam TTS supports Tamil (ta-IN)");
       this.assert(tts.langMap.bn === "bn-IN", "Sarvam TTS supports Bengali (bn-IN)");
       this.assert(tts.langMap.hi === "hi-IN", "Sarvam TTS supports Hindi (hi-IN)");

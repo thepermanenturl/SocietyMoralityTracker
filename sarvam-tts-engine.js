@@ -4,7 +4,10 @@
  */
 class SarvamTTSEngine {
   constructor() {
-    this.apiKey = "sk_36ax5pli_Ge1E2lUzx3UrwXKGMrCc2klr";
+    // Read API key dynamically from localStorage or settings — NEVER hardcoded in source
+    this.apiKey = typeof localStorage !== "undefined" && localStorage.getItem("sarvam_api_key")
+      ? localStorage.getItem("sarvam_api_key")
+      : "";
     this.apiEndpoint = "https://api.sarvam.ai/text-to-speech";
     this.isSpeaking = false;
     this.audioElement = null;
