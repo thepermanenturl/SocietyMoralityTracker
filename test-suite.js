@@ -38,6 +38,10 @@
       this.testCircuitBreakerOfflineFallback();
       this.testNodeDerivationLineageIntegrity();
       this.testEthicalControversyIndexBounds();
+      this.testSarvamTTSIntegration();
+      this.testIndiaGlobalRankingsMapping();
+      this.testMultilingualTranslationsCoverage();
+      this.testNewsMatrixTrustAndBiasSchema();
 
       console.log(`\n📊 Test Summary: ${this.passed} PASSED, ${this.failed} FAILED.`);
       return { passed: this.passed, failed: this.failed, results: this.results };
@@ -199,6 +203,38 @@
       const controversyScore = 0.53;
       const isBounded = controversyScore >= 0.0 && controversyScore <= 1.0;
       this.assert(isBounded, "Ethical controversy rating is strictly bounded between 0.0 and 1.0");
+    },
+
+    testSarvamTTSIntegration() {
+      const SarvamTTSEngine = typeof window !== "undefined" && window.SarvamTTSEngine ? window.SarvamTTSEngine : require("./sarvam-tts-engine.js");
+      const tts = new SarvamTTSEngine();
+      this.assert(Boolean(tts.apiKey), "Sarvam AI API key configured");
+      this.assert(tts.langMap.ta === "ta-IN", "Sarvam TTS supports Tamil (ta-IN)");
+      this.assert(tts.langMap.bn === "bn-IN", "Sarvam TTS supports Bengali (bn-IN)");
+      this.assert(tts.langMap.hi === "hi-IN", "Sarvam TTS supports Hindi (hi-IN)");
+    },
+
+    testIndiaGlobalRankingsMapping() {
+      const rankings = typeof window !== "undefined" && window.INDIA_GLOBAL_RANKINGS ? window.INDIA_GLOBAL_RANKINGS : require("./india-global-rankings.js");
+      this.assert(Boolean(rankings.A1), "Layer 0 Axiom A1 mapped to Global Hunger Index");
+      this.assert(Boolean(rankings.D4), "Layer 1 Principle D4 mapped to World Press Freedom Index");
+      this.assert(Boolean(rankings.A4), "Layer 0 Axiom A4 mapped to V-Dem Autonomy Index");
+    },
+
+    testMultilingualTranslationsCoverage() {
+      const i18n = typeof window !== "undefined" && window.I18N_TRANSLATIONS ? window.I18N_TRANSLATIONS : require("./i18n-translations.js");
+      this.assert(Boolean(i18n.en), "Translations support English (EN)");
+      this.assert(Boolean(i18n.hi), "Translations support Hindi (HI)");
+      this.assert(Boolean(i18n.ta), "Translations support Tamil (TA)");
+      this.assert(Boolean(i18n.bn), "Translations support Bengali (BN)");
+    },
+
+    testNewsMatrixTrustAndBiasSchema() {
+      const newsMatrix = typeof window !== "undefined" && window.NEWS_MATRIX_DATA ? window.NEWS_MATRIX_DATA : require("./news-matrix-data.js");
+      this.assert(Array.isArray(newsMatrix) && newsMatrix.length > 0, "News matrix contains multi-source items");
+      const item = newsMatrix[0];
+      this.assert(item.trustScore >= 0 && item.trustScore <= 100, "News item includes Trust Score (0-100%)");
+      this.assert(Array.isArray(item.sources) && item.sources.length > 0, "News item tracks multiple news sources");
     }
   };
 
