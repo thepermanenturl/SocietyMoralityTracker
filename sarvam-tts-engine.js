@@ -41,25 +41,17 @@ class SarvamTTSEngine {
 
     const targetLang = this.langMap[lang] || "en-IN";
 
-    if (forceSarvam && this.apiKey) {
+    if (forceSarvam) {
       try {
-        console.log(`[Sarvam AI TTS] Requesting speech synthesis for language '${targetLang}'...`);
-        const res = await fetch(this.apiEndpoint, {
+        console.log(`[Sarvam AI TTS] Requesting speech synthesis for language '${targetLang}' via server proxy...`);
+        const serverEndpoint = typeof window !== "undefined" && window.aiChatGateway ? `${window.aiChatGateway.getServerUrl()}/api/tts` : "http://127.0.0.1:8000/api/tts";
+        const res = await fetch(serverEndpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "api-subscription-key": this.apiKey
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            inputs: [cleanText],
+            text: cleanText,
             target_language_code: targetLang,
-            speaker: this.voiceTargets[targetLang] || "meera",
-            pitch: 0,
-            pace: 1.0,
-            loudness: 1.5,
-            speech_sample_rate: 16000,
-            enable_preprocessing: true,
-            model: "bulbul:v1"
+            speaker: this.voiceTargets[targetLang] || "meera"
           })
         });
 
