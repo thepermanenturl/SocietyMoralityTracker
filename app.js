@@ -250,6 +250,28 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("zoom-out").addEventListener("click", () => renderer.zoomOut());
   document.getElementById("reset-view").addEventListener("click", () => renderer.resetCamera());
 
+  // --- STANCE & THEME CHECKBOX TOGGLE HANDLERS ---
+  const stanceCheckbox = document.getElementById("stance-checkbox");
+  if (stanceCheckbox) {
+    stanceCheckbox.addEventListener("change", (e) => {
+      const isChecked = e.target.checked;
+      store.setDevilsAdvocateStance(isChecked ? 100 : 0);
+      console.log(`[STANCE TOGGLE] Stance updated to: ${isChecked ? "100% Devil's Advocate" : "0% Strict Upholder"}`);
+      if (window.appState.selectedNode) {
+        inspector.show(window.appState.selectedNode);
+      }
+    });
+  }
+
+  const themeCheckbox = document.getElementById("theme-checkbox");
+  if (themeCheckbox) {
+    themeCheckbox.addEventListener("change", (e) => {
+      const isParchment = e.target.checked;
+      document.documentElement.setAttribute("data-theme", isParchment ? "parchment" : "cyber");
+      console.log(`[THEME TOGGLE] Active theme: ${isParchment ? "Socratic Parchment & Ink" : "Minimalist Cyber-Slate"}`);
+    });
+  }
+
   // --- PROPOSAL MODAL LOGIC ---
   const openProposeBtn = document.getElementById("open-propose-btn");
   const proposalModal = document.getElementById("proposal-modal");
