@@ -42,13 +42,19 @@
           <button id="clear-search-btn" class="clear-search-btn hidden" title="Clear AI Search">✕</button>
         </div>
 
-        <!-- Devil's Advocate Stance Slider (0% or 100%) -->
-        <div class="devils-advocate-slider-box" title="Global Stance: 0% Strict Upholder vs 100% Devil's Advocate">
-          <span class="slider-label">😈 Stance: <strong id="devils-advocate-pct">0% (Upholder)</strong></span>
-          <input type="range" id="devils-advocate-slider" min="0" max="100" value="0" step="100" class="stance-slider">
-        </div>
+        <!-- Stance Checkbox Toggle -->
+        <label class="toggle-checkbox-label" title="Toggle Global Stance: Unchecked = Strict Upholder | Checked = Devil's Advocate">
+          <input type="checkbox" id="stance-checkbox">
+          <span class="toggle-checkbox-text">😈 Devil's Advocate Stance</span>
+        </label>
 
-        <!-- News Feed Drawer Button -->
+        <!-- Theme Switcher Checkbox -->
+        <label class="toggle-checkbox-label" title="Toggle Theme: Unchecked = Cyber-Slate | Checked = Socratic Parchment">
+          <input type="checkbox" id="theme-checkbox">
+          <span class="toggle-checkbox-text">🎨 Socratic Parchment Theme</span>
+        </label>
+
+        <!-- News Feed Button -->
         <button id="open-news-feed-btn" class="btn-secondary" title="View Governance News Feed & Task Cards">
           📰 News Feed
         </button>
