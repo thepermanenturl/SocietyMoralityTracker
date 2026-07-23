@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="parchment">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +25,6 @@
         </div>
         <div class="brand-text">
           <h1>Morality Tree</h1>
-          <span class="tagline">Trace any moral claim back to foundational axioms</span>
         </div>
       </div>
 
@@ -33,11 +32,7 @@
       <div class="header-actions">
         <!-- AI Agent Search Box Perspective -->
         <div class="search-box">
-          <span class="ai-search-badge" title="AI Search Perspective Agent">🤖 AI</span>
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+          <span class="ai-search-badge" title="AI Search Perspective Agent: Query moral topics or dilemmas across the 34-node tree">🤖 AI</span>
           <input type="text" id="search-input" placeholder="Ask AI Agent or search moral dilemma..." autocomplete="off">
           <button id="clear-search-btn" class="clear-search-btn hidden" title="Clear AI Search">✕</button>
         </div>
@@ -50,7 +45,7 @@
 
         <!-- Theme Switcher Checkbox -->
         <label class="toggle-checkbox-label" title="Toggle Theme: Unchecked = Cyber-Slate | Checked = Socratic Parchment">
-          <input type="checkbox" id="theme-checkbox">
+          <input type="checkbox" id="theme-checkbox" checked>
           <span class="toggle-checkbox-text">🎨 Socratic Parchment Theme</span>
         </label>
 
@@ -101,11 +96,15 @@
 
     <!-- Main Canvas Area -->
     <main class="tree-container" id="tree-container">
+      <!-- 2500-Year Historical Epoch Timeline Slider Widget -->
+      <div id="epoch-timeline-widget" class="epoch-timeline-widget"></div>
+
       <div class="canvas-hint">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
         </svg>
         <span>Drag to pan &bull; Scroll to zoom &bull; Click any node to examine derivation & chat with AI Vetting Agent</span>
+      </div>
       <!-- Native American / First Nations Maslow Pyramid Legend Widget -->
       <div id="indigenous-pyramid-widget" class="indigenous-pyramid-widget">
         <div class="pyramid-header">
@@ -444,7 +443,7 @@
 
     <!-- FLOATING INTERACTIVE AI AGENT CHAT WINDOW (Connected to Gateway) -->
     <div id="ai-chat-window" class="ai-chat-window hidden">
-      <div class="ai-chat-header">
+      <div class="ai-chat-header" id="ai-chat-header" title="Click header bar to collapse or expand AI Chat window">
         <div class="ai-chat-title">
           <span class="ai-avatar">🤖</span>
           <div>
@@ -457,7 +456,6 @@
         </div>
         <div class="ai-header-controls">
           <button id="ai-settings-btn" class="icon-btn" title="Configure Live Server URL">⚙️</button>
-          <button id="minimize-ai-chat-btn" class="icon-btn" title="Minimize">&minus;</button>
           <button id="close-ai-chat-btn" class="icon-btn" title="Close">&times;</button>
         </div>
       </div>
@@ -756,6 +754,8 @@
   <script src="ai-vetting-engine.js"></script>
   <script src="ai-chat-gateway.js"></script>
   <script src="ai-chat-window.js"></script>
+  <script src="historical-epochs-data.js"></script>
+  <script src="epoch-timeline-slider.js"></script>
   <script src="tree-renderer.js"></script>
   <script src="node-detail.js"></script>
   <script src="app.js"></script>
