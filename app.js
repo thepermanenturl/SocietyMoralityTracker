@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   window.treeRenderer = renderer;
   const inspector = new NodeDetailInspector("detail-panel", store, aiEngine);
 
+  // Initialize 2500-Year Historical Epoch Timeline Slider
+  const epochSlider = new EpochTimelineSlider("epoch-timeline-widget", store, renderer);
+  window.epochSlider = epochSlider;
+
   // --- DYNAMIC MULTI-DRAWER LAYOUT MANAGER ---
   const newsDrawerEl = document.getElementById("news-feed-drawer");
   const detailPanelEl = document.getElementById("detail-panel");
@@ -127,7 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // First Nations / Native American Pyramid Tier Filter
+  // First Nations / Native American Pyramid Tier Filter & Sidebar Toggle
+  const pyramidWidget = document.getElementById("indigenous-pyramid-widget");
+  if (pyramidWidget) {
+    pyramidWidget.addEventListener("click", (e) => {
+      if (!e.target.closest(".pyramid-tier")) {
+        pyramidWidget.classList.toggle("expanded");
+      }
+    });
+  }
+
   const pyramidTiers = document.querySelectorAll(".pyramid-tier");
   pyramidTiers.forEach(tierBtn => {
     tierBtn.addEventListener("click", () => {
@@ -593,8 +606,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sourceLink) sourceLink.href = item.newsUrl || "#";
 
     const nodesContainer = document.getElementById("news-detail-nodes-list");
-    if (nodesContainer) {
-      nodesContainer.innerHTML = item.violatedNodeTitles.map(t => `<span class="node-chip alert">${t}</span>`).join("");
+    if (nodesContainer && item.violatedNodes) {
+      nodesContainer.innerHTML = item.violatedNodes.map((nodeId, idx) => {
+        const title = item.violatedNodeTitles[idx] || nodeId;
+        return `<button class="clickable-node-chip" data-node-id="${nodeId}" title="Click to examine node ${nodeId} in main tree graph">🚨 [${nodeId}] ${title}</button>`;
+      }).join("");
+
+      nodesContainer.querySelectorAll(".clickable-node-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const targetId = chip.getAttribute("data-node-id");
+          if (renderer && targetId) {
+            renderer.selectNode(targetId);
+            newsDrawer.classList.add("hidden");
+          }
+        });
+      });
     }
 
     document.getElementById("upholder-headline").textContent = item.upholderStance.headline;

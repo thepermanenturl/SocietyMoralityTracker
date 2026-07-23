@@ -87,10 +87,15 @@ class AIChatWindow {
       });
     }
 
-    if (this.minimizeBtn) {
-      this.minimizeBtn.addEventListener("click", (e) => {
+    // Top Header Bar Click -> Toggle Collapse / Expand
+    const chatHeader = document.getElementById("ai-chat-header");
+    if (chatHeader) {
+      chatHeader.addEventListener("click", (e) => {
+        // Prevent click when user clicks gear settings or close button
+        if (e.target.closest("#ai-settings-btn") || e.target.closest("#close-ai-chat-btn")) {
+          return;
+        }
         e.preventDefault();
-        e.stopPropagation();
         this.toggleMinimize();
       });
     }
@@ -271,6 +276,12 @@ class AIChatWindow {
     }
     this.isOpen = false;
     this.isMinimized = true;
+
+    // Clear node highlights & selection when closing AI Chat window
+    if (window.treeRenderer) {
+      window.treeRenderer.setAISearchHighlights([]);
+      window.treeRenderer.deselectNode();
+    }
   }
 
   toggleMinimize() {

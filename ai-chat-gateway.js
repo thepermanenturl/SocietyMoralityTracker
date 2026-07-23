@@ -299,10 +299,10 @@ ${insightsStr ? `💡 Persistent Morality Role Insights:\n${insightsStr}` : ''}
           "bypass-tunnel-reminder": "true"
         },
         body: JSON.stringify({
-          session_id: `session-${Date.now()}`,
+          session_id: this.sessionId || "society-morality-persistent-line",
           prompt: fullPrompt,
           system_prompt: sysPrompt,
-          use_expert: true
+          use_expert: false
         })
       });
 

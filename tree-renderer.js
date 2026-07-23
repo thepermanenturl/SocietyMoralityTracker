@@ -252,6 +252,18 @@ class TreeRenderer {
       g.classList.toggle("selected", isSelected);
       g.classList.toggle("ancestor", isAncestor);
       g.classList.toggle("ai-search-highlight", isAiMatch);
+
+      // Contextual Hover Tooltip for Highlighted Nodes (e.g. 2500-Year Epoch Rationale)
+      let titleEl = g.querySelector("title");
+      if (isAiMatch && this.highlightContextMap && this.highlightContextMap[node.id]) {
+        if (!titleEl) {
+          titleEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          g.appendChild(titleEl);
+        }
+        titleEl.textContent = this.highlightContextMap[node.id];
+      } else if (titleEl) {
+        titleEl.textContent = `[${node.id}] ${node.title}\n${node.statement}`;
+      }
       
       if (this.selectedNodeId) {
         g.classList.toggle("dimmed", !activeNodeIds.includes(node.id) || !isVisible);
@@ -285,8 +297,9 @@ class TreeRenderer {
     this.applyHighlightsAndFilters();
   }
 
-  setAISearchHighlights(matchedNodeIds = []) {
+  setAISearchHighlights(matchedNodeIds = [], contextMap = null) {
     this.aiMatchedNodeIds = matchedNodeIds.map(id => id.toUpperCase());
+    this.highlightContextMap = contextMap || null;
     this.applyHighlightsAndFilters();
   }
 
@@ -396,11 +409,20 @@ class TreeRenderer {
   }
 
   resetCamera() {
-    const containerWidth = this.container.clientWidth || window.innerWidth;
+    const rect = this.container.getBoundingClientRect();
+    const containerWidth = (rect.width && rect.width > 300) ? rect.width : window.innerWidth;
     const isMobile = window.innerWidth <= 768;
-    this.transform.scale = isMobile ? 0.52 : 0.85;
-    this.transform.x = (containerWidth - 1200 * this.transform.scale) / 2;
-    this.transform.y = isMobile ? 20 : 40;
+    this.transform.scale = isMobile ? 0.55 : 0.88;
+
+    const d4Pos = this.nodePositions ? this.nodePositions.get("D4") : null;
+    if (!isMobile && d4Pos) {
+      const containerHeight = (rect.height && rect.height > 300) ? rect.height : window.innerHeight;
+      this.transform.x = (containerWidth / 2) - (d4Pos.x * this.transform.scale);
+      this.transform.y = Math.max(20, (containerHeight / 2) - (d4Pos.y * this.transform.scale));
+    } else {
+      this.transform.x = Math.max(20, (containerWidth - 1100 * this.transform.scale) / 2);
+      this.transform.y = isMobile ? 20 : 35;
+    }
     this.updateViewport();
   }
 
