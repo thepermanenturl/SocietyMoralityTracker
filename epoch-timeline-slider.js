@@ -18,7 +18,7 @@ class EpochTimelineSlider {
     if (!this.container) return;
     this.renderWidget();
     this.bindEvents();
-    this.selectEpoch(this.currentEpochIndex);
+    this.selectEpoch(this.currentEpochIndex, false);
   }
 
   renderWidget() {
@@ -117,7 +117,7 @@ class EpochTimelineSlider {
     });
   }
 
-  selectEpoch(index) {
+  selectEpoch(index, triggerHighlights = true) {
     if (index < 0 || index >= this.epochs.length) return;
     this.currentEpochIndex = index;
     const epoch = this.epochs[index];
@@ -188,6 +188,13 @@ class EpochTimelineSlider {
       });
     }
 
+    if (!triggerHighlights) return;
+
+    // Auto-collapse open right sidebars when interacting with timeline
+    const newsDrawer = document.getElementById("news-feed-drawer");
+    if (newsDrawer) newsDrawer.classList.add("hidden");
+    if (window.inspector) window.inspector.close();
+
     // Build Contextual Hover Tooltip Map for Highlighted Nodes
     const contextMap = {};
     if (epoch.keyNodes) {
@@ -198,9 +205,18 @@ class EpochTimelineSlider {
       });
     }
 
-    // Trigger SVG Node Canvas Highlights with Contextual Tooltips
+    // Trigger SVG Node Canvas Highlights with Contextual Tooltips & Epoch Data Card
     if (this.renderer && epoch.keyNodes) {
       this.renderer.setAISearchHighlights(epoch.keyNodes, contextMap);
+      if (typeof window.updateHighlightRationale === "function") {
+        const blindspotsSummary = epoch.societalBlindspots ? epoch.societalBlindspots.map(b => b.society).join(", ") : "";
+        window.updateHighlightRationale(
+          `2500-Year Epoch: ${epoch.name}`,
+          "⏳",
+          `${epoch.years} | Unrest: ${epoch.unrestScore}% | Primary Cause: ${epoch.unrestCause}. Major Societies Examined: ${blindspotsSummary}.`,
+          epoch.keyNodes
+        );
+      }
     }
   }
 }

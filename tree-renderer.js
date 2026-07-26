@@ -187,14 +187,12 @@ class TreeRenderer {
   }
 
   selectNode(nodeId) {
-    if (this.selectedNodeId === nodeId) return;
-
     this.selectedNodeId = nodeId;
     this.applyHighlightsAndFilters();
 
-    if (this.onNodeSelectCallback && nodeId) {
-      const selectedNode = this.store.getNodeById(nodeId);
-      const ancestry = this.getAncestryPath(nodeId);
+    if (this.onNodeSelectCallback) {
+      const selectedNode = nodeId ? this.store.getNodeById(nodeId) : null;
+      const ancestry = nodeId ? this.getAncestryPath(nodeId) : [];
       this.onNodeSelectCallback(selectedNode, ancestry);
     }
   }

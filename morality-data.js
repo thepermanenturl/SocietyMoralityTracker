@@ -1,5 +1,10 @@
-// Morality Tree Dataset - 34 Nodes across 4 Layers
+// Morality Tree Dataset - 34 Nodes across 4 Layers & 3 Minimal Primitives
 const MORALITY_DATA = {
+  primitives: [
+    { id: "P1_HARM", name: "Non-Harm & Suffering Avoidance", tagline: "Pain hurts; reducing suffering is a universal starting point.", color: "#10b981", icon: "🛡️" },
+    { id: "P2_AGENCY", name: "Agency & Consent", tagline: "Sentient beings own their choices; unconsented force causes conflict.", color: "#3b82f6", icon: "🗽" },
+    { id: "P3_EQUITY", name: "Equal Weight & Fairness", tagline: "No individual experience inherently matters more than another.", color: "#f59e0b", icon: "⚖️" }
+  ],
   layers: [
     { id: -1, name: "Meta-Rules", color: "#8b5cf6", tag: "Layer -1", description: "Cohesive universal rules to live by across individual, communal, and cosmic scales." },
     { id: 0, name: "Foundational Axioms", color: "#10b981", tag: "Layer 0", description: "Self-evident, empirical, or empathy-grounded truths that require minimal assumptions." },

@@ -119,6 +119,10 @@ class NodeDetailInspector {
     });
   }
 
+  inspect(node) {
+    return this.show(node);
+  }
+
   show(node) {
     if (!node) {
       this.close();
@@ -212,16 +216,7 @@ class NodeDetailInspector {
     this.panel.classList.add("open");
   }
 
-  close() {
-    this.currentNode = null;
-    this.panel.classList.remove("open");
-    if (window.treeRenderer) {
-      window.treeRenderer.deselectNode();
-    }
-    if (typeof window.updateDrawerLayout === "function") {
-      window.updateDrawerLayout();
-    }
-  }
+
 
   renderAncestryBreadcrumbs(node) {
     this.derivationChainEl.innerHTML = "";
@@ -396,12 +391,18 @@ class NodeDetailInspector {
 
 
   close() {
-    this.panel.classList.remove("open");
     this.currentNode = null;
+    if (this.panel) this.panel.classList.remove("open");
     this.hidePerspectives();
     this.activePerspective = "none";
     if (this.perspectiveDropdown) {
       this.perspectiveDropdown.value = "none";
+    }
+    if (window.treeRenderer) {
+      window.treeRenderer.deselectNode();
+    }
+    if (typeof window.updateDrawerLayout === "function") {
+      window.updateDrawerLayout();
     }
   }
 

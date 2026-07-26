@@ -463,6 +463,24 @@ body::before {
   color: var(--text-main);
   white-space: nowrap;
 }
+
+.viz-select-dropdown {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-glass);
+  color: #fbbf24;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.viz-select-dropdown:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+}
   border-radius: 18px;
   border: 1px solid rgba(239, 68, 68, 0.4);
 }
@@ -2533,17 +2551,59 @@ body::before {
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
+/* 3 Minimal Primitives Navigation Bar */
+.primitives-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin: 8px auto 0 auto;
+  width: fit-content;
+  max-width: calc(100vw - 32px);
+  z-index: 100;
+}
+
+.primitives-bar-label {
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.primitive-badge-btn {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1.5px solid #3b82f6;
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.primitive-badge-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+}
+
 /* ==========================================
-   2500-YEAR HISTORICAL EPOCH TIMELINE SLIDER
+   2500-YEAR HISTORICAL EPOCH TIMELINE SLIDER (BOTTOM HORIZONTAL DOCK)
    ========================================== */
 
 .epoch-timeline-widget {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  z-index: 100;
-  width: 380px;
-  max-width: calc(100vw - 40px);
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1150;
+  width: 80vw;
+  max-width: 950px;
   pointer-events: auto;
 }
 
@@ -2770,9 +2830,10 @@ body::before {
 
 @media (max-width: 768px) {
   .epoch-timeline-widget {
-    top: 60px;
-    right: 10px;
-    width: 320px;
+    bottom: 60px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 94vw !important;
   }
 }
 
@@ -2928,8 +2989,86 @@ body:has(.ai-chat-window:not(.hidden)) .ai-chat-collapsed-bar,
   .ai-header-controls button {
     min-height: 44px !important;
     min-width: 44px !important;
-    touch-action: manipulation;
-  }
+}
+
+/* ==========================================
+   BOTTOM-RIGHT HIGHLIGHT RATIONALE CARD
+   ========================================== */
+.highlight-rationale-card {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1200;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.2);
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: auto;
+}
+
+/* Move rationale card left when any right sidebar is open */
+body:has(#detail-panel.open) .highlight-rationale-card,
+body:has(#news-feed-drawer:not(.hidden)) .highlight-rationale-card,
+.highlight-rationale-card.shifted {
+  right: 440px;
+}
+
+.highlight-rationale-card.hidden {
+  display: none !important;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.rationale-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rationale-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #38bdf8;
+}
+
+.close-rationale-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.close-rationale-btn:hover {
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.rationale-card-body {
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.rationale-nodes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 

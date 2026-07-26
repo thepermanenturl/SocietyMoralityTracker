@@ -12,14 +12,59 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedNode: null
   };
 
-  // Initialize Renderer & Inspector with Store & AI Engine
-  const renderer = new TreeRenderer("tree-svg", "tree-container", store);
-  window.treeRenderer = renderer;
+  // Initialize All 3 Visualization Paradigm Renderers
+  const treeRenderer = new TreeRenderer("tree-svg", "tree-container", store);
+  const radarRenderer = new RippleRadarRenderer("tree-svg", "tree-container", store);
+  const prismRenderer = new PrismSpectrumRenderer("tree-svg", "tree-container", store);
+
+  let activeRenderer = treeRenderer;
+  window.treeRenderer = activeRenderer;
   const inspector = new NodeDetailInspector("detail-panel", store, aiEngine);
 
+  // Connect node selection callback for all renderers
+  [treeRenderer, radarRenderer, prismRenderer].forEach(r => {
+    r.onNodeSelect(node => {
+      window.appState.selectedNode = node;
+      if (node) {
+        // Enforce strictly 1 right sidebar open at a time
+        const newsDrawer = document.getElementById("news-feed-drawer");
+        if (newsDrawer) newsDrawer.classList.add("hidden");
+
+        inspector.show(node);
+        updateDrawerLayout("inspector");
+        if (typeof updateHighlightRationale === "function") {
+          updateHighlightRationale(`Selected Node: [${node.id}]`, "📌", `${node.title}: ${node.statement}`, [node.id]);
+        }
+      } else {
+        inspector.close();
+        updateDrawerLayout();
+      }
+    });
+  });
+
   // Initialize 2500-Year Historical Epoch Timeline Slider
-  const epochSlider = new EpochTimelineSlider("epoch-timeline-widget", store, renderer);
+  const epochSlider = new EpochTimelineSlider("epoch-timeline-widget", store, activeRenderer);
   window.epochSlider = epochSlider;
+
+  // Multi-Paradigm Switcher Change Handler
+  const vizSelect = document.getElementById("viz-paradigm-select");
+  if (vizSelect) {
+    vizSelect.addEventListener("change", (e) => {
+      const mode = e.target.value;
+      if (mode === "radar") {
+        activeRenderer = radarRenderer;
+      } else if (mode === "prism") {
+        activeRenderer = prismRenderer;
+      } else {
+        activeRenderer = treeRenderer;
+      }
+
+      window.treeRenderer = activeRenderer;
+      epochSlider.renderer = activeRenderer;
+      activeRenderer.render();
+      activeRenderer.resetCamera();
+    });
+  }
 
   // --- DYNAMIC MULTI-DRAWER LAYOUT MANAGER ---
   const newsDrawerEl = document.getElementById("news-feed-drawer");
@@ -165,6 +210,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // 3 Minimal Primitives Navigation Bar Click Listener
+  const primitiveBtns = document.querySelectorAll(".primitive-badge-btn");
+  primitiveBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const primKey = btn.getAttribute("data-primitive");
+      const primData = window.LAYPERSON_NODES_DATA?.primitives?.[primKey];
+      if (!primData) return;
+
+      // Auto-collapse open right sidebars
+      const newsDrawer = document.getElementById("news-feed-drawer");
+      if (newsDrawer) newsDrawer.classList.add("hidden");
+      if (inspector) inspector.close();
+
+      // Find all nodes deriving from this primitive root
+      const layNodes = window.LAYPERSON_NODES_DATA?.nodes || {};
+      const matchedNodeIds = Object.keys(layNodes).filter(nodeId => {
+        const roots = layNodes[nodeId].primitiveRoots || [];
+        return roots.includes(primKey);
+      });
+
+      activeRenderer.setAISearchHighlights(matchedNodeIds);
+
+      // Render "Ways to Live This Axiom in Daily Life" Card
+      if (typeof updateHighlightRationale === "function") {
+        const waysStr = (primData.waysToLive || []).map(w => `${w.area}: ${w.action}`).join(" | ");
+        updateHighlightRationale(
+          `🌱 Ways to Live Axiom: ${primData.name}`,
+          primData.icon,
+          `Citation: ${primData.citation}. ${primData.tagline} | WAYS TO LIVE IN DAILY LIFE: ${waysStr}`,
+          matchedNodeIds
+        );
+      }
+    });
+  });
+
   // --- AI SEARCH PERSPECTIVE AGENT ---
   const searchInput = document.getElementById("search-input");
   const clearSearchBtn = document.getElementById("clear-search-btn");
@@ -175,15 +255,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let searchDebounceTimeout = null;
 
+  // --- BOTTOM-RIGHT HIGHLIGHT RATIONALE CARD CONTROLLER ---
+  const rationaleCard = document.getElementById("highlight-rationale-card");
+  const rationaleIcon = document.getElementById("rationale-icon");
+  const rationaleTitle = document.getElementById("rationale-source-title");
+  const rationaleDesc = document.getElementById("rationale-desc-text");
+  const rationaleChips = document.getElementById("rationale-nodes-chips");
+  const closeRationaleBtn = document.getElementById("close-rationale-card-btn");
+
+  function updateHighlightRationale(title, icon, desc, matchedNodeIds = []) {
+    if (!rationaleCard) return;
+    if (!matchedNodeIds || matchedNodeIds.length === 0) {
+      rationaleCard.classList.add("hidden");
+      return;
+    }
+
+    if (rationaleTitle) rationaleTitle.textContent = title || "Node Selection Context";
+    if (rationaleIcon) rationaleIcon.textContent = icon || "💡";
+    if (rationaleDesc) rationaleDesc.textContent = desc || "Selected nodes highlighted by active context.";
+
+    if (rationaleChips) {
+      rationaleChips.innerHTML = matchedNodeIds.map(id => {
+        return `<button class="clickable-node-chip" data-node-id="${id}" style="font-size:0.68rem; padding:2px 6px;">[${id}]</button>`;
+      }).join("");
+
+      rationaleChips.querySelectorAll(".clickable-node-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const targetId = chip.getAttribute("data-node-id");
+          if (activeRenderer && targetId) activeRenderer.selectNode(targetId);
+        });
+      });
+    }
+
+    rationaleCard.classList.remove("hidden");
+  }
+
+  window.updateHighlightRationale = updateHighlightRationale;
+
   function clearAllSearchAndHighlights() {
     lastExecutedSearchQuery = "";
     if (searchInput) searchInput.value = "";
     if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
     if (aiSearchBanner) aiSearchBanner.classList.add("hidden");
-    renderer.setAISearchHighlights([]);
-    renderer.setSearchQuery("");
-    renderer.deselectNode();
-    inspector.close();
+    if (rationaleCard) rationaleCard.classList.add("hidden");
+
+    const newsDrawer = document.getElementById("news-feed-drawer");
+    if (newsDrawer) newsDrawer.classList.add("hidden");
+
+    if (inspector) inspector.close();
+
+    if (activeRenderer) {
+      activeRenderer.setAISearchHighlights([]);
+      activeRenderer.setSearchQuery("");
+      activeRenderer.deselectNode();
+    }
+  }
+
+  // Top Left Brand Logo Click -> Reset View & Highlights to Default
+  const brandLogo = document.querySelector(".brand");
+  if (brandLogo) {
+    brandLogo.style.cursor = "pointer";
+    brandLogo.addEventListener("click", () => {
+      clearAllSearchAndHighlights();
+      activeRenderer.resetCamera();
+    });
+  }
+
+  if (closeRationaleBtn) {
+    closeRationaleBtn.addEventListener("click", () => {
+      clearAllSearchAndHighlights();
+      activeRenderer.resetCamera();
+    });
   }
 
   // Double Click outside on empty canvas space -> Revert to clean default view
@@ -591,8 +733,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function selectNewsTask(item) {
     activeNewsItem = item;
 
-    if (renderer && item.violatedNodes) {
-      renderer.setAISearchHighlights(item.violatedNodes);
+    if (activeRenderer && item.violatedNodes) {
+      activeRenderer.setAISearchHighlights(item.violatedNodes);
+      updateHighlightRationale("Governance News Task", "📰", item.title, item.violatedNodes);
     }
 
     document.getElementById("news-detail-category").textContent = item.category;
@@ -665,6 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (openNewsBtn) {
     openNewsBtn.addEventListener("click", () => {
+      if (inspector) inspector.close();
       renderNewsTaskCards();
       newsDrawer.classList.remove("hidden");
       newsList.classList.remove("hidden");
@@ -677,6 +821,47 @@ document.addEventListener("DOMContentLoaded", () => {
     closeNewsBtn.addEventListener("click", () => {
       newsDrawer.classList.add("hidden");
       updateDrawerLayout();
+    });
+  }
+
+  const refreshNewsBtn = document.getElementById("refresh-news-feed-btn");
+  if (refreshNewsBtn) {
+    refreshNewsBtn.addEventListener("click", async () => {
+      refreshNewsBtn.disabled = true;
+      refreshNewsBtn.textContent = "⏳ Fetching & Categorizing via LLM RAG...";
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/news/refresh", { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.news && Array.isArray(data.news)) {
+            window.NEWS_FEED_DATA = data.news.map(n => ({
+              id: n.id,
+              category: n.category ? n.category.toUpperCase() : "GOVERNANCE",
+              date: "JUST NOW",
+              title: n.title,
+              summary: n.summary,
+              newsPublisher: "Live Governance Signal",
+              newsUrl: "#",
+              violatedNodes: n.nodes || [],
+              violatedNodeTitles: (n.nodes || []).map(id => {
+                const node = store.getNodeById(id);
+                return node ? node.title : id;
+              }),
+              upholderStance: { headline: "Upholder Analysis", analysis: n.upholder || n.summary },
+              devilsAdvocateStance: { headline: "Devil's Advocate Counter", analysis: n.devils || n.summary }
+            }));
+            renderNewsTaskCards();
+            refreshNewsBtn.textContent = "✅ Real-Time News RAG Refreshed!";
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to refresh real-time news RAG:", err);
+        refreshNewsBtn.textContent = "⚠️ Refresh Failed (Check local server)";
+      }
+      setTimeout(() => {
+        refreshNewsBtn.disabled = false;
+        refreshNewsBtn.textContent = "🔄 Refresh Real-Time News";
+      }, 3000);
     });
   }
 
