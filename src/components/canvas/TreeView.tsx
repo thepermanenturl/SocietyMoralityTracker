@@ -131,8 +131,19 @@ export const TreeView: React.FC = () => {
       layerNodes.forEach((node, idx) => {
         const x = startX + idx * spacingX;
 
-        const isConnected = !selectedNode || connectedNodeIds.has(node.id);
-        const isDimmed = selectedNode !== null && !isConnected;
+        const hasNewsHighlight = aiMatchedNodeIds.length > 0;
+        const isNewsMatch = hasNewsHighlight && aiMatchedNodeIds.includes(node.id.toUpperCase());
+
+        let isConnected = true;
+        let isDimmed = false;
+
+        if (selectedNode) {
+          isConnected = connectedNodeIds.has(node.id);
+          isDimmed = !isConnected;
+        } else if (hasNewsHighlight) {
+          isConnected = isNewsMatch;
+          isDimmed = !isNewsMatch;
+        }
 
         flowNodes.push({
           id: node.id,
@@ -141,7 +152,7 @@ export const TreeView: React.FC = () => {
           data: {
             node,
             isSelected: selectedNode?.id === node.id,
-            isHighlighted: aiMatchedNodeIds.includes(node.id.toUpperCase()),
+            isHighlighted: isNewsMatch,
             isDimmed
           },
           sourcePosition: Position.Bottom,
@@ -150,15 +161,16 @@ export const TreeView: React.FC = () => {
 
         if (node.parentIds) {
           node.parentIds.forEach((parentId) => {
-            const isEdgeConnected = selectedNode && (selectedNode.id === parentId || selectedNode.id === node.id);
-            const isEdgeDimmed = selectedNode && !isEdgeConnected;
+            const isEdgeConnected = (selectedNode && (selectedNode.id === parentId || selectedNode.id === node.id)) ||
+                                    (hasNewsHighlight && aiMatchedNodeIds.includes(parentId.toUpperCase()) && aiMatchedNodeIds.includes(node.id.toUpperCase()));
+            const isEdgeDimmed = (selectedNode !== null || hasNewsHighlight) && !isEdgeConnected;
 
             flowEdges.push({
               id: `edge-${parentId}-${node.id}`,
               source: parentId,
               target: node.id,
               type: 'smoothstep',
-              animated: isEdgeConnected || !selectedNode,
+              animated: isEdgeConnected || (!selectedNode && !hasNewsHighlight),
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 width: isEdgeConnected ? 22 : 16,
