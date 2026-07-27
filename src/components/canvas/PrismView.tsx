@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
-import { Sparkles, Layers, ShieldCheck, Scale, Compass, ChevronRight, MessageSquare } from 'lucide-react';
+import { Sparkles, Layers, ShieldCheck, Scale, Compass, ChevronRight, MessageSquare, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 export const PrismView: React.FC = () => {
   const { nodes, setSelectedNode, setChatInputPrompt, toggleChat, isChatOpen } = useMoralityStore();
   const [topicQuery, setTopicQuery] = useState<string>('Uniform Civil Code & Family Rights');
+  const [dynamicSpectrum, setDynamicSpectrum] = useState<any>(null);
+  const [isLoadingSpectrum, setIsLoadingSpectrum] = useState<boolean>(false);
 
   const presetTopics = [
     'Uniform Civil Code & Family Rights',
@@ -13,8 +16,49 @@ export const PrismView: React.FC = () => {
     'Environmental Protection vs Industrial Growth'
   ];
 
-  // Derive perspective spectrums based on topic query
-  const getSpectrumData = (query: string) => {
+  useEffect(() => {
+    const fetchDynamicRefraction = async () => {
+      if (!topicQuery.trim()) return;
+      setIsLoadingSpectrum(true);
+      try {
+        const savedSettings = localStorage.getItem('morality_agent_connection_settings_v1');
+        let baseUrl = 'http://127.0.0.1:8000';
+        if (savedSettings) {
+          try {
+            const parsed = JSON.parse(savedSettings);
+            baseUrl = parsed.localPortConfig?.url || parsed.remoteServerConfig?.url || baseUrl;
+          } catch (e) {}
+        }
+        const res = await axios.post(`${baseUrl.replace(/\/$/, '')}/api/prism/refract`, {
+          query: topicQuery
+        }, { timeout: 3000 });
+
+        if (res.data && res.data.traditional && res.data.progressive) {
+          setDynamicSpectrum({
+            traditional: {
+              ...res.data.traditional,
+              badgeColor: "bg-amber-950 text-amber-400 border-amber-800"
+            },
+            progressive: {
+              ...res.data.progressive,
+              badgeColor: "bg-sky-950 text-sky-400 border-sky-800"
+            }
+          });
+        }
+      } catch (e) {
+        // Fallback gracefully to built-in presets when offline
+        setDynamicSpectrum(null);
+      } finally {
+        setIsLoadingSpectrum(false);
+      }
+    };
+
+    const timer = setTimeout(fetchDynamicRefraction, 400);
+    return () => clearTimeout(timer);
+  }, [topicQuery]);
+
+  // Fallback perspective spectrums when backend offline
+  const getFallbackSpectrumData = (query: string) => {
     const qLower = query.toLowerCase();
 
     if (qLower.includes('biometric') || qLower.includes('surveillance') || qLower.includes('security')) {
@@ -72,30 +116,30 @@ export const PrismView: React.FC = () => {
     // Default: Uniform Civil Code / General Policy
     return {
       traditional: {
-        title: "🇮🇳 Civilizational Cohesion & Common Code Stance",
+        title: `🇮🇳 Civilizational & Security Stance on '${query}'`,
         spectrum: "Indian Right-Wing / Uniform Rights / Dharma Cohesion",
         badgeColor: "bg-amber-950 text-amber-400 border-amber-800",
-        rationale: "Advocates a single, equitable civil code for all citizens regardless of religious personal laws. Ensures gender justice and national legal integration.",
+        rationale: `Advocates civilizational unity, legal consistency, and public order when implementing policies regarding ${query}.`,
         treeBranch: [
           { id: "R3", title: "Harmonic Reciprocity", layer: -1, statement: "Equal legal standing strengthens civilizational unity." },
-          { id: "A6", title: "Equity & Equal Rights for Women", layer: 0, statement: "Universal legal fairness protects vulnerable family members." },
+          { id: "A6", title: "Equity & Equal Rights", layer: 0, statement: "Universal legal fairness protects vulnerable family members." },
           { id: "D8", title: "Democratic Legal Integration", layer: 1, statement: "State enforces uniform constitutional equality for all citizens." }
         ]
       },
       progressive: {
-        title: "🌐 Pluralist Autonomy & Minority Rights Stance",
+        title: `🌐 Pluralist Autonomy Stance on '${query}'`,
         spectrum: "Left-Wing / Multiculturalism / Voluntary Consent",
         badgeColor: "bg-sky-950 text-sky-400 border-sky-800",
-        rationale: "Emphasizes protection of religious minority autonomy, cultural diversity, and voluntary community reform without top-down state homogenization.",
+        rationale: `Emphasizes voluntary consent, minority protections, and bodily autonomy regarding ${query}.`,
         treeBranch: [
           { id: "A4", title: "Value of Autonomy & Choice", layer: 0, statement: "Voluntary cultural identity and religious expression must be respected." },
-          { id: "D4", title: "Non-Discrimination & Protection", layer: 1, statement: "Safeguards minority communities against forced cultural assimilation." }
+          { id: "D4", title: "Non-Discrimination & Protection", layer: 1, statement: "Safeguards minority communities against forced assimilation." }
         ]
       }
     };
   };
 
-  const spectrumData = getSpectrumData(topicQuery);
+  const spectrumData = dynamicSpectrum || getFallbackSpectrumData(topicQuery);
 
   const handleSelectPrismNode = (nodeId: string, nodeTitle: string, stanceTitle: string) => {
     const matched = nodes.find(n => n.id === nodeId);
@@ -114,8 +158,9 @@ export const PrismView: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="text-2xl">💎</span>
             <h2 className="text-base font-extrabold text-white">Refractive Optical Prism Spectrum Engine</h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-bold">
-              Multi-View Refraction
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/60 text-emerald-400 font-bold flex items-center gap-1">
+              <span>{dynamicSpectrum ? 'Live Local LLM Refraction' : 'Multi-View Refraction'}</span>
+              {isLoadingSpectrum && <Loader2 className="w-3 h-3 animate-spin text-emerald-400" />}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
@@ -124,13 +169,20 @@ export const PrismView: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Refractive Layout: 3 Columns (Left Controls & Prism Graphic | Right Spectrum 1 | Right Spectrum 2) */}
+      {/* Main Refractive Layout: 3 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
         {/* LEFT COLUMN (4 Cols): Query Input Beam & Visual Glass Prism */}
         <div className="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-5">
-          <div className="flex items-center gap-2 text-sky-400 border-b border-slate-800 pb-3">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-extrabold text-white">1. Input Topic Query Beam</h3>
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2 text-sky-400">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <h3 className="text-xs font-extrabold text-white">1. Input Topic Query Beam</h3>
+            </div>
+            {isLoadingSpectrum && (
+              <span className="text-[10px] text-amber-400 flex items-center gap-1 font-bold">
+                <Loader2 className="w-3 h-3 animate-spin" /> Refracting...
+              </span>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -217,7 +269,7 @@ export const PrismView: React.FC = () => {
               </h4>
 
               <div className="space-y-2">
-                {spectrumData.traditional.treeBranch.map((node) => (
+                {spectrumData.traditional.treeBranch.map((node: any) => (
                   <div
                     key={`trad-${node.id}`}
                     onClick={() => handleSelectPrismNode(node.id, node.title, spectrumData.traditional.title)}
@@ -267,7 +319,7 @@ export const PrismView: React.FC = () => {
               </h4>
 
               <div className="space-y-2">
-                {spectrumData.progressive.treeBranch.map((node) => (
+                {spectrumData.progressive.treeBranch.map((node: any) => (
                   <div
                     key={`prog-${node.id}`}
                     onClick={() => handleSelectPrismNode(node.id, node.title, spectrumData.progressive.title)}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
-import { X, Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, Sparkles, Loader2, Layers, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
 interface Message {
@@ -11,7 +11,20 @@ interface Message {
 }
 
 export const AIChatbotModal: React.FC = () => {
-  const { isChatOpen, toggleChat, searchQuery, selectedNode, setAiMatchedNodeIds, setHighlightRationale, chatInputPrompt, setChatInputPrompt } = useMoralityStore();
+  const {
+    isChatOpen,
+    toggleChat,
+    searchQuery,
+    selectedNode,
+    setAiMatchedNodeIds,
+    setHighlightRationale,
+    chatInputPrompt,
+    setChatInputPrompt,
+    cardQueue,
+    removeCardFromQueue,
+    clearCardQueue
+  } = useMoralityStore();
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -124,7 +137,7 @@ export const AIChatbotModal: React.FC = () => {
               <span>Socrates AI Agent</span>
               <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
             </h2>
-            <p className="text-[10px] text-emerald-400 font-semibold">DeepSeek-R1-Distill-1.5B • Socratic Engine</p>
+            <p className="text-[10px] text-emerald-400 font-semibold">DeepSeek-R1-Distill-1.5B • Socratic CoT Engine</p>
           </div>
         </div>
 
@@ -146,39 +159,99 @@ export const AIChatbotModal: React.FC = () => {
         </div>
       )}
 
+      {/* Multi-Card Comparison Queue Chips */}
+      {cardQueue.length > 0 && (
+        <div className="p-3 bg-slate-950 border-b border-slate-800 space-y-2">
+          <div className="flex items-center justify-between text-[10px] font-bold text-amber-400">
+            <span className="flex items-center gap-1">
+              <Layers className="w-3 h-3 text-amber-400" />
+              <span>Multi-Card Comparison Queue ({cardQueue.length}/3):</span>
+            </span>
+            <button
+              onClick={clearCardQueue}
+              className="text-slate-400 hover:text-rose-400 flex items-center gap-0.5"
+            >
+              <span>Clear Queue</span>
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {cardQueue.map((item) => (
+              <span
+                key={item.id}
+                className="text-[10px] font-extrabold bg-slate-900 border border-slate-700 text-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 max-w-[200px] truncate"
+              >
+                <span className="text-amber-400 uppercase text-[9px]">[{item.type}]</span>
+                <span className="truncate">{item.title}</span>
+                <button
+                  onClick={() => removeCardFromQueue(item.id)}
+                  className="text-slate-400 hover:text-rose-400 ml-1"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Messages Scroll Area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`flex gap-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {m.sender === 'bot' && (
-              <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 shrink-0">
-                <Bot className="w-4 h-4" />
-              </div>
-            )}
+        {messages.map((m) => {
+          const hasThink = m.text.includes('<think>');
+          let thinkContent = '';
+          let mainContent = m.text;
 
+          if (hasThink) {
+            const parts = m.text.split('</think>');
+            thinkContent = parts[0].replace('<think>', '').trim();
+            mainContent = parts[1] ? parts[1].trim() : '';
+          }
+
+          return (
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed space-y-1 ${
-                m.sender === 'user'
-                  ? 'bg-sky-600 text-white rounded-tr-none shadow-md font-medium'
-                  : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
-              }`}
+              key={m.id}
+              className={`flex gap-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className="whitespace-pre-wrap">{m.text}</div>
-              <div className={`text-[9px] ${m.sender === 'user' ? 'text-sky-200' : 'text-slate-500'} text-right`}>
-                {m.timestamp}
-              </div>
-            </div>
+              {m.sender === 'bot' && (
+                <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+              )}
 
-            {m.sender === 'user' && (
-              <div className="w-7 h-7 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 shrink-0">
-                <User className="w-4 h-4" />
+              <div
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed space-y-2 ${
+                  m.sender === 'user'
+                    ? 'bg-sky-600 text-white rounded-tr-none shadow-md font-medium'
+                    : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
+                }`}
+              >
+                {/* Collapsible Socratic CoT Thought Process Accordion */}
+                {hasThink && thinkContent && (
+                  <details className="bg-slate-900/90 border border-emerald-800/60 rounded-xl p-2 text-[11px] text-emerald-300">
+                    <summary className="font-extrabold cursor-pointer text-emerald-400 flex items-center gap-1">
+                      <span>🧠 Socratic Thought Process (&lt;think&gt;)</span>
+                    </summary>
+                    <p className="mt-2 text-slate-300 whitespace-pre-wrap leading-tight text-[10px] italic bg-slate-950/80 p-2 rounded">
+                      {thinkContent}
+                    </p>
+                  </details>
+                )}
+
+                <div className="whitespace-pre-wrap">{mainContent || m.text}</div>
+                <div className={`text-[9px] ${m.sender === 'user' ? 'text-sky-200' : 'text-slate-500'} text-right`}>
+                  {m.timestamp}
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+
+              {m.sender === 'user' && (
+                <div className="w-7 h-7 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {loading && (
           <div className="flex items-center gap-2 text-xs text-emerald-400 bg-slate-950 border border-slate-800 rounded-xl p-3 w-fit">
@@ -193,7 +266,7 @@ export const AIChatbotModal: React.FC = () => {
       <form onSubmit={handleSend} className="p-3 border-t border-slate-800 bg-slate-950/90 space-y-2">
         {chatInputPrompt && (
           <div className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-1 rounded border border-amber-800/80 flex justify-between items-center">
-            <span>Card prompt pre-filled for discussion</span>
+            <span>Card text pre-filled for discussion</span>
             <button type="button" onClick={() => setChatInputPrompt('')} className="text-amber-400 hover:text-white">Clear</button>
           </div>
         )}

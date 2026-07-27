@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { MoralityNode, VizParadigm } from '../types/morality';
 import { MORALITY_NODES } from '../data/moralityData';
 
+export interface CardQueueItem {
+  id: string;
+  title: string;
+  summary: string;
+  type: 'node' | 'news' | 'epoch' | 'prism';
+}
+
 interface HighlightRationale {
   title: string;
   icon: string;
@@ -23,6 +30,7 @@ interface MoralityState {
   chatInputPrompt: string;
   isEpochTimelineMinimized: boolean;
   isPulseNotificationDismissed: boolean;
+  cardQueue: CardQueueItem[];
 
   // Actions
   setSelectedNode: (node: MoralityNode | null) => void;
@@ -37,6 +45,9 @@ interface MoralityState {
   setChatInputPrompt: (prompt: string) => void;
   toggleEpochTimelineMinimized: () => void;
   dismissPulseNotification: () => void;
+  addCardToQueue: (card: CardQueueItem) => void;
+  removeCardFromQueue: (id: string) => void;
+  clearCardQueue: () => void;
   resetAll: () => void;
 }
 
@@ -54,6 +65,7 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   chatInputPrompt: '',
   isEpochTimelineMinimized: false,
   isPulseNotificationDismissed: false,
+  cardQueue: [],
 
   setSelectedNode: (node) => set((state) => ({
     selectedNode: node,
@@ -82,6 +94,26 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   toggleEpochTimelineMinimized: () => set((state) => ({ isEpochTimelineMinimized: !state.isEpochTimelineMinimized })),
   dismissPulseNotification: () => set({ isPulseNotificationDismissed: true }),
 
+  addCardToQueue: (card) => set((state) => {
+    const exists = state.cardQueue.some(c => c.id === card.id);
+    if (exists) return state;
+    const newQueue = [...state.cardQueue, card].slice(-3); // Keep up to 3 cards for comparison
+    const combinedPrompt = `Socrates, compare these items against foundational moral axioms:\n` +
+      newQueue.map((c, i) => `${i + 1}. [${c.type.toUpperCase()}] ${c.title}: ${c.summary}`).join('\n');
+    return { cardQueue: newQueue, chatInputPrompt: combinedPrompt, isChatOpen: true };
+  }),
+
+  removeCardFromQueue: (id) => set((state) => {
+    const newQueue = state.cardQueue.filter(c => c.id !== id);
+    const combinedPrompt = newQueue.length > 0
+      ? `Socrates, compare these items against foundational moral axioms:\n` +
+        newQueue.map((c, i) => `${i + 1}. [${c.type.toUpperCase()}] ${c.title}: ${c.summary}`).join('\n')
+      : '';
+    return { cardQueue: newQueue, chatInputPrompt: combinedPrompt };
+  }),
+
+  clearCardQueue: () => set({ cardQueue: [], chatInputPrompt: '' }),
+
   resetAll: () => set({
     selectedNode: null,
     activeDrawer: null,
@@ -91,6 +123,7 @@ export const useMoralityStore = create<MoralityState>((set) => ({
     isChatOpen: false,
     isSettingsOpen: false,
     chatInputPrompt: '',
-    isEpochTimelineMinimized: false
+    isEpochTimelineMinimized: false,
+    cardQueue: []
   })
 }));

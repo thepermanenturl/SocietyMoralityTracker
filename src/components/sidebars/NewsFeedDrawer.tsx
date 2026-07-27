@@ -24,6 +24,32 @@ export const NewsFeedDrawer: React.FC = () => {
   const [historicalNews] = useState(NEWS_FEED_DATA);
   const [liveNews, setLiveNews] = useState<typeof NEWS_FEED_DATA>([]);
 
+  // Background Heartbeat for connection auto-recovery
+  React.useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const savedSettings = localStorage.getItem('morality_agent_connection_settings_v1');
+        let baseUrl = 'http://127.0.0.1:8000';
+        if (savedSettings) {
+          try {
+            const parsed = JSON.parse(savedSettings);
+            baseUrl = parsed.localPortConfig?.url || parsed.remoteServerConfig?.url || baseUrl;
+          } catch (e) {}
+        }
+        const res = await axios.get(`${baseUrl.replace(/\/$/, '')}/api/health`, { timeout: 2000 });
+        if (res.status === 200) {
+          setIsBackendOffline(false);
+        }
+      } catch (e) {
+        setIsBackendOffline(true);
+      }
+    };
+
+    checkConnection();
+    const interval = setInterval(checkConnection, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (activeDrawer !== 'news') return null;
 
   const handleSelectNewsCard = (item: typeof NEWS_FEED_DATA[0]) => {
