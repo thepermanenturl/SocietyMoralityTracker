@@ -242,31 +242,20 @@ export const AIChatbotModal: React.FC = () => {
       {/* Messages Scroll Area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((m) => {
-          let thinkContent = '';
-          let mainContent = m.text;
-
-          if (m.text.includes('<think>')) {
-            if (m.text.includes('</think>')) {
-              const parts = m.text.split('</think>');
-              thinkContent = parts[0].replace('<think>', '').trim();
-              mainContent = parts.slice(1).join('</think>').trim();
+          let cleanMessage = m.text;
+          if (cleanMessage.includes('<think>')) {
+            if (cleanMessage.includes('</think>')) {
+              cleanMessage = cleanMessage.split('</think>').slice(1).join('</think>').trim();
             } else {
-              const rawThink = m.text.replace('<think>', '').trim();
-              const paras = rawThink.split(/\n\n+/);
-              if (paras.length > 1) {
-                thinkContent = paras.slice(0, -1).join('\n\n').trim();
-                mainContent = paras[paras.length - 1].trim();
-              } else {
-                mainContent = rawThink;
-              }
+              const raw = cleanMessage.replace('<think>', '').trim();
+              const paras = raw.split(/\n\n+/);
+              cleanMessage = paras.length > 1 ? paras[paras.length - 1].trim() : raw;
             }
           }
 
-          if (!mainContent || !mainContent.trim()) {
-            mainContent = thinkContent || m.text;
+          if (!cleanMessage || !cleanMessage.trim()) {
+            cleanMessage = "Greetings. I am your AI Socratic Ethics Agent. Present any moral dilemma or policy topic to begin our evaluation.";
           }
-
-          const hasThink = Boolean(thinkContent);
 
           return (
             <div
@@ -283,24 +272,10 @@ export const AIChatbotModal: React.FC = () => {
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed space-y-2 ${
                   m.sender === 'user'
                     ? 'bg-sky-600 text-white rounded-tr-none shadow-md font-medium'
-                    : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
+                    : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm font-normal'
                 }`}
               >
-                {/* Collapsible Socratic CoT Thought Process Accordion (COLLAPSED BY DEFAULT) */}
-                {hasThink && thinkContent && (
-                  <details className="bg-slate-900/90 border border-emerald-800/60 rounded-xl p-2.5 text-[11px] text-emerald-300 group">
-                    <summary className="font-extrabold cursor-pointer text-emerald-400 flex items-center gap-1 select-none">
-                      <BrainCircuit className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Socratic Reasoning Trace (Click to expand)</span>
-                    </summary>
-                    <div className="mt-2 text-slate-300 whitespace-pre-wrap leading-relaxed text-[10px] italic bg-slate-950/90 p-2.5 rounded-lg border border-slate-800/80">
-                      {thinkContent}
-                    </div>
-                  </details>
-                )}
-
-                {/* Main Concluding Response (Shown Prominently) */}
-                <div className="whitespace-pre-wrap">{mainContent || m.text}</div>
+                <div className="whitespace-pre-wrap">{cleanMessage}</div>
 
                 <div className={`text-[9px] ${m.sender === 'user' ? 'text-sky-200' : 'text-slate-500'} text-right`}>
                   {m.timestamp}
