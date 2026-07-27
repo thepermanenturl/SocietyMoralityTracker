@@ -9,6 +9,13 @@ export interface CardQueueItem {
   type: 'node' | 'news' | 'epoch' | 'prism';
 }
 
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'bot';
+  text: string;
+  timestamp: string;
+}
+
 interface HighlightRationale {
   title: string;
   icon: string;
@@ -31,6 +38,7 @@ interface MoralityState {
   isEpochTimelineMinimized: boolean;
   isPulseNotificationDismissed: boolean;
   cardQueue: CardQueueItem[];
+  chatMessages: ChatMessage[];
 
   // Actions
   setSelectedNode: (node: MoralityNode | null) => void;
@@ -48,6 +56,8 @@ interface MoralityState {
   addCardToQueue: (card: CardQueueItem) => void;
   removeCardFromQueue: (id: string) => void;
   clearCardQueue: () => void;
+  addChatMessage: (msg: ChatMessage) => void;
+  clearChatMessages: () => void;
   resetAll: () => void;
 }
 
@@ -66,6 +76,14 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   isEpochTimelineMinimized: false,
   isPulseNotificationDismissed: false,
   cardQueue: [],
+  chatMessages: [
+    {
+      id: 'welcome',
+      sender: 'bot',
+      text: "Greetings. I am the Socrates Ethics Vetting Agent. Ask me to analyze any moral claim, governance policy, or derivation path against foundational axioms.",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ],
 
   setSelectedNode: (node) => set((state) => ({
     selectedNode: node,
@@ -113,6 +131,9 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   }),
 
   clearCardQueue: () => set({ cardQueue: [], chatInputPrompt: '' }),
+
+  addChatMessage: (msg) => set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+  clearChatMessages: () => set({ chatMessages: [] }),
 
   resetAll: () => set({
     selectedNode: null,

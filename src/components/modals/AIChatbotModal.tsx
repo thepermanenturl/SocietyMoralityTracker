@@ -22,17 +22,12 @@ export const AIChatbotModal: React.FC = () => {
     setChatInputPrompt,
     cardQueue,
     removeCardFromQueue,
-    clearCardQueue
+    clearCardQueue,
+    chatMessages,
+    addChatMessage
   } = useMoralityStore();
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      sender: 'bot',
-      text: "Greetings. I am the Socrates Ethics Vetting Agent. Ask me to analyze any moral claim, governance policy, or derivation path against foundational axioms.",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const messages = chatMessages;
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean>(true);
@@ -77,8 +72,11 @@ export const AIChatbotModal: React.FC = () => {
   }, [chatInputPrompt]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [chatMessages, loading]);
 
   if (!isChatOpen) return null;
 
@@ -94,14 +92,14 @@ export const AIChatbotModal: React.FC = () => {
     if (!input.trim() || loading) return;
 
     const userMsgText = input.trim();
-    const userMsg: Message = {
+    const userMsg = {
       id: Date.now().toString(),
-      sender: 'user',
+      sender: 'user' as const,
       text: userMsgText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    addChatMessage(userMsg);
     setInput('');
     setChatInputPrompt('');
     setLoading(true);
@@ -137,22 +135,22 @@ export const AIChatbotModal: React.FC = () => {
         });
       }
 
-      const botMsg: Message = {
+      const botMsg = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot',
+        sender: 'bot' as const,
         text: botResponseText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, botMsg]);
+      addChatMessage(botMsg);
     } catch (e) {
       console.warn("Backend connection issue, generating conversational response:", e);
-      const fallbackMsg: Message = {
+      const fallbackMsg = {
         id: (Date.now() + 1).toString(),
-        sender: 'bot',
+        sender: 'bot' as const,
         text: `Regarding "${userMsgText}": As Socrates, I examine this claim against Layer 0 Axiom [A1] (Suffering Avoidance) and [A4] (Autonomy). Does this action respect voluntary consent, or does it impose unconsented harm?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, fallbackMsg]);
+      addChatMessage(fallbackMsg);
     } finally {
       setLoading(false);
     }
