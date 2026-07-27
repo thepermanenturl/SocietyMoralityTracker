@@ -2,8 +2,8 @@ import React from 'react';
 import { useMoralityStore } from './store/useMoralityStore';
 import { Navbar } from './components/navigation/Navbar';
 import { PrimitivesBar } from './components/navigation/PrimitivesBar';
+import { FloatingChatBubble } from './components/navigation/FloatingChatBubble';
 import { TreeView } from './components/canvas/TreeView';
-import { RadarView } from './components/canvas/RadarView';
 import { PrismView } from './components/canvas/PrismView';
 import { NodeDetailDrawer } from './components/sidebars/NodeDetailDrawer';
 import { NewsFeedDrawer } from './components/sidebars/NewsFeedDrawer';
@@ -22,6 +22,9 @@ export const App: React.FC = () => {
 
       {/* 3 Minimal Primitives Bar */}
       <PrimitivesBar />
+
+      {/* Floating Left AI Agent Chat Bubble Icon */}
+      <FloatingChatBubble />
 
       {/* Main Multi-Paradigm Canvas */}
       <main className="relative w-full h-screen">
