@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
 import { HISTORICAL_EPOCHS } from '../../data/historicalEpochsData';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export const BottomTimelineDock: React.FC = () => {
-  const { setActiveDrawer, setAiMatchedNodeIds, setHighlightRationale } = useMoralityStore();
+  const {
+    setActiveDrawer,
+    setAiMatchedNodeIds,
+    setHighlightRationale,
+    setChatInputPrompt,
+    toggleChat,
+    isEpochTimelineMinimized,
+    toggleEpochTimelineMinimized
+  } = useMoralityStore();
+
   const [activeIdx, setActiveIdx] = useState(3); // Default to UDHR 1948
 
   const activeEpoch = HISTORICAL_EPOCHS[activeIdx];
@@ -25,10 +35,29 @@ export const BottomTimelineDock: React.FC = () => {
       body: `Years: ${epoch.years} | Unrest Index: ${epoch.unrestScore}%\n\nPRIMARY CAUSE OF UNREST: ${epoch.unrestCause}\n\nSOCIETAL BLINDSPOTS & HISTORICAL REALITY: ${blindspotsSummary}`,
       nodeIds: epoch.keyNodes
     });
+
+    // Send text to chat text box for Socratic discussion & open left chat drawer!
+    setChatInputPrompt(`Discuss historical epoch: ${epoch.name} (${epoch.years}) - ${epoch.summary}`);
+    toggleChat(true);
   };
 
+  if (isEpochTimelineMinimized) {
+    return (
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-full px-4 py-1.5 shadow-2xl flex items-center gap-3">
+        <span className="text-xs font-extrabold text-sky-400">⏳ Epoch Timeline: {activeEpoch.name}</span>
+        <button
+          onClick={toggleEpochTimelineMinimized}
+          className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          title="Expand Epoch History Bar"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 transition-all">
       {/* Epoch Info Header */}
       <div className="flex items-center justify-between px-2 text-xs font-extrabold border-b border-slate-800 pb-2">
         <div className="flex items-center gap-2 text-sky-400">
@@ -47,6 +76,13 @@ export const BottomTimelineDock: React.FC = () => {
           }`}>
             {activeEpoch.unrestScore}%
           </span>
+          <button
+            onClick={toggleEpochTimelineMinimized}
+            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-2"
+            title="Minimize Epoch Bar"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

@@ -20,6 +20,9 @@ interface MoralityState {
   highlightRationale: HighlightRationale | null;
   isChatOpen: boolean;
   isSettingsOpen: boolean;
+  chatInputPrompt: string;
+  isEpochTimelineMinimized: boolean;
+  isPulseNotificationDismissed: boolean;
 
   // Actions
   setSelectedNode: (node: MoralityNode | null) => void;
@@ -31,6 +34,9 @@ interface MoralityState {
   setHighlightRationale: (rationale: HighlightRationale | null) => void;
   toggleChat: (open?: boolean) => void;
   toggleSettings: (open?: boolean) => void;
+  setChatInputPrompt: (prompt: string) => void;
+  toggleEpochTimelineMinimized: () => void;
+  dismissPulseNotification: () => void;
   resetAll: () => void;
 }
 
@@ -45,6 +51,9 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   highlightRationale: null,
   isChatOpen: false,
   isSettingsOpen: false,
+  chatInputPrompt: '',
+  isEpochTimelineMinimized: false,
+  isPulseNotificationDismissed: false,
 
   setSelectedNode: (node) => set((state) => ({
     selectedNode: node,
@@ -69,6 +78,9 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   setHighlightRationale: (rationale) => set({ highlightRationale: rationale }),
   toggleChat: (open) => set((state) => ({ isChatOpen: open !== undefined ? open : !state.isChatOpen })),
   toggleSettings: (open) => set((state) => ({ isSettingsOpen: open !== undefined ? open : !state.isSettingsOpen })),
+  setChatInputPrompt: (prompt) => set({ chatInputPrompt: prompt }),
+  toggleEpochTimelineMinimized: () => set((state) => ({ isEpochTimelineMinimized: !state.isEpochTimelineMinimized })),
+  dismissPulseNotification: () => set({ isPulseNotificationDismissed: true }),
 
   resetAll: () => set({
     selectedNode: null,
@@ -77,6 +89,8 @@ export const useMoralityStore = create<MoralityState>((set) => ({
     aiMatchedNodeIds: [],
     highlightRationale: null,
     isChatOpen: false,
-    isSettingsOpen: false
+    isSettingsOpen: false,
+    chatInputPrompt: '',
+    isEpochTimelineMinimized: false
   })
 }));

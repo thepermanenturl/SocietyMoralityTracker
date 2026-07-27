@@ -11,7 +11,7 @@ interface Message {
 }
 
 export const AIChatbotModal: React.FC = () => {
-  const { isChatOpen, toggleChat, searchQuery, selectedNode, setAiMatchedNodeIds, setHighlightRationale } = useMoralityStore();
+  const { isChatOpen, toggleChat, searchQuery, selectedNode, setAiMatchedNodeIds, setHighlightRationale, chatInputPrompt, setChatInputPrompt } = useMoralityStore();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -25,10 +25,16 @@ export const AIChatbotModal: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (searchQuery && isChatOpen) {
+    if (searchQuery) {
       setInput(searchQuery);
     }
-  }, [searchQuery, isChatOpen]);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (chatInputPrompt) {
+      setInput(chatInputPrompt);
+    }
+  }, [chatInputPrompt]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,19 +42,21 @@ export const AIChatbotModal: React.FC = () => {
 
   if (!isChatOpen) return null;
 
-  const handleSend = async (queryText?: string) => {
-    const textToSend = queryText || input;
-    if (!textToSend.trim() || loading) return;
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!input.trim() || loading) return;
 
+    const userMsgText = input.trim();
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: 'user',
-      text: textToSend,
+      text: userMsgText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    setChatInputPrompt('');
     setLoading(true);
 
     try {
@@ -62,7 +70,7 @@ export const AIChatbotModal: React.FC = () => {
       }
 
       const payload = {
-        prompt: textToSend,
+        prompt: userMsgText,
         session_id: 'socrates-session',
         context_node: selectedNode ? selectedNode.id : undefined,
         use_expert: true
@@ -72,7 +80,6 @@ export const AIChatbotModal: React.FC = () => {
       const botResponseText = res.data?.reply || res.data?.response || res.data?.text || 
         `Grounded in Foundational Axiom [A1] Suffering Avoidance and [A4] Autonomy. This policy promotes human flourishing.`;
 
-      // Illuminate vector-matched nodes on canvas and shade out non-matching nodes
       if (res.data?.matched_node_ids && res.data.matched_node_ids.length > 0) {
         setAiMatchedNodeIds(res.data.matched_node_ids);
         setHighlightRationale({
@@ -95,7 +102,7 @@ export const AIChatbotModal: React.FC = () => {
       const fallbackMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
-        text: `Regarding "${textToSend}": As Socrates, I examine this claim against Layer 0 Axiom [A1] (Suffering Avoidance) and [A4] (Autonomy). Does this action respect voluntary consent, or does it impose unconsented harm?`,
+        text: `Regarding "${userMsgText}": As Socrates, I examine this claim against Layer 0 Axiom [A1] (Suffering Avoidance) and [A4] (Autonomy). Does this action respect voluntary consent, or does it impose unconsented harm?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, fallbackMsg]);
@@ -105,84 +112,108 @@ export const AIChatbotModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl h-[600px] max-h-[85vh] bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-sky-500/20 border border-sky-400/30 text-sky-400">
-              <Bot className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                <span>Socrates AI Vetting Agent</span>
-                <span className="px-2 py-0.5 text-[9px] font-black rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ONLINE</span>
-              </h3>
-              <p className="text-[10px] text-slate-400">Connected to make_a_brain (Qwen 1.5B / Neo4j Graph RAG)</p>
-            </div>
+    <aside className="fixed left-0 top-16 w-[420px] max-w-[calc(100vw-32px)] h-[calc(100vh-64px)] z-40 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800 text-white flex flex-col shadow-2xl overflow-hidden transition-all duration-300">
+      {/* Header */}
+      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-emerald-950 border border-emerald-800 rounded-lg text-emerald-400">
+            <Bot className="w-5 h-5" />
           </div>
-
-          <button
-            onClick={() => toggleChat(false)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div>
+            <h2 className="text-sm font-extrabold text-white flex items-center gap-1.5">
+              <span>Socrates AI Agent</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            </h2>
+            <p className="text-[10px] text-emerald-400 font-semibold">DeepSeek-R1-Distill-1.5B • Socratic Engine</p>
+          </div>
         </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-950/60">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
-            >
-              <div className={`p-2 rounded-xl h-fit ${msg.sender === 'user' ? 'bg-sky-600 text-white' : 'bg-slate-800 border border-slate-700 text-sky-400'}`}>
-                {msg.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-              </div>
-
-              <div className={`rounded-2xl p-3.5 text-xs leading-relaxed ${
-                msg.sender === 'user'
-                  ? 'bg-sky-600/90 text-white rounded-tr-none'
-                  : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-md'
-              }`}>
-                <p className="whitespace-pre-line">{msg.text}</p>
-                <span className="text-[9px] opacity-60 mt-1 block text-right">{msg.timestamp}</span>
-              </div>
-            </div>
-          ))}
-
-          {loading && (
-            <div className="flex items-center gap-2 text-xs text-sky-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800 w-fit">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Socrates Agent analyzing graph & reasoning...</span>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Chat Input */}
-        <form
-          onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="p-3 border-t border-slate-800 bg-slate-900 flex items-center gap-2"
+        <button
+          onClick={() => toggleChat(false)}
+          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
         >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Selected Node Context Chip */}
+      {selectedNode && (
+        <div className="px-4 py-2 bg-slate-950 border-b border-slate-800 text-xs flex items-center justify-between">
+          <span className="text-slate-400 text-[10px]">Context Lock:</span>
+          <span className="font-extrabold text-cyan-400 text-[11px] truncate max-w-[280px]">
+            [{selectedNode.id}] {selectedNode.title}
+          </span>
+        </div>
+      )}
+
+      {/* Messages Scroll Area */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            className={`flex gap-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            {m.sender === 'bot' && (
+              <div className="w-7 h-7 rounded-lg bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400 shrink-0">
+                <Bot className="w-4 h-4" />
+              </div>
+            )}
+
+            <div
+              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed space-y-1 ${
+                m.sender === 'user'
+                  ? 'bg-sky-600 text-white rounded-tr-none shadow-md font-medium'
+                  : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
+              }`}
+            >
+              <div className="whitespace-pre-wrap">{m.text}</div>
+              <div className={`text-[9px] ${m.sender === 'user' ? 'text-sky-200' : 'text-slate-500'} text-right`}>
+                {m.timestamp}
+              </div>
+            </div>
+
+            {m.sender === 'user' && (
+              <div className="w-7 h-7 rounded-lg bg-sky-950 border border-sky-800 flex items-center justify-center text-sky-400 shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+            )}
+          </div>
+        ))}
+
+        {loading && (
+          <div className="flex items-center gap-2 text-xs text-emerald-400 bg-slate-950 border border-slate-800 rounded-xl p-3 w-fit">
+            <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+            <span>Socrates CoT reasoning in progress...</span>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Footer Form */}
+      <form onSubmit={handleSend} className="p-3 border-t border-slate-800 bg-slate-950/90 space-y-2">
+        {chatInputPrompt && (
+          <div className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-1 rounded border border-amber-800/80 flex justify-between items-center">
+            <span>Card prompt pre-filled for discussion</span>
+            <button type="button" onClick={() => setChatInputPrompt('')} className="text-amber-400 hover:text-white">Clear</button>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a claim or question for Socrates..."
-            className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500"
+            placeholder="Ask Socrates or discuss card..."
+            className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-medium"
           />
           <button
             type="submit"
-            disabled={loading || !input.trim()}
-            className="p-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white disabled:opacity-50 transition-all cursor-pointer"
+            disabled={!input.trim() || loading}
+            className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl disabled:opacity-40 transition-all shadow-md cursor-pointer"
           >
             <Send className="w-4 h-4" />
           </button>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </aside>
   );
 };

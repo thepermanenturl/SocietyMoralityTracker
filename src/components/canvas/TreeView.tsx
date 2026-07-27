@@ -37,7 +37,7 @@ const getNodeColorStyle = (node: MoralityNode): string => {
 };
 
 const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected: boolean; isHighlighted: boolean; isDimmed: boolean } }) => {
-  const { setSelectedNode } = useMoralityStore();
+  const { setSelectedNode, setChatInputPrompt } = useMoralityStore();
   const { node, isSelected, isHighlighted, isDimmed } = data;
 
   const colorStyle = getNodeColorStyle(node);
@@ -47,6 +47,7 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
       onClick={(e) => {
         e.stopPropagation();
         setSelectedNode(node);
+        setChatInputPrompt(`Discuss node [${node.id}] ${node.title}: ${node.statement}`);
       }}
       className={`px-5 py-3.5 rounded-2xl border bg-gradient-to-br ${colorStyle} transition-all duration-300 w-[250px] text-center relative overflow-hidden flex items-center justify-center min-h-[58px] ${
         isSelected
@@ -78,7 +79,7 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
 const nodeTypes = { customNode: CustomNodeComponent };
 
 export const TreeView: React.FC = () => {
-  const { nodes, selectedNode, setSelectedNode, aiMatchedNodeIds, isDarkMode } = useMoralityStore();
+  const { nodes, selectedNode, setSelectedNode, aiMatchedNodeIds, isDarkMode, isChatOpen } = useMoralityStore();
 
   // Compute set of connected node IDs for active selectedNode
   const connectedNodeIds = useMemo(() => {
@@ -192,7 +193,7 @@ export const TreeView: React.FC = () => {
   }, [nodes, selectedNode, connectedNodeIds, aiMatchedNodeIds]);
 
   return (
-    <div className={`w-full h-screen pt-16 pb-20 relative ${isDarkMode ? 'bg-slate-950' : 'bg-[#e6e4dd]'}`}>
+    <div className={`w-full h-screen pt-16 pb-20 relative transition-all duration-300 ${isChatOpen ? 'pl-[420px]' : ''} ${isDarkMode ? 'bg-slate-950' : 'bg-[#e6e4dd]'}`}>
       {/* ReactFlow Controls High Contrast Override */}
       <style>{`
         .react-flow__controls {
