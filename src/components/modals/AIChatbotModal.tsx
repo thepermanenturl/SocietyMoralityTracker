@@ -11,7 +11,7 @@ interface Message {
 }
 
 export const AIChatbotModal: React.FC = () => {
-  const { isChatOpen, toggleChat, searchQuery, selectedNode } = useMoralityStore();
+  const { isChatOpen, toggleChat, searchQuery, selectedNode, setAiMatchedNodeIds, setHighlightRationale } = useMoralityStore();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -70,6 +70,17 @@ export const AIChatbotModal: React.FC = () => {
       const res = await axios.post(`${baseUrl.replace(/\/$/, '')}/api/chat`, payload);
       const botResponseText = res.data?.reply || res.data?.response || res.data?.text || 
         `Grounded in Foundational Axiom [A1] Suffering Avoidance and [A4] Autonomy. This policy promotes human flourishing.`;
+
+      // Illuminate vector-matched nodes on canvas and shade out non-matching nodes
+      if (res.data?.matched_node_ids && res.data.matched_node_ids.length > 0) {
+        setAiMatchedNodeIds(res.data.matched_node_ids);
+        setHighlightRationale({
+          title: `Socrates Vector Retrieval Context`,
+          icon: '💬',
+          body: `Grounded in vector-matched nodes: ${res.data.matched_node_ids.join(', ')}`,
+          nodeIds: res.data.matched_node_ids
+        });
+      }
 
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
