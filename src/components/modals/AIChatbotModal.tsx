@@ -64,7 +64,8 @@ export const AIChatbotModal: React.FC = () => {
       const payload = {
         prompt: textToSend,
         session_id: 'socrates-session',
-        context_node: selectedNode ? selectedNode.id : undefined
+        context_node: selectedNode ? selectedNode.id : undefined,
+        use_expert: true
       };
 
       const res = await axios.post(`${baseUrl.replace(/\/$/, '')}/api/chat`, payload);
