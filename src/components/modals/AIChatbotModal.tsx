@@ -247,13 +247,11 @@ export const AIChatbotModal: React.FC = () => {
             if (cleanMessage.includes('</think>')) {
               cleanMessage = cleanMessage.split('</think>').slice(1).join('</think>').trim();
             } else {
-              const raw = cleanMessage.replace('<think>', '').trim();
-              const paras = raw.split(/\n\n+/);
-              cleanMessage = paras.length > 1 ? paras[paras.length - 1].trim() : raw;
+              cleanMessage = cleanMessage.replace('<think>', '').trim();
             }
           }
 
-          if (!cleanMessage || !cleanMessage.trim()) {
+          if (!cleanMessage || cleanMessage.trim().length < 5) {
             cleanMessage = "Greetings. I am your AI Socratic Ethics Agent. Present any moral dilemma or policy topic to begin our evaluation.";
           }
 
