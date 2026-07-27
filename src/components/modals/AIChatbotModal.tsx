@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
-import { X, Send, Bot, User, Sparkles, Loader2, Layers, Trash2 } from 'lucide-react';
+import { X, Send, Bot, User, Sparkles, Loader2, Layers, Trash2, BrainCircuit } from 'lucide-react';
 import axios from 'axios';
 
 interface Message {
@@ -35,7 +35,34 @@ export const AIChatbotModal: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState<boolean>(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Connection health check
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const savedSettings = localStorage.getItem('morality_agent_connection_settings_v1');
+        let baseUrl = 'http://127.0.0.1:8000';
+        if (savedSettings) {
+          try {
+            const parsed = JSON.parse(savedSettings);
+            baseUrl = parsed.localPortConfig?.url || parsed.remoteServerConfig?.url || baseUrl;
+          } catch (e) {}
+        }
+        const res = await axios.get(`${baseUrl.replace(/\/$/, '')}/api/health`, { timeout: 2500 });
+        setIsConnected(res.status === 200);
+      } catch (e) {
+        setIsConnected(false);
+      }
+    };
+
+    if (isChatOpen) {
+      checkConnection();
+      const interval = setInterval(checkConnection, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isChatOpen]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -54,6 +81,13 @@ export const AIChatbotModal: React.FC = () => {
   }, [messages]);
 
   if (!isChatOpen) return null;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -126,24 +160,34 @@ export const AIChatbotModal: React.FC = () => {
 
   return (
     <aside className="fixed left-0 top-16 w-[420px] max-w-[calc(100vw-32px)] h-[calc(100vh-64px)] z-40 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800 text-white flex flex-col shadow-2xl overflow-hidden transition-all duration-300">
-      {/* Header */}
+      {/* Header with Connection Health Indicator */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-emerald-950 border border-emerald-800 rounded-lg text-emerald-400">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 bg-emerald-950 border border-emerald-800 rounded-lg text-emerald-400 relative">
             <Bot className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-extrabold text-white flex items-center gap-1.5">
-              <span>Socrates AI Agent</span>
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-            </h2>
-            <p className="text-[10px] text-emerald-400 font-semibold">DeepSeek-R1-Distill-1.5B • Socratic CoT Engine</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                <span>Socrates AI Agent</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              </h2>
+              {/* Agent Connection Status Light (Green / Red) */}
+              <span className="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800 text-[10px] font-bold">
+                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse shadow-md shadow-emerald-500' : 'bg-rose-500'}`}></span>
+                <span className={isConnected ? 'text-emerald-400' : 'text-rose-400'}>
+                  {isConnected ? 'Connected' : 'Offline'}
+                </span>
+              </span>
+            </div>
+            <p className="text-[10px] text-emerald-400 font-semibold">DeepSeek-R1-Distill-1.5B • Socratic Engine</p>
           </div>
         </div>
 
         <button
           onClick={() => toggleChat(false)}
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          title="Close AI Sidebar"
         >
           <X className="w-5 h-5" />
         </button>
@@ -226,19 +270,22 @@ export const AIChatbotModal: React.FC = () => {
                     : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
                 }`}
               >
-                {/* Collapsible Socratic CoT Thought Process Accordion */}
+                {/* Collapsible Socratic CoT Thought Process Accordion (COLLAPSED BY DEFAULT) */}
                 {hasThink && thinkContent && (
-                  <details className="bg-slate-900/90 border border-emerald-800/60 rounded-xl p-2 text-[11px] text-emerald-300">
-                    <summary className="font-extrabold cursor-pointer text-emerald-400 flex items-center gap-1">
-                      <span>🧠 Socratic Thought Process (&lt;think&gt;)</span>
+                  <details className="bg-slate-900/90 border border-emerald-800/60 rounded-xl p-2.5 text-[11px] text-emerald-300 group">
+                    <summary className="font-extrabold cursor-pointer text-emerald-400 flex items-center gap-1 select-none">
+                      <BrainCircuit className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Socratic Reasoning Trace (Click to expand)</span>
                     </summary>
-                    <p className="mt-2 text-slate-300 whitespace-pre-wrap leading-tight text-[10px] italic bg-slate-950/80 p-2 rounded">
+                    <div className="mt-2 text-slate-300 whitespace-pre-wrap leading-relaxed text-[10px] italic bg-slate-950/90 p-2.5 rounded-lg border border-slate-800/80">
                       {thinkContent}
-                    </p>
+                    </div>
                   </details>
                 )}
 
+                {/* Main Concluding Response (Shown Prominently) */}
                 <div className="whitespace-pre-wrap">{mainContent || m.text}</div>
+
                 <div className={`text-[9px] ${m.sender === 'user' ? 'text-sky-200' : 'text-slate-500'} text-right`}>
                   {m.timestamp}
                 </div>
@@ -262,7 +309,7 @@ export const AIChatbotModal: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Footer Form */}
+      {/* Footer Form with Multiline Textarea + Shift+Enter Support */}
       <form onSubmit={handleSend} className="p-3 border-t border-slate-800 bg-slate-950/90 space-y-2">
         {chatInputPrompt && (
           <div className="text-[10px] text-amber-400 bg-amber-950/60 px-2 py-1 rounded border border-amber-800/80 flex justify-between items-center">
@@ -270,18 +317,20 @@ export const AIChatbotModal: React.FC = () => {
             <button type="button" onClick={() => setChatInputPrompt('')} className="text-amber-400 hover:text-white">Clear</button>
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
+        <div className="flex items-end gap-2">
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Socrates or discuss card..."
-            className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-medium"
+            onKeyDown={handleKeyDown}
+            rows={2}
+            placeholder="Ask Socrates... (Enter to send, Shift+Enter for new line)"
+            className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-medium resize-none"
           />
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl disabled:opacity-40 transition-all shadow-md cursor-pointer"
+            className="p-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl disabled:opacity-40 transition-all shadow-md cursor-pointer mb-0.5"
+            title="Send Message (Enter)"
           >
             <Send className="w-4 h-4" />
           </button>

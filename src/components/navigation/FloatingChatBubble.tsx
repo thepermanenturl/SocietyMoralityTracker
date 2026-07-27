@@ -1,19 +1,18 @@
 import React from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
-import { Bot, Sparkles } from 'lucide-react';
+import { Bot } from 'lucide-react';
 
 export const FloatingChatBubble: React.FC = () => {
   const { isChatOpen, toggleChat } = useMoralityStore();
 
+  // Hide the floating bubble completely when the AI sidebar drawer is open
+  if (isChatOpen) return null;
+
   return (
     <button
-      onClick={() => toggleChat(!isChatOpen)}
-      className={`fixed left-5 bottom-6 z-50 p-3.5 rounded-full shadow-2xl border transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group hover:scale-110 active:scale-95 ${
-        isChatOpen
-          ? 'bg-slate-900 border-emerald-500 text-emerald-400 ring-2 ring-emerald-500/50'
-          : 'bg-emerald-600 hover:bg-emerald-500 border-emerald-400 text-white ring-4 ring-emerald-950/60'
-      }`}
-      title={isChatOpen ? 'Close Socrates AI Agent' : 'Open Socrates AI Agent'}
+      onClick={() => toggleChat(true)}
+      className="fixed left-5 bottom-6 z-50 p-3.5 rounded-full shadow-2xl border transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group hover:scale-110 active:scale-95 bg-emerald-600 hover:bg-emerald-500 border-emerald-400 text-white ring-4 ring-emerald-950/60"
+      title="Open Socrates AI Agent"
     >
       <div className="relative flex items-center justify-center">
         <Bot className="w-6 h-6" />
@@ -23,7 +22,7 @@ export const FloatingChatBubble: React.FC = () => {
         </span>
       </div>
       <span className="text-xs font-extrabold hidden group-hover:inline-block pr-1 transition-all">
-        {isChatOpen ? 'Close Agent' : 'AI Socrates Agent'}
+        AI Socrates Agent
       </span>
     </button>
   );
