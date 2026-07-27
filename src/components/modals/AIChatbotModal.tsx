@@ -242,15 +242,31 @@ export const AIChatbotModal: React.FC = () => {
       {/* Messages Scroll Area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.map((m) => {
-          const hasThink = m.text.includes('<think>');
           let thinkContent = '';
           let mainContent = m.text;
 
-          if (hasThink) {
-            const parts = m.text.split('</think>');
-            thinkContent = parts[0].replace('<think>', '').trim();
-            mainContent = parts[1] ? parts[1].trim() : '';
+          if (m.text.includes('<think>')) {
+            if (m.text.includes('</think>')) {
+              const parts = m.text.split('</think>');
+              thinkContent = parts[0].replace('<think>', '').trim();
+              mainContent = parts.slice(1).join('</think>').trim();
+            } else {
+              const rawThink = m.text.replace('<think>', '').trim();
+              const paras = rawThink.split(/\n\n+/);
+              if (paras.length > 1) {
+                thinkContent = paras.slice(0, -1).join('\n\n').trim();
+                mainContent = paras[paras.length - 1].trim();
+              } else {
+                mainContent = rawThink;
+              }
+            }
           }
+
+          if (!mainContent || !mainContent.trim()) {
+            mainContent = thinkContent || m.text;
+          }
+
+          const hasThink = Boolean(thinkContent);
 
           return (
             <div
