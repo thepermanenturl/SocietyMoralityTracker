@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
-import { X, Vote, Building2, AlertTriangle, Users, Scale, CheckCircle2 } from 'lucide-react';
+import { X, Vote, Building2, AlertTriangle, Users, Scale, Bot } from 'lucide-react';
 
 const STATIC_DEMOGRAPHICS = [
   {
@@ -157,7 +157,7 @@ const STATIC_CONDORCET_DATA = {
 };
 
 export const ElectorateLegislatureDrawer: React.FC = () => {
-  const { activeDrawer, setActiveDrawer, isDarkMode, setSelectedNode } = useMoralityStore();
+  const { activeDrawer, setActiveDrawer, isDarkMode, setSelectedNode, setChatInputPrompt, toggleChat } = useMoralityStore();
   const [activeTab, setActiveTab] = useState<'demographics' | 'bills' | 'condorcet'>('demographics');
   const [demographics, setDemographics] = useState<any[]>(STATIC_DEMOGRAPHICS);
   const [bills, setBills] = useState<any[]>(STATIC_BILLS);
@@ -178,27 +178,20 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
     if (!isOpen) return;
 
     setLoading(true);
-    // Fetch Demographics with static fallback
     fetch('http://127.0.0.1:8001/api/electorate/demographics')
       .then(res => res.json())
       .then(data => {
         if (data.demographics && data.demographics.length > 0) setDemographics(data.demographics);
       })
-      .catch(() => {
-        setDemographics(STATIC_DEMOGRAPHICS);
-      });
+      .catch(() => setDemographics(STATIC_DEMOGRAPHICS));
 
-    // Fetch Bills with static fallback
     fetch('http://127.0.0.1:8001/api/legislature/bills')
       .then(res => res.json())
       .then(data => {
         if (data.bills && data.bills.length > 0) setBills(data.bills);
       })
-      .catch(() => {
-        setBills(STATIC_BILLS);
-      });
+      .catch(() => setBills(STATIC_BILLS));
 
-    // Fetch Condorcet Demo Scenario with static fallback
     fetch('http://127.0.0.1:8001/api/voting/condorcet/demo')
       .then(res => res.json())
       .then(data => {
@@ -213,29 +206,34 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
 
   if (!isOpen) return null;
 
+  const handleAskAIDebate = (title: string, summary: string, nodes: string[]) => {
+    setChatInputPrompt(`Socrates, analyze and debate this policy context:\nTITLE: ${title}\nSUMMARY: ${summary}\nLINKED MORAL NODES: ${nodes.join(', ')}`);
+    toggleChat(true);
+  };
+
   return (
-    <aside className={`fixed top-16 right-0 w-[540px] bottom-0 ${isDarkMode ? 'bg-slate-950/95 border-slate-800 text-slate-100' : 'bg-[#e6e4dd]/95 border-slate-400 text-slate-900'} backdrop-blur-xl border-l z-40 flex flex-col shadow-2xl transition-all duration-300`}>
+    <aside className={`fixed top-16 right-0 w-[540px] bottom-0 ${isDarkMode ? 'bg-slate-950/95 border-slate-800 text-slate-100' : 'bg-[#e6e4dd]/95 border-amber-900/30 text-slate-900'} backdrop-blur-xl border-l z-40 flex flex-col shadow-2xl transition-all duration-300`}>
       {/* Header */}
-      <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+      <div className={`p-4 border-b ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-amber-900/20 bg-[#d8d5ca]/95'} flex justify-between items-center`}>
         <div className="flex items-center gap-2.5">
           <div className="p-2 bg-emerald-950/80 border border-emerald-700 rounded-xl text-emerald-400">
             <Vote className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-extrabold tracking-wide text-white uppercase">Indian Electorate & Legislature Tracker</h2>
+            <h2 className={`text-sm font-extrabold tracking-wide uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Indian Electorate & Legislature Tracker</h2>
             <p className="text-[10px] text-slate-400 font-medium">Demographic Conscience, Bills & Condorcet Paradox Analysis</p>
           </div>
         </div>
         <button
           onClick={() => setActiveDrawer(null)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className={`p-1.5 rounded-lg ${isDarkMode ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-300'} transition-colors`}
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 text-xs font-bold bg-slate-900/60 p-1.5 gap-1.5">
+      <div className={`flex border-b ${isDarkMode ? 'border-slate-800 bg-slate-900/60' : 'border-amber-900/20 bg-[#d8d5ca]'} p-1.5 gap-1.5 text-xs font-bold`}>
         <button
           onClick={() => setActiveTab('demographics')}
           className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all ${
@@ -286,16 +284,16 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
           <div className="space-y-3">
             <div className="p-3 bg-emerald-950/40 border border-emerald-800/60 rounded-xl space-y-1">
               <span className="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider">Categorized Electorate Conscience</span>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className={`text-[11px] ${isDarkMode ? 'text-slate-300' : 'text-slate-800'} leading-relaxed`}>
                 7 Indian demographic cohorts mapped by population share, core priorities, historical memory, and moral weights over the 34 Morality Tree nodes.
               </p>
             </div>
 
             {demographics.map((cohort: any) => (
-              <div key={cohort.id} className="p-4 rounded-xl border border-slate-800 bg-slate-900/80 space-y-2.5 hover:border-emerald-500/50 transition">
+              <div key={cohort.id} className={`p-4 rounded-xl border ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-amber-300 bg-white'} space-y-2.5 hover:border-emerald-500/50 transition`}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-xs font-extrabold text-white">{cohort.name}</h3>
+                    <h3 className={`text-xs font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{cohort.name}</h3>
                     <p className="text-[10px] text-slate-400 font-medium">{cohort.region}</p>
                   </div>
                   <span className="text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full">
@@ -307,7 +305,7 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Core Priorities:</span>
                   <div className="flex flex-wrap gap-1">
                     {cohort.core_priorities.map((p: string, idx: number) => (
-                      <span key={idx} className="text-[10px] bg-slate-950 border border-slate-800 text-slate-300 px-2 py-0.5 rounded">
+                      <span key={idx} className={`text-[10px] ${isDarkMode ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-800'} border px-2 py-0.5 rounded`}>
                         {p}
                       </span>
                     ))}
@@ -318,13 +316,14 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Primary Morality Tree Nodes:</span>
                   <div className="flex flex-wrap gap-1">
                     {cohort.primary_moral_nodes.map((nId: string) => (
-                      <span
+                      <button
                         key={nId}
-                        onClick={() => setSelectedNode({ id: nId } as any)}
-                        className="text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded cursor-pointer hover:bg-cyan-900"
+                        onClick={() => setSelectedNode(nId as any)}
+                        className="text-[10px] font-bold bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                        title="Click to highlight node & view details"
                       >
                         [{nId}]
-                      </span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -332,6 +331,14 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                 <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 leading-relaxed">
                   <strong className="text-amber-400">Historical Memory:</strong> {cohort.historical_memory}
                 </div>
+
+                <button
+                  onClick={() => handleAskAIDebate(cohort.name, `Demographic cohort representing ${cohort.population_share_pct}% electorate with priorities: ${cohort.core_priorities.join(', ')}`, cohort.primary_moral_nodes)}
+                  className="w-full mt-2 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/80 text-emerald-300 text-[10px] font-extrabold transition-all cursor-pointer"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>🤖 Ask AI Agent to Debate this Cohort</span>
+                </button>
               </div>
             ))}
           </div>
@@ -342,13 +349,13 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
           <div className="space-y-3">
             <div className="p-3 bg-sky-950/40 border border-sky-800/60 rounded-xl space-y-1">
               <span className="text-[10px] font-extrabold uppercase text-sky-400 tracking-wider">Parliamentary Legislation & Policy Audits</span>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className={`text-[11px] ${isDarkMode ? 'text-slate-300' : 'text-slate-800'} leading-relaxed`}>
                 Dynamic auditing of Indian Parliament enactments mapped against Morality Tree nodes and demographic electorate support.
               </p>
             </div>
 
             {bills.map((bill: any) => (
-              <div key={bill.id} className="p-4 rounded-xl border border-slate-800 bg-slate-900/80 space-y-3">
+              <div key={bill.id} className={`p-4 rounded-xl border ${isDarkMode ? 'border-slate-800 bg-slate-900/80' : 'border-amber-300 bg-white'} space-y-3`}>
                 <div className="flex justify-between items-start">
                   <span className="text-[10px] font-bold bg-sky-950 text-sky-300 border border-sky-800 px-2 py-0.5 rounded">
                     {bill.category}
@@ -356,19 +363,20 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                   <span className="text-[10px] font-semibold text-emerald-400">{bill.status}</span>
                 </div>
 
-                <h3 className="text-xs font-extrabold text-white">{bill.title}</h3>
-                <p className="text-[11px] text-slate-300 leading-relaxed">{bill.summary}</p>
+                <h3 className={`text-xs font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{bill.title}</h3>
+                <p className={`text-[11px] ${isDarkMode ? 'text-slate-300' : 'text-slate-800'} leading-relaxed`}>{bill.summary}</p>
 
                 <div className="flex flex-wrap gap-1">
                   <span className="text-[10px] font-bold text-slate-400 mr-1">Linked Axioms:</span>
                   {bill.linked_morality_nodes.map((nId: string) => (
-                    <span
+                    <button
                       key={nId}
-                      onClick={() => setSelectedNode({ id: nId } as any)}
-                      className="text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded cursor-pointer hover:bg-cyan-900"
+                      onClick={() => setSelectedNode(nId as any)}
+                      className="text-[10px] font-bold bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                      title="Click to highlight node & view details"
                     >
                       [{nId}]
-                    </span>
+                    </button>
                   ))}
                 </div>
 
@@ -378,8 +386,8 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                     <span className="text-[10px] font-bold uppercase text-slate-400">Demographic Support Breakdown:</span>
                     <div className="space-y-1">
                       {bill.electorate_analysis.demographic_breakdown.map((demo: any) => (
-                        <div key={demo.cohort_id} className="flex justify-between items-center text-[10px] bg-slate-950 px-2.5 py-1 rounded border border-slate-900">
-                          <span className="text-slate-300 font-medium">{demo.cohort_name}</span>
+                        <div key={demo.cohort_id} className={`flex justify-between items-center text-[10px] ${isDarkMode ? 'bg-slate-950 border-slate-900 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-800'} px-2.5 py-1 rounded border`}>
+                          <span className="font-medium">{demo.cohort_name}</span>
                           <span className={`font-bold ${demo.support_percent >= 70 ? 'text-emerald-400' : (demo.support_percent >= 50 ? 'text-amber-400' : 'text-rose-400')}`}>
                             {demo.support_percent}% ({demo.stance})
                           </span>
@@ -388,6 +396,14 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                <button
+                  onClick={() => handleAskAIDebate(bill.title, bill.summary, bill.linked_morality_nodes)}
+                  className="w-full mt-2 flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-sky-950/80 hover:bg-sky-900 border border-sky-700/80 text-sky-300 text-[10px] font-extrabold transition-all cursor-pointer"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>🤖 Ask AI Agent to Debate this Bill</span>
+                </button>
               </div>
             ))}
           </div>
@@ -401,7 +417,7 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                 <AlertTriangle className="w-4 h-4" />
                 <span>Condorcet Paradox & Social Choice Analyzer</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className={`text-[11px] ${isDarkMode ? 'text-slate-300' : 'text-slate-800'} leading-relaxed`}>
                 {condorcetData.analysis_summary}
               </p>
             </div>
@@ -423,9 +439,20 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
             <div className="space-y-2">
               <span className="text-[10px] font-bold uppercase text-slate-400">Evaluated Legislative Options:</span>
               {condorcetData.options_evaluated.map((opt: any) => (
-                <div key={opt.id} className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-1">
-                  <h4 className="text-xs font-extrabold text-white">{opt.title}</h4>
-                  <p className="text-[10px] text-slate-300">{opt.summary}</p>
+                <div key={opt.id} className={`p-3 border rounded-xl space-y-1 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-amber-300'}`}>
+                  <h4 className={`text-xs font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{opt.title}</h4>
+                  <p className={`text-[10px] ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>{opt.summary}</p>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {opt.linked_nodes.map((nId: string) => (
+                      <button
+                        key={nId}
+                        onClick={() => setSelectedNode(nId as any)}
+                        className="text-[9px] font-bold bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        [{nId}]
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -435,8 +462,8 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
               <span className="text-[10px] font-bold uppercase text-slate-400">Head-to-Head Pairwise Vote Matches:</span>
               <div className="space-y-1.5 font-mono text-[10px]">
                 {condorcetData.pairwise_matches.map((match: any, idx: number) => (
-                  <div key={idx} className="p-2 bg-slate-950 rounded border border-slate-900 flex justify-between items-center">
-                    <span className="text-slate-300">{match.option_1} vs {match.option_2}</span>
+                  <div key={idx} className={`p-2 rounded border flex justify-between items-center ${isDarkMode ? 'bg-slate-950 border-slate-900' : 'bg-slate-100 border-slate-300'}`}>
+                    <span className="text-slate-400">{match.option_1} vs {match.option_2}</span>
                     <span className="text-emerald-400 font-bold">
                       {match.votes_1}% vs {match.votes_2}% &rarr; {match.winner} (+{match.margin_pct}%)
                     </span>
@@ -444,6 +471,14 @@ export const ElectorateLegislatureDrawer: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            <button
+              onClick={() => handleAskAIDebate("Condorcet Voting Paradox", condorcetData.analysis_summary, ["P3_EQUITY", "A6", "D8"])}
+              className="w-full mt-2 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-700/80 text-amber-300 text-xs font-extrabold transition-all cursor-pointer"
+            >
+              <Bot className="w-4 h-4" />
+              <span>🤖 Ask AI Agent to Debate this Voting Paradox</span>
+            </button>
           </div>
         )}
       </div>

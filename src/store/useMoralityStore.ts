@@ -73,7 +73,7 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   isChatOpen: false,
   isSettingsOpen: false,
   chatInputPrompt: '',
-  isEpochTimelineMinimized: false,
+  isEpochTimelineMinimized: true,
   isPulseNotificationDismissed: false,
   cardQueue: [],
   chatMessages: [
@@ -85,16 +85,24 @@ export const useMoralityStore = create<MoralityState>((set) => ({
     }
   ],
 
-  setSelectedNode: (node) => set((state) => ({
-    selectedNode: node,
-    activeDrawer: node ? 'inspector' : state.activeDrawer === 'inspector' ? null : state.activeDrawer,
-    highlightRationale: node ? {
-      title: `Selected Node: [${node.id}]`,
-      icon: '📌',
-      body: `${node.title}: ${node.statement}`,
-      nodeIds: [node.id]
-    } : state.highlightRationale
-  })),
+  setSelectedNode: (nodeOrPartial) => set((state) => {
+    let resolvedNode: MoralityNode | null = null;
+    if (nodeOrPartial) {
+      const targetId = typeof nodeOrPartial === 'string' ? nodeOrPartial : nodeOrPartial.id;
+      resolvedNode = MORALITY_NODES.find(n => n.id === targetId) || (typeof nodeOrPartial === 'object' ? nodeOrPartial : null);
+    }
+
+    return {
+      selectedNode: resolvedNode,
+      activeDrawer: resolvedNode ? 'inspector' : state.activeDrawer === 'inspector' ? null : state.activeDrawer,
+      highlightRationale: resolvedNode ? {
+        title: `Selected Node: [${resolvedNode.id}]`,
+        icon: '📌',
+        body: `${resolvedNode.title}: ${resolvedNode.statement}`,
+        nodeIds: [resolvedNode.id]
+      } : state.highlightRationale
+    };
+  }),
 
   setActiveParadigm: (paradigm) => set({ activeParadigm: paradigm }),
   toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),

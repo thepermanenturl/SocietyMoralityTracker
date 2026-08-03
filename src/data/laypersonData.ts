@@ -41,3 +41,30 @@ export const PRIMITIVE_ROOTS: Record<string, PrimitiveRoot> = {
     ]
   }
 };
+
+export const PARADIGM_PRIMITIVES: Record<string, { label: string; p1: string; p2: string; p3: string }> = {
+  tree: {
+    label: "3 Minimal Primitives",
+    p1: "🛡️ Non-Harm & Suffering",
+    p2: "🗽 Agency & Consent",
+    p3: "⚖️ Equal Weight & Fairness"
+  },
+  action_tree: {
+    label: "3 Action Imperatives",
+    p1: "🛡️ Don't Hurt Needlessly",
+    p2: "🗽 Protect Free Consent",
+    p3: "⚖️ Distribute Burden Fairly"
+  },
+  psychology_tree: {
+    label: "3 Psychology Foundations",
+    p1: "🧠 Mitigate Out-Group Bias",
+    p2: "👁️ Expose Autonomy Threats",
+    p3: "⚖️ Override Self-Serving Dissonance"
+  },
+  prism: {
+    label: "3 Refractive Spectrum Roots",
+    p1: "🛡️ Vulnerability Safeguards",
+    p2: "🗽 Autonomy & Choice",
+    p3: "⚖️ Equal Protection"
+  }
+};

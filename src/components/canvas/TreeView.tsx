@@ -1,32 +1,23 @@
 import React, { useMemo } from 'react';
 import {
   ReactFlow,
-  Controls,
   Background,
-  Node,
-  Edge,
+  Controls,
+  Handle,
   Position,
-  MarkerType,
-  BackgroundVariant,
-  Handle
+  BackgroundVariant
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useMoralityStore } from '../../store/useMoralityStore';
 import { MoralityNode } from '../../types/morality';
+import { ENRICHED_MORALITY_NODES, ACTION_MAPPINGS } from '../../data/moralityNodesData';
 
-import { ACTION_MAPPINGS } from '../../data/moralityData';
-import { PSYCHOLOGY_NODES } from '../../data/psychologyData';
-
-const getNodeColorStyle = (node: MoralityNode, isPsychologyTree: boolean = false): string => {
+const getNodeColorStyle = (node: MoralityNode, isPsychologyTree: boolean) => {
   if (isPsychologyTree) {
-    if (node.layer === -1) return 'from-purple-900/95 via-purple-950 to-slate-950 border-purple-400/90 text-purple-200 shadow-purple-900/50';
-    if (node.layer === 0) return 'from-indigo-900/95 via-indigo-950 to-slate-950 border-indigo-400/90 text-indigo-200 shadow-indigo-900/50';
-    if (node.layer === 1) return 'from-violet-900/95 via-violet-950 to-slate-950 border-violet-400/90 text-violet-200 shadow-violet-900/50';
-    if (node.layer === 2) return 'from-fuchsia-900/95 via-fuchsia-950 to-slate-950 border-fuchsia-400/90 text-fuchsia-200 shadow-fuchsia-900/50';
-    return 'from-cyan-900/95 via-cyan-950 to-slate-950 border-cyan-400/90 text-cyan-200 shadow-cyan-900/50';
+    return 'from-purple-900/95 via-purple-950 to-slate-950 border-purple-500/90 text-purple-200 shadow-purple-900/50';
   }
 
-  // Layer -1 Primitives & Layer 0 Axioms: Primary RGB Colors
+  // Minimal Origin Primitives (-1) & Foundational Axioms (0)
   if (node.id === 'P1_HARM' || node.id === 'A1' || node.id === 'A2') {
     return 'from-red-900/95 via-red-950 to-slate-950 border-red-500/90 text-red-300 shadow-red-900/50';
   }
@@ -55,6 +46,9 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
   const actionInfo = ACTION_MAPPINGS[node.id];
   const displayTitle = isActionTree ? (actionInfo?.actionTitle || node.title) : node.title;
 
+  const isPrimitive = node.layer === -1;
+  const isAxiom = node.layer === 0;
+
   return (
     <div
       onClick={(e) => {
@@ -62,9 +56,11 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
         setSelectedNode(node);
         setChatInputPrompt(`Discuss node [${node.id}] ${displayTitle}: ${actionInfo?.actionStatement || node.statement}`);
       }}
-      className={`px-5 py-3.5 rounded-2xl border bg-gradient-to-br ${colorStyle} transition-all duration-300 w-[260px] text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[62px] ${
+      className={`rounded-2xl border bg-gradient-to-br ${colorStyle} transition-all duration-300 text-center relative overflow-hidden flex flex-col items-center justify-center ${
+        isPrimitive ? 'w-[300px] px-6 py-4.5 min-h-[76px]' : isAxiom ? 'w-[270px] px-5 py-4 min-h-[68px]' : 'w-[260px] px-4 py-3.5 min-h-[62px]'
+      } ${
         isSelected
-          ? 'ring-4 ring-cyan-300 shadow-2xl shadow-cyan-500/90 scale-110 z-30 opacity-100 animate-pulse'
+          ? 'ring-4 ring-cyan-300 shadow-[0_0_30px_rgba(56,189,248,0.95)] scale-110 z-30 opacity-100'
           : isDimmed
           ? 'opacity-20 grayscale scale-95 border-slate-800 bg-slate-950 shadow-none z-0 blur-[0.4px]'
           : isHighlighted
@@ -74,7 +70,7 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
     >
       <Handle type="target" position={Position.Top} className="w-3.5 h-3.5 bg-cyan-400 border-2 border-slate-900 !-top-2" />
       
-      {/* Semi-transparent Node ID Watermark in Card Background */}
+      {/* Semi-transparent Node ID Watermark */}
       <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black opacity-10 text-slate-300 pointer-events-none select-none tracking-widest uppercase z-0 truncate px-2">
         {node.id}
       </div>
@@ -92,8 +88,10 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
         </span>
       )}
 
-      {/* ENLARGED HIGH CONTRAST Node Title */}
-      <div className="relative z-10 text-sm font-extrabold text-white truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full tracking-wide drop-shadow-md">
+      {/* Node Title with Custom Sizing per Layer */}
+      <div className={`relative z-10 font-extrabold text-white truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full tracking-wide drop-shadow-md ${
+        isPrimitive ? 'text-base font-black tracking-wider' : isAxiom ? 'text-sm font-extrabold' : 'text-xs font-bold'
+      }`}>
         {displayTitle}
       </div>
 
@@ -102,80 +100,72 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
   );
 };
 
-const nodeTypes = { customNode: CustomNodeComponent };
+const nodeTypes = {
+  customNode: CustomNodeComponent
+};
 
 export const TreeView: React.FC = () => {
-  const { nodes, selectedNode, setSelectedNode, aiMatchedNodeIds, isDarkMode, activeParadigm } = useMoralityStore();
+  const {
+    selectedNode,
+    setSelectedNode,
+    activeParadigm,
+    aiMatchedNodeIds,
+    isDarkMode,
+    setActiveDrawer
+  } = useMoralityStore();
+
+  const activeNodes = ENRICHED_MORALITY_NODES;
   const isActionTree = activeParadigm === 'action_tree';
   const isPsychologyTree = activeParadigm === 'psychology_tree';
 
-  const activeNodes = isPsychologyTree ? PSYCHOLOGY_NODES : nodes;
-
-  // Compute set of connected node IDs for active selectedNode
+  // Connected nodes map
   const connectedNodeIds = useMemo(() => {
     if (!selectedNode) return new Set<string>();
+    const set = new Set<string>([selectedNode.id]);
 
-    const connected = new Set<string>([selectedNode.id]);
-
-    // Add direct parents
     if (selectedNode.parentIds) {
-      selectedNode.parentIds.forEach(pId => connected.add(pId));
+      selectedNode.parentIds.forEach((pid) => set.add(pid));
     }
 
-    // Add direct children
-    activeNodes.forEach(n => {
-      if (n.parentIds && n.parentIds.includes(selectedNode.id)) {
-        connected.add(n.id);
+    activeNodes.forEach((node) => {
+      if (node.parentIds?.includes(selectedNode.id)) {
+        set.add(node.id);
       }
     });
 
-    return connected;
+    return set;
   }, [selectedNode, activeNodes]);
 
+  // Compute Layout Nodes & Edges
   const { initialNodes, initialEdges } = useMemo(() => {
-    const flowNodes: Node[] = [];
-    const flowEdges: Edge[] = [];
-
-    // Group nodes by layer: -1, 0, 1, 2, 3
-    const layers: Record<number, MoralityNode[]> = { '-1': [], 0: [], 1: [], 2: [], 3: [] };
-    activeNodes.forEach(n => {
-      const l = Math.min(3, Math.max(-1, n.layer));
-      if (!layers[l]) layers[l] = [];
-      layers[l].push(n);
+    const layers: Record<number, MoralityNode[]> = {};
+    activeNodes.forEach((n) => {
+      if (!layers[n.layer]) layers[n.layer] = [];
+      layers[n.layer].push(n);
     });
 
-    const layerYOffset: Record<number, number> = {
-      '-1': 30,
-      0: 220,
-      1: 440,
-      2: 660,
-      3: 880
-    };
+    const flowNodes: any[] = [];
+    const flowEdges: any[] = [];
 
-    Object.entries(layers).forEach(([layerKeyStr, layerNodes]) => {
-      const layerKey = parseInt(layerKeyStr, 10);
-      const count = layerNodes.length;
-      const spacingX = layerKey === -1 ? 540 : 340;
-      const startX = -((count - 1) * spacingX) / 2;
-      const y = layerYOffset[layerKey] || 0;
+    const layerKeys = Object.keys(layers)
+      .map(Number)
+      .sort((a, b) => a - b);
 
-      layerNodes.forEach((node, idx) => {
-        const x = startX + idx * spacingX;
+    const safeAiMatched = (aiMatchedNodeIds || []).map(id => id.toUpperCase());
+    const hasNewsHighlight = safeAiMatched.length > 0;
 
-        const safeAiMatched = (aiMatchedNodeIds || []).map(id => (id || '').toUpperCase());
-        const hasNewsHighlight = safeAiMatched.length > 0;
-        const isNewsMatch = hasNewsHighlight && safeAiMatched.includes(node.id.toUpperCase());
+    layerKeys.forEach((layerNum) => {
+      const nodeList = layers[layerNum];
+      const count = nodeList.length;
+      const spacingX = 320;
+      const yPos = (layerNum + 1) * 190;
 
-        let isConnected = true;
-        let isDimmed = false;
+      nodeList.forEach((node, idx) => {
+        const x = (idx - (count - 1) / 2) * spacingX;
+        const y = yPos;
 
-        if (selectedNode) {
-          isConnected = connectedNodeIds.has(node.id);
-          isDimmed = !isConnected;
-        } else if (hasNewsHighlight) {
-          isConnected = isNewsMatch;
-          isDimmed = !isNewsMatch;
-        }
+        const isConnected = connectedNodeIds.has(node.id) || safeAiMatched.includes(node.id.toUpperCase());
+        const isDimmed = (selectedNode !== null || hasNewsHighlight) && !isConnected;
 
         flowNodes.push({
           id: node.id,
@@ -210,16 +200,6 @@ export const TreeView: React.FC = () => {
                   ? '#38bdf8'
                   : isEdgeDimmed
                   ? (isDarkMode ? '#334155' : '#cbd5e1')
-                  : (isDarkMode ? '#64748b' : '#94a3b8'),
-                strokeWidth: isEdgeConnected ? 3 : 1.5,
-                opacity: isEdgeDimmed ? 0.25 : 0.8
-              },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: isEdgeConnected
-                  ? '#38bdf8'
-                  : isEdgeDimmed
-                  ? (isDarkMode ? '#334155' : '#cbd5e1')
                   : (isDarkMode ? '#64748b' : '#94a3b8')
               }
             });
@@ -231,13 +211,18 @@ export const TreeView: React.FC = () => {
     return { initialNodes: flowNodes, initialEdges: flowEdges };
   }, [activeNodes, selectedNode, connectedNodeIds, aiMatchedNodeIds, isDarkMode, isActionTree, isPsychologyTree]);
 
+  const handlePaneClick = () => {
+    setSelectedNode(null);
+    setActiveDrawer(null);
+  };
+
   return (
-    <div id="tour-main-canvas" className="w-full h-full pt-16 bg-slate-950">
+    <div id="tour-main-canvas" className={`w-full h-full pt-16 ${isDarkMode ? 'bg-slate-950' : 'bg-[#e6e4dd]'}`}>
       <ReactFlow
         nodes={initialNodes}
         edges={initialEdges}
         nodeTypes={nodeTypes}
-        onPaneClick={() => setSelectedNode(null)}
+        onPaneClick={handlePaneClick}
         fitView
         fitViewOptions={{ padding: 0.2 }}
         minZoom={0.2}
@@ -249,10 +234,10 @@ export const TreeView: React.FC = () => {
           variant={BackgroundVariant.Dots}
           gap={24}
           size={1.5}
-          color={isDarkMode ? '#334155' : '#cbd5e1'}
+          color={isDarkMode ? '#334155' : '#a8a29e'}
         />
         <Controls
-          className="!bg-slate-900/90 !border-slate-800 !text-white !rounded-xl !shadow-xl"
+          className="!bg-slate-900/95 !border-slate-800 !text-white !rounded-xl !shadow-xl"
         />
       </ReactFlow>
     </div>

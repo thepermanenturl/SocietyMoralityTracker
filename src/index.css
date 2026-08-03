@@ -5,3 +5,25 @@
     @apply bg-slate-950 text-slate-100 antialiased overflow-hidden;
   }
 }
+
+/* ReactFlow High-Contrast Controls Styling */
+.react-flow__controls-button {
+  background-color: #0f172a !important;
+  border-bottom: 1px solid #334155 !important;
+  color: #38bdf8 !important;
+  fill: #38bdf8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #1e293b !important;
+  fill: #7dd3fc !important;
+}
+
+.react-flow__controls-button svg {
+  fill: #38bdf8 !important;
+  width: 14px !important;
+  height: 14px !important;
+}

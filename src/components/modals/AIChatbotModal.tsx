@@ -24,7 +24,8 @@ export const AIChatbotModal: React.FC = () => {
     removeCardFromQueue,
     clearCardQueue,
     chatMessages,
-    addChatMessage
+    addChatMessage,
+    isDarkMode
   } = useMoralityStore();
 
   const messages = chatMessages;
@@ -157,7 +158,7 @@ export const AIChatbotModal: React.FC = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-16 w-[420px] max-w-[calc(100vw-32px)] h-[calc(100vh-64px)] z-40 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800 text-white flex flex-col shadow-2xl overflow-hidden transition-all duration-300">
+    <aside className={`fixed left-0 top-16 w-[420px] max-w-[calc(100vw-32px)] h-[calc(100vh-64px)] z-40 ${isDarkMode ? 'bg-slate-900/95 border-slate-800 text-white' : 'bg-[#e6e4dd]/95 border-amber-900/30 text-slate-900'} backdrop-blur-xl border-r flex flex-col shadow-2xl overflow-hidden transition-all duration-300`}>
       {/* Header with Connection Health Indicator */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
         <div className="flex items-center gap-2.5">

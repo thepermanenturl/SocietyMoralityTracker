@@ -14,14 +14,15 @@ export const NewsFeedDrawer: React.FC = () => {
     setChatInputPrompt,
     toggleChat,
     isPulseNotificationDismissed,
-    dismissPulseNotification
+    dismissPulseNotification,
+    isDarkMode
   } = useMoralityStore();
 
   const [activeTab, setActiveTab] = useState<'historical' | 'live'>('historical');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
-  const [historicalNews] = useState(NEWS_FEED_DATA);
+  const [historicalNews] = useState(NEWS_FEED_DATA.filter(item => item.title && !item.title.trim().startsWith('Untitled')));
   const [liveNews, setLiveNews] = useState<typeof NEWS_FEED_DATA>([]);
 
   // Background Heartbeat for connection auto-recovery
