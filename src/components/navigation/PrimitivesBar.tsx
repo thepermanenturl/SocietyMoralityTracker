@@ -82,21 +82,21 @@ export const PrimitivesBar: React.FC = () => {
 
       <button
         onClick={() => handlePrimitiveClick('P1_HARM')}
-        className="text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-500/80 text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900 transition-all cursor-pointer shadow-sm"
+        className="text-[11px] font-bold px-3 py-1 rounded-full border border-rose-500/80 text-rose-300 bg-rose-950/60 hover:bg-rose-900 transition-all cursor-pointer shadow-sm"
       >
         {currentTitles.p1}
       </button>
 
       <button
         onClick={() => handlePrimitiveClick('P2_AGENCY')}
-        className="text-[11px] font-bold px-3 py-1 rounded-full border border-sky-500/80 text-sky-300 bg-sky-950/60 hover:bg-sky-900 transition-all cursor-pointer shadow-sm"
+        className="text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-500/80 text-emerald-300 bg-emerald-950/60 hover:bg-emerald-900 transition-all cursor-pointer shadow-sm"
       >
         {currentTitles.p2}
       </button>
 
       <button
         onClick={() => handlePrimitiveClick('P3_EQUITY')}
-        className="text-[11px] font-bold px-3 py-1 rounded-full border border-amber-500/80 text-amber-300 bg-amber-950/60 hover:bg-amber-900 transition-all cursor-pointer shadow-sm"
+        className="text-[11px] font-bold px-3 py-1 rounded-full border border-sky-500/80 text-sky-300 bg-sky-950/60 hover:bg-sky-900 transition-all cursor-pointer shadow-sm"
       >
         {currentTitles.p3}
       </button>

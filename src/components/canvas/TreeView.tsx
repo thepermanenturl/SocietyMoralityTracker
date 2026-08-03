@@ -10,7 +10,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { useMoralityStore } from '../../store/useMoralityStore';
 import { MoralityNode } from '../../types/morality';
-import { ENRICHED_MORALITY_NODES, ACTION_MAPPINGS } from '../../data/moralityNodesData';
+import { ENRICHED_MORALITY_NODES, ACTION_MAPPINGS, EnrichedMoralityNode } from '../../data/moralityNodesData';
 
 const getNodeColorStyle = (node: MoralityNode, isPsychologyTree: boolean) => {
   if (isPsychologyTree) {
@@ -19,13 +19,13 @@ const getNodeColorStyle = (node: MoralityNode, isPsychologyTree: boolean) => {
 
   // Minimal Origin Primitives (-1) & Foundational Axioms (0)
   if (node.id === 'P1_HARM' || node.id === 'A1' || node.id === 'A2') {
-    return 'from-red-900/95 via-red-950 to-slate-950 border-red-500/90 text-red-300 shadow-red-900/50';
+    return 'from-rose-900/95 via-rose-950 to-slate-950 border-rose-500/90 text-rose-300 shadow-rose-900/50';
   }
   if (node.id === 'P2_AGENCY' || node.id === 'A3' || node.id === 'A4') {
     return 'from-emerald-900/95 via-emerald-950 to-slate-950 border-emerald-500/90 text-emerald-300 shadow-emerald-900/50';
   }
   if (node.id === 'P3_EQUITY' || node.id === 'A5' || node.id === 'A6') {
-    return 'from-blue-900/95 via-blue-950 to-slate-950 border-blue-500/90 text-blue-300 shadow-blue-900/50';
+    return 'from-sky-900/95 via-sky-950 to-slate-950 border-sky-500/90 text-sky-300 shadow-sky-900/50';
   }
 
   // Derived Layers: Natural Color Combinations
@@ -38,7 +38,7 @@ const getNodeColorStyle = (node: MoralityNode, isPsychologyTree: boolean) => {
   return layerStyles[node.layer] || 'from-slate-900 to-slate-950 border-slate-700 text-slate-300';
 };
 
-const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected: boolean; isHighlighted: boolean; isDimmed: boolean; isActionTree: boolean; isPsychologyTree: boolean } }) => {
+const CustomNodeComponent = ({ data }: { data: { node: EnrichedMoralityNode; isSelected: boolean; isHighlighted: boolean; isDimmed: boolean; isActionTree: boolean; isPsychologyTree: boolean } }) => {
   const { setSelectedNode, setChatInputPrompt } = useMoralityStore();
   const { node, isSelected, isHighlighted, isDimmed, isActionTree, isPsychologyTree } = data;
 
@@ -57,21 +57,21 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
         setChatInputPrompt(`Discuss node [${node.id}] ${displayTitle}: ${actionInfo?.actionStatement || node.statement}`);
       }}
       className={`rounded-2xl border bg-gradient-to-br ${colorStyle} transition-all duration-300 text-center relative overflow-hidden flex flex-col items-center justify-center ${
-        isPrimitive ? 'w-[300px] px-6 py-4.5 min-h-[76px]' : isAxiom ? 'w-[270px] px-5 py-4 min-h-[68px]' : 'w-[260px] px-4 py-3.5 min-h-[62px]'
+        isPrimitive ? 'w-[320px] px-6 py-4 min-h-[82px]' : isAxiom ? 'w-[280px] px-5 py-3.5 min-h-[76px]' : 'w-[270px] px-4 py-3 min-h-[70px]'
       } ${
         isSelected
-          ? 'ring-4 ring-cyan-300 shadow-[0_0_30px_rgba(56,189,248,0.95)] scale-110 z-30 opacity-100'
+          ? 'ring-4 ring-cyan-300 shadow-[0_0_30px_rgba(56,189,248,0.95)] scale-105 z-30 opacity-100'
           : isDimmed
           ? 'opacity-20 grayscale scale-95 border-slate-800 bg-slate-950 shadow-none z-0 blur-[0.4px]'
           : isHighlighted
           ? 'ring-2 ring-cyan-400 border-cyan-400/90 z-20 opacity-100 shadow-xl shadow-cyan-900/40'
-          : 'shadow-lg hover:scale-105 opacity-100'
+          : 'shadow-lg hover:scale-102 opacity-100'
       }`}
     >
       <Handle type="target" position={Position.Top} className="w-3.5 h-3.5 bg-cyan-400 border-2 border-slate-900 !-top-2" />
       
       {/* Semi-transparent Node ID Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black opacity-10 text-slate-300 pointer-events-none select-none tracking-widest uppercase z-0 truncate px-2">
+      <div className="absolute inset-0 flex items-center justify-center text-[11px] font-black opacity-15 text-slate-300 pointer-events-none select-none tracking-widest uppercase z-0 truncate px-2">
         {node.id}
       </div>
 
@@ -88,17 +88,25 @@ const CustomNodeComponent = ({ data }: { data: { node: MoralityNode; isSelected:
         </span>
       )}
 
-      {/* Node Title with Custom Sizing per Layer */}
-      <div className={`relative z-10 font-extrabold text-white truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full tracking-wide drop-shadow-md ${
+      {/* Multi-line Node Title */}
+      <div className={`relative z-10 font-extrabold text-white text-wrap break-words leading-tight max-w-full tracking-wide drop-shadow-md py-0.5 ${
         isPrimitive ? 'text-base font-black tracking-wider' : isAxiom ? 'text-sm font-extrabold' : 'text-xs font-bold'
       }`}>
         {displayTitle}
       </div>
 
+      {/* 2-Liner Subtitle Preview */}
+      {node.summary2Liner && !isPrimitive && (
+        <p className="relative z-10 text-[10px] text-slate-300/80 line-clamp-2 mt-0.5 leading-snug font-medium max-w-full px-1 pointer-events-none">
+          {node.summary2Liner}
+        </p>
+      )}
+
       <Handle type="source" position={Position.Bottom} className="w-3.5 h-3.5 bg-cyan-400 border-2 border-slate-900 !-bottom-2" />
     </div>
   );
 };
+
 
 const nodeTypes = {
   customNode: CustomNodeComponent
@@ -217,7 +225,7 @@ export const TreeView: React.FC = () => {
   };
 
   return (
-    <div id="tour-main-canvas" className={`w-full h-full pt-16 ${isDarkMode ? 'bg-slate-950' : 'bg-[#e6e4dd]'}`}>
+    <div id="tour-main-canvas" className={`w-full h-full pt-28 ${isDarkMode ? 'bg-slate-950' : 'bg-[#e6e4dd]'}`}>
       <ReactFlow
         nodes={initialNodes}
         edges={initialEdges}
