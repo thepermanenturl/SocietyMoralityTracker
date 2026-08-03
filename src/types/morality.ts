@@ -118,5 +118,5 @@ export interface NewsTaskCard {
   };
 }
 
-export type VizParadigm = 'tree' | 'radar' | 'prism';
-export type PerspectiveLens = 'none' | 'constitution' | 'modernBuddha' | 'wangchuk' | 'critic';
+export type VizParadigm = 'tree' | 'radar' | 'prism' | 'action_tree' | 'psychology_tree';
+export type PerspectiveLens = 'none' | 'constitution' | 'modernBuddha' | 'wangchuk' | 'critic' | 'psychology';

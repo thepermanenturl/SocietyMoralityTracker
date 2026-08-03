@@ -10,6 +10,7 @@ export const FloatingChatBubble: React.FC = () => {
 
   return (
     <button
+      id="tour-chat-bubble"
       onClick={() => toggleChat(true)}
       className="fixed left-5 bottom-6 z-50 p-3.5 rounded-full shadow-2xl border transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group hover:scale-110 active:scale-95 bg-emerald-600 hover:bg-emerald-500 border-emerald-400 text-white ring-4 ring-emerald-950/60"
       title="Open Socrates AI Agent"

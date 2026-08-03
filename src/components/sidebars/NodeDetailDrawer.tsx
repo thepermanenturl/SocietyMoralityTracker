@@ -53,6 +53,7 @@ export const NodeDetailDrawer: React.FC = () => {
             className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold rounded-xl p-2.5 focus:outline-none focus:border-sky-500 cursor-pointer"
           >
             <option value="none">💡 Daily Dilemma & Real-Life Decision Making</option>
+            <option value="psychology">🧠 Behavioral Psychology & Cognitive Biases</option>
             <option value="constitution">🏛️ Constitution of India (Article & Legal Code)</option>
             <option value="modernBuddha">🧘 Modern Buddha (Lived Virtue Story)</option>
             <option value="wangchuk">🏔️ Sonam Wangchuk (Homage & Climate Fast)</option>
@@ -70,6 +71,28 @@ export const NodeDetailDrawer: React.FC = () => {
               <p className="text-xs text-slate-300 leading-relaxed">
                 When facing everyday conflicts at work or home, grounding your decision in [{selectedNode.id}] provides immediate ethical clarity even if executing it requires personal sacrifice.
               </p>
+            </div>
+          )}
+
+          {activeLens === 'psychology' && (
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-center gap-2 font-bold text-purple-400">
+                <span>🧠 Associated Behavioral Psychology & Cognitive Biases</span>
+              </div>
+              <div className="p-3 bg-purple-950/40 rounded-xl border border-purple-800/60 space-y-2">
+                <div className="font-bold text-purple-200">PSYC_12: Meta-Cognitive Self-Reflection & Cognitive Biases</div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  Adhering to [{selectedNode.id}] ({selectedNode.title}) counteracts evolutionary tribalism, confirmation bias, and diffusion of responsibility.
+                </p>
+                <div className="pt-1">
+                  <div className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">Targeted Cognitive Blind Spots:</div>
+                  <ul className="text-[11px] text-slate-300 space-y-1 mt-1">
+                    <li>• Tribal Out-group Dehumanization (PSYC_1)</li>
+                    <li>• Rationalization of Harm under Dissonance (PSYC_2)</li>
+                    <li>• Hyperbolic Short-Term Discounting (PSYC_7)</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
 

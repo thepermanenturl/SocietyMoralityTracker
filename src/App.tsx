@@ -7,10 +7,12 @@ import { TreeView } from './components/canvas/TreeView';
 import { PrismView } from './components/canvas/PrismView';
 import { NodeDetailDrawer } from './components/sidebars/NodeDetailDrawer';
 import { NewsFeedDrawer } from './components/sidebars/NewsFeedDrawer';
+import { ElectorateLegislatureDrawer } from './components/sidebars/ElectorateLegislatureDrawer';
 import { HighlightRationaleCard } from './components/sidebars/HighlightRationaleCard';
 import { BottomTimelineDock } from './components/timeline/BottomTimelineDock';
 import { AIChatbotModal } from './components/modals/AIChatbotModal';
 import { SettingsModal } from './components/modals/SettingsModal';
+import { GuidedTour } from './components/onboarding/GuidedTour';
 
 export const App: React.FC = () => {
   const { activeParadigm, isDarkMode } = useMoralityStore();
@@ -28,13 +30,14 @@ export const App: React.FC = () => {
 
       {/* Main Multi-Paradigm Canvas */}
       <main className="relative w-full h-screen">
-        {activeParadigm === 'tree' && <TreeView />}
+        {(activeParadigm === 'tree' || activeParadigm === 'action_tree' || activeParadigm === 'psychology_tree') && <TreeView />}
         {activeParadigm === 'prism' && <PrismView />}
       </main>
 
       {/* Sidebars */}
       <NodeDetailDrawer />
       <NewsFeedDrawer />
+      <ElectorateLegislatureDrawer />
 
       {/* Socrates AI Chatbot Modal */}
       <AIChatbotModal />
@@ -47,6 +50,9 @@ export const App: React.FC = () => {
 
       {/* Bottom Horizontal Timeline Dock */}
       <BottomTimelineDock />
+
+      {/* First-Time Guided Onboarding Tour */}
+      <GuidedTour />
     </div>
   );
 };

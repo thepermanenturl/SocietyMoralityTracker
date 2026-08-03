@@ -57,7 +57,7 @@ export const BottomTimelineDock: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 transition-all">
+    <div id="tour-timeline" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 transition-all">
       {/* Epoch Info Header */}
       <div className="flex items-center justify-between px-2 text-xs font-extrabold border-b border-slate-800 pb-2">
         <div className="flex items-center gap-2 text-sky-400">

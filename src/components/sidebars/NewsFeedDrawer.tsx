@@ -52,16 +52,22 @@ export const NewsFeedDrawer: React.FC = () => {
 
   if (activeDrawer !== 'news') return null;
 
-  const handleSelectNewsCard = (item: typeof NEWS_FEED_DATA[0]) => {
-    setAiMatchedNodeIds(item.violatedNodes);
+  const handleSelectNewsCard = (item: any) => {
+    if (!item) return;
+    const violated = item.violatedNodes || item.violated_nodes || [];
+    setAiMatchedNodeIds(violated);
+
+    const upholderHeadline = item.upholderStance?.headline || item.upholder_stance?.headline || '🛡️ Rights Upholder';
+    const upholderAnalysis = item.upholderStance?.analysis || item.upholder_stance?.analysis || '';
+    const stanceText = upholderAnalysis ? `\n\n${upholderHeadline}: ${upholderAnalysis}` : '';
+
     setHighlightRationale({
-      title: `Governance News: ${item.title}`,
+      title: `Governance News: ${item.title || 'Untitled Story'}`,
       icon: '📰',
-      body: `Category: ${item.category} | Source: ${item.newsPublisher}. ${item.summary}\n\n${item.upholderStance.headline}: ${item.upholderStance.analysis}`,
-      nodeIds: item.violatedNodes
+      body: `Category: ${item.category || 'General'} | Source: ${item.newsPublisher || item.source || 'News Wire'}. ${item.summary || ''}${stanceText}`,
+      nodeIds: violated
     });
-    // Send text to chat text box for Socratic discussion and open chat drawer!
-    setChatInputPrompt(`Discuss news: ${item.title} - ${item.summary}`);
+    setChatInputPrompt(`Discuss news: ${item.title || ''} - ${item.summary || ''}`);
     toggleChat(true);
   };
 
@@ -226,12 +232,14 @@ export const NewsFeedDrawer: React.FC = () => {
           </div>
         ) : (
           currentDisplayedNews.map((item) => {
-            const isRelatedToSelectedNode = !selectedNode || item.violatedNodes.includes(selectedNode.id);
+            const violatedNodes = item.violatedNodes || (item as any).violated_nodes || [];
+            const violatedNodeTitles = item.violatedNodeTitles || (item as any).violated_node_titles || [];
+            const isRelatedToSelectedNode = !selectedNode || violatedNodes.includes(selectedNode.id);
             const isShadedOut = selectedNode !== null && !isRelatedToSelectedNode;
 
             return (
               <div
-                key={item.id}
+                key={item.id || item.newsUrl || (item as any).url}
                 onClick={() => handleSelectNewsCard(item)}
                 className={`rounded-xl p-4 space-y-3 cursor-pointer transition-all duration-300 border ${
                   isShadedOut
@@ -242,17 +250,29 @@ export const NewsFeedDrawer: React.FC = () => {
                 }`}
               >
                 <div className="flex justify-between items-start">
-                  <span className="text-[10px] font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800 uppercase">
-                    {item.category}
-                  </span>
-                  <span className="text-[10px] text-amber-400 font-semibold">{item.date}</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800 uppercase">
+                      {item.category || 'General'}
+                    </span>
+                    {(item as any).trust_meter?.trust_percent && (
+                      <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">
+                        🛡️ {(item as any).trust_meter.trust_percent}% Trust
+                      </span>
+                    )}
+                    {(item as any).graph_rag?.emotional_valence?.dominant && (
+                      <span className="text-[10px] font-bold text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-800">
+                        🎭 {(item as any).graph_rag.emotional_valence.dominant}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-amber-400 font-semibold">{item.date || ''}</span>
                 </div>
 
-                <h3 className="text-xs font-extrabold text-white leading-snug">{item.title}</h3>
-                <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">{item.summary}</p>
+                <h3 className="text-xs font-extrabold text-white leading-snug">{item.title || 'Untitled'}</h3>
+                <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">{item.summary || ''}</p>
 
                 <div className="flex flex-wrap gap-1 pt-1">
-                  {item.violatedNodeTitles.map((tag, idx) => (
+                  {violatedNodeTitles.map((tag: string, idx: number) => (
                     <span key={`tag-${idx}`} className="text-[10px] font-semibold bg-rose-950/80 border border-rose-800 text-rose-300 px-2 py-0.5 rounded">
                       {tag}
                     </span>
@@ -260,7 +280,7 @@ export const NewsFeedDrawer: React.FC = () => {
                 </div>
 
                 <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-[10px] text-slate-400">
-                  <span>Source: {item.newsPublisher}</span>
+                  <span>Source: {item.newsPublisher || (item as any).source || 'Wire'}</span>
                   <a
                     href={item.newsUrl}
                     target="_blank"

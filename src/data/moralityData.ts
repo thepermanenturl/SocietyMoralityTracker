@@ -344,3 +344,40 @@ export const MORALITY_NODES: MoralityNode[] = [
     status: "ratified"
   }
 ];
+
+export const ACTION_MAPPINGS: Record<string, { actionTitle: string; actionStatement: string }> = {
+  "P1_HARM": { actionTitle: "Don't Hurt Needlessly", actionStatement: "Do not inflict physical, psychological, or unnecessary suffering on living beings." },
+  "P2_AGENCY": { actionTitle: "Respect Choice & Agency", actionStatement: "Do not force or coerce others; honor personal choices and bodily autonomy." },
+  "P3_EQUITY": { actionTitle: "Treat Everyone Fairly", actionStatement: "Apply rules equally and do not give unfair privilege based on status." },
+  "A1": { actionTitle: "Relieve Active Pain", actionStatement: "Actively step in to prevent and mitigate suffering in conscious beings." },
+  "A2": { actionTitle: "Protect Living Beings", actionStatement: "Safeguard lives and treat all sentient creatures with inherent value." },
+  "A3": { actionTitle: "Practice Reciprocity", actionStatement: "Treat others standardly as you would demand to be treated yourself." },
+  "A4": { actionTitle: "Uphold Freedom of Choice", actionStatement: "Ensure individuals retain control over their own decisions and destiny." },
+  "A5": { actionTitle: "Preserve Living Systems", actionStatement: "Protect ecological habitats and environmental sustainability." },
+  "D1": { actionTitle: "Assist People in Distress", actionStatement: "Provide emergency aid and relief to those facing immediate danger." },
+  "D2": { actionTitle: "Tell Truth & Keep Commitments", actionStatement: "Be honest in public communications and uphold contractual promises." },
+  "D3": { actionTitle: "Defend Free Expression", actionStatement: "Allow open debate and protect peaceful dissent from censorship." },
+  "D4": { actionTitle: "Provide Public Education", actionStatement: "Guarantee access to scientific knowledge and critical thinking for all." },
+  "D5": { actionTitle: "Ensure Healthcare Access", actionStatement: "Provide life-saving medical care regardless of income or background." },
+  "D6": { actionTitle: "Enforce Fair & Open Trials", actionStatement: "Guarantee legal defense, due process, and unbiased judicial trials." },
+  "D7": { actionTitle: "Provide Shelter & Clean Water", actionStatement: "Ensure basic human survival infrastructure for all community members." },
+  "D8": { actionTitle: "Hold Power Accountable", actionStatement: "Subject leaders and institutions to public oversight and democratic voting." },
+  "E1": { actionTitle: "Ban Mass Surveillance", actionStatement: "Prohibit indiscriminate tracking and monitoring of citizens' private lives." },
+  "E2": { actionTitle: "Share Tech & Medicines Fairly", actionStatement: "Prevent patent monopolies from withholding essential life-saving tools." },
+  "E3": { actionTitle: "Protect Personal Data", actionStatement: "Enforce digital privacy and prevent unauthorized data harvesting." },
+  "E4": { actionTitle: "Abolish Exploitative Labor", actionStatement: "Pay living wages and eradicate human trafficking and slave conditions." },
+  "E5": { actionTitle: "Stop Cruelty to Animals", actionStatement: "End factory farm abuse and ban testing on sentient animals." },
+  "E6": { actionTitle: "Cut Carbon & Transition Energy", actionStatement: "Shift rapidly from fossil fuels to renewable energy to curb warming." },
+  "E7": { actionTitle: "Enforce AI Safety Controls", actionStatement: "Prevent autonomous AI systems from making life-and-death decisions." },
+  "E8": { actionTitle: "Safeguard Future Generations", actionStatement: "Do not deplete planetary resources or leave toxic nuclear/climate debts." },
+  "E9": { actionTitle: "Dismantle WMD Arsenals", actionStatement: "Abolish nuclear, biological, and chemical weapons globally." },
+  "E10": { actionTitle: "Tax Wealth Concentration", actionStatement: "Fund public goods by regulating oligarchic wealth hoarding." },
+  "E11": { actionTitle: "Build Public Infrastructure", actionStatement: "Invest in affordable, accessible transit and public utilities." },
+  "E12": { actionTitle: "Honor Indigenous Treaties", actionStatement: "Respect native land treaties and ancestral environmental stewardship." },
+  "E13": { actionTitle: "Regulate Human Gene Editing", actionStatement: "Ban eugenic genetic modifications while permitting curative therapies." },
+  "X1": { actionTitle: "Allocate Supplies Fairly in Crises", actionStatement: "Distribute ventilator/triage care based on medical need, not wealth." },
+  "X2": { actionTitle: "Protect Civil Liberties in Crises", actionStatement: "Ensure emergency police powers expire automatically after threats pass." },
+  "X3": { actionTitle: "Shield Whistleblowers", actionStatement: "Protect insiders who expose corporate corruption or government abuse." },
+  "X4": { actionTitle: "Make Corporate Polluters Pay", actionStatement: "Force toxic waste dumping corporations to remediate damaged ecosystems." },
+  "X5": { actionTitle: "Protect Reproductive Freedom", actionStatement: "Ensure individuals control their own bodily healthcare and family planning." }
+};

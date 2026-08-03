@@ -42,7 +42,8 @@ export const RadarView: React.FC = () => {
             const x = r * Math.cos(angle);
             const y = r * Math.sin(angle);
             const isSelected = selectedNode?.id === node.id;
-            const isHighlighted = aiMatchedNodeIds.includes(node.id.toUpperCase());
+            const safeAiMatched = (aiMatchedNodeIds || []).map(id => (id || '').toUpperCase());
+            const isHighlighted = safeAiMatched.includes(node.id.toUpperCase());
 
             return (
               <g

@@ -32,7 +32,7 @@ export const PrimitivesBar: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md border border-slate-800 px-4 py-1.5 rounded-full shadow-lg max-w-[calc(100vw-32px)]">
+    <div id="tour-primitives-bar" className="fixed top-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 bg-slate-900/85 backdrop-blur-md border border-slate-800 px-4 py-1.5 rounded-full shadow-lg max-w-[calc(100vw-32px)]">
       <span className="text-xs font-bold text-amber-400">🌱 3 Minimal Primitives:</span>
 
       <button

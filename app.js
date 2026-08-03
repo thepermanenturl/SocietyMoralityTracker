@@ -1,4 +1,9 @@
 /**
+ * @deprecated Legacy Architecture Entry Point.
+ * The canonical modern application is in src/ (React + TypeScript + Vite).
+ * Edit src/components/ and src/App.tsx instead of this file.
+ */
+/**
  * App — Main Coordinator for Morality Tree Explorer with AI Gateway Integration
  */
 document.addEventListener("DOMContentLoaded", () => {

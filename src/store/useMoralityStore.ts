@@ -28,7 +28,7 @@ interface MoralityState {
   selectedNode: MoralityNode | null;
   activeParadigm: VizParadigm;
   isDarkMode: boolean;
-  activeDrawer: 'inspector' | 'news' | null;
+  activeDrawer: 'inspector' | 'news' | 'electorate' | 'condorcet' | null;
   searchQuery: string;
   aiMatchedNodeIds: string[];
   highlightRationale: HighlightRationale | null;
@@ -44,7 +44,7 @@ interface MoralityState {
   setSelectedNode: (node: MoralityNode | null) => void;
   setActiveParadigm: (paradigm: VizParadigm) => void;
   toggleDarkMode: () => void;
-  setActiveDrawer: (drawer: 'inspector' | 'news' | null) => void;
+  setActiveDrawer: (drawer: 'inspector' | 'news' | 'electorate' | 'condorcet' | null) => void;
   setSearchQuery: (query: string) => void;
   setAiMatchedNodeIds: (nodeIds: string[]) => void;
   setHighlightRationale: (rationale: HighlightRationale | null) => void;
@@ -104,7 +104,7 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   })),
 
   setSearchQuery: (query) => set({ searchQuery: query }),
-  setAiMatchedNodeIds: (nodeIds) => set({ aiMatchedNodeIds: nodeIds }),
+  setAiMatchedNodeIds: (nodeIds) => set({ aiMatchedNodeIds: nodeIds || [] }),
   setHighlightRationale: (rationale) => set({ highlightRationale: rationale }),
   toggleChat: (open) => set((state) => ({ isChatOpen: open !== undefined ? open : !state.isChatOpen })),
   toggleSettings: (open) => set((state) => ({ isSettingsOpen: open !== undefined ? open : !state.isSettingsOpen })),
