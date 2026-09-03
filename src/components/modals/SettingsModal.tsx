@@ -72,9 +72,14 @@ REQUIRED WORKFLOW:
         <div className="overflow-y-auto space-y-5 pr-1">
           {/* Connection Details Form */}
           <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-3">
-            <label className="text-xs font-bold text-sky-300 uppercase tracking-wider block">
-              Local Agent Server or Tunnel URL
-            </label>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-sky-300 uppercase tracking-wider block">
+                Developer / Local Testing Mode (Optional)
+              </label>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                The online cloud version automatically routes ethical reasoning and AI dialogues through Cloudflare Edge. You can optionally specify a custom local endpoint below for offline testing or private model experimentation.
+              </p>
+            </div>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -91,7 +96,7 @@ REQUIRED WORKFLOW:
               </button>
             </div>
             <p className="text-[11px] text-slate-400">
-              Default local port: <code className="text-sky-400">http://127.0.0.1:8000</code> (`make_a_brain`).
+              Optional local port: <code className="text-sky-400">http://127.0.0.1:8000</code>. Production deployments automatically use the Cloudflare Edge API.
             </p>
           </div>
 

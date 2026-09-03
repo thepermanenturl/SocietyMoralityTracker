@@ -1,29 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+
+:root {
+  --vedic-bg-dark: #0c0a09;
+  --vedic-panel-dark: #1c1917;
+  --vedic-card-dark: #292524;
+  --vedic-border-dark: rgba(180, 83, 9, 0.35);
+  --vedic-copper: #c2410c;
+  --vedic-amber: #d97706;
+  --vedic-gold: #fbbf24;
+  
+  --vedic-bg-light: #faf8f5;
+  --vedic-panel-light: #f0ece4;
+  --vedic-card-light: #fefdfb;
+  --vedic-border-light: rgba(124, 45, 18, 0.25);
+}
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased overflow-hidden;
+    @apply bg-stone-950 text-stone-100 antialiased overflow-hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, .font-serif-axiom {
+    font-family: 'Merriweather', serif;
   }
 }
 
-/* ReactFlow High-Contrast Controls Styling */
+/* ReactFlow High-Contrast Controls Styling - Vedic Copper & Stone */
 .react-flow__controls-button {
-  background-color: #0f172a !important;
-  border-bottom: 1px solid #334155 !important;
-  color: #38bdf8 !important;
-  fill: #38bdf8 !important;
+  background-color: #1c1917 !important;
+  border-bottom: 1px solid rgba(180, 83, 9, 0.35) !important;
+  color: #fbbf24 !important;
+  fill: #fbbf24 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
 .react-flow__controls-button:hover {
-  background-color: #1e293b !important;
-  fill: #7dd3fc !important;
+  background-color: #292524 !important;
+  fill: #f59e0b !important;
 }
 
 .react-flow__controls-button svg {
-  fill: #38bdf8 !important;
+  fill: #fbbf24 !important;
   width: 14px !important;
   height: 14px !important;
 }
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(12, 10, 9, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 83, 9, 0.4);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 119, 6, 0.7);
+}
+

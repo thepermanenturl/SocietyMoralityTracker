@@ -57,5 +57,100 @@ export const NEWS_FEED_DATA: NewsTaskCard[] = [
       headline: "😈 Devil's Advocate / Extenuating Circumstances",
       analysis: "Electoral Bonds aimed to curb cash-driven black money in elections by forcing all political contributions into white banking channels."
     }
+  },
+  {
+    id: "news-4",
+    title: "The Three Farm Laws & Year-Long Agrarian Protests (2020–2021)",
+    date: "September 2020 – November 2021",
+    category: "Agrarian Economy & Democratic Consultation",
+    summary: "Three farm deregulation laws passed via parliamentary voice vote led to a massive 1-year farmers protest on Delhi borders, culminating in formal legislative repeal.",
+    newsPublisher: "The Hindu & BBC News",
+    newsUrl: "https://www.bbc.com/news/world-asia-india-59343719",
+    violatedNodes: ["A4", "A5", "D8", "E7"],
+    violatedNodeTitles: ["A4: Autonomy", "A5: Basic Needs", "D8: Democratic Consent", "E7: Livelihood Security"],
+    upholderStance: {
+      headline: "🛡️ Upholder Moral Critique",
+      analysis: "Passing major agrarian reforms without stakeholder pre-consultation breached Democratic Consent (D8) and threatened smallholder Livelihood Security (E7)."
+    },
+    devilsAdvocateStance: {
+      headline: "😈 Devil's Advocate / Extenuating Circumstances",
+      analysis: "The reforms were designed to liberate farmers from APMC cartel middlemen and attract private cold-chain infrastructure capital."
+    }
+  },
+  {
+    id: "news-5",
+    title: "Abrogation of Article 370 & State Reorganization (2019)",
+    date: "August 2019 – December 2023",
+    category: "Constitutional Federalism & Civil Liberties",
+    summary: "Revocation of Jammu & Kashmir's special status, bifurcation into two Union Territories, and protracted internet/communication restrictions upheld by Supreme Court.",
+    newsPublisher: "Supreme Court Constitution Bench & Reuters",
+    newsUrl: "https://www.thehindu.com/news/national/supreme-court-verdict-on-article-370-abrogation-live-updates/article67625126.ece",
+    violatedNodes: ["A3", "A4", "D4", "E1"],
+    violatedNodeTitles: ["A3: Dignity", "A4: Autonomy", "D4: Non-Discrimination", "E1: Freedom of Expression & Assembly"],
+    upholderStance: {
+      headline: "🛡️ Upholder Moral Critique",
+      analysis: "The protracted communication blackouts and preventive detentions compromised Axiom A4 (Autonomy) and Freedom of Expression (E1)."
+    },
+    devilsAdvocateStance: {
+      headline: "😈 Devil's Advocate / Extenuating Circumstances",
+      analysis: "Abrogation established complete constitutional symmetry across all Indian territories, extending affirmative action and property rights to marginalized groups."
+    }
+  },
+  {
+    id: "news-6",
+    title: "Muslim Women (Protection of Rights on Marriage) Act — Triple Talaq (2019)",
+    date: "July 2019",
+    category: "Gender Equity & Marital Justice",
+    summary: "Criminalization of instantaneous triple talaq (Talaq-e-Biddat) with up to 3 years imprisonment following Supreme Court's Shayara Bano verdict.",
+    newsPublisher: "Ministry of Law and Justice & Indian Express",
+    newsUrl: "https://indianexpress.com/article/india/triple-talaq-bill-passed-in-rajya-sabha-5863261/",
+    violatedNodes: ["A1", "A6", "D2", "E6"],
+    violatedNodeTitles: ["A1: Suffering", "A6: Equity", "D2: Bodily Integrity", "E6: Gender Parity"],
+    upholderStance: {
+      headline: "🛡️ Upholder Moral Critique",
+      analysis: "Upholds Axiom A6 (Equity) and Gender Parity (E6) by outlawing arbitrary, unilateral desertion of women without judicial process."
+    },
+    devilsAdvocateStance: {
+      headline: "😈 Devil's Advocate / Extenuating Circumstances",
+      analysis: "Critics argued that criminalizing a civil marital contract breach disproportionately penalized men compared to other religious communities."
+    }
+  },
+  {
+    id: "news-7",
+    title: "Right to Information (RTI) Amendment Act (2019)",
+    date: "July 2019",
+    category: "Transparency & Institutional Autonomy",
+    summary: "Amendments empowered central executive to determine tenure, salaries, and service conditions of Information Commissioners, previously fixed by statute.",
+    newsPublisher: "Central Information Commission & The Hindu",
+    newsUrl: "https://www.thehindu.com/news/national/parliament-passes-rti-amendment-bill/article28711467.ece",
+    violatedNodes: ["A4", "D4", "E5"],
+    violatedNodeTitles: ["A4: Autonomy", "D4: Institutional Independence", "E5: Epistemic Transparency"],
+    upholderStance: {
+      headline: "🛡️ Upholder Moral Critique",
+      analysis: "Weakening the statutory independence of the CIC diminishes institutional accountability (E5) and public oversight."
+    },
+    devilsAdvocateStance: {
+      headline: "😈 Devil's Advocate / Extenuating Circumstances",
+      analysis: "The government sought administrative rationalization, harmonizing Information Commissioners with non-constitutional statutory bodies."
+    }
+  },
+  {
+    id: "news-8",
+    title: "Women's Reservation Bill — Nari Shakti Vandan Adhiniyam (2023)",
+    date: "September 2023",
+    category: "Gender Representation & Electoral Reform",
+    summary: "Constitutional amendment guaranteeing 33% reservation for women in Lok Sabha and State Legislative Assemblies, contingent on post-census delimitation.",
+    newsPublisher: "Parliament of India & NDTV",
+    newsUrl: "https://www.ndtv.com/india-news/womens-reservation-bill-passed-in-lok-sabha-with-near-unanimous-vote-4407519",
+    violatedNodes: ["A6", "D8", "E6"],
+    violatedNodeTitles: ["A6: Equity", "D8: Democratic Representation", "E6: Gender Parity"],
+    upholderStance: {
+      headline: "🛡️ Upholder Moral Critique",
+      analysis: "A historic affirmative action step advancing Gender Parity (E6) and Democratic Representation (D8) for half the population."
+    },
+    devilsAdvocateStance: {
+      headline: "😈 Devil's Advocate / Extenuating Circumstances",
+      analysis: "Implementation was deferred until after census and delimitation exercises, postponing immediate representation."
+    }
   }
 ];

@@ -13,7 +13,7 @@ export const HighlightRationaleCard: React.FC = () => {
       className={`fixed z-40 bg-slate-900/95 backdrop-blur-xl border border-sky-500/50 rounded-2xl p-4 shadow-2xl transition-all duration-300 ${
         isExpanded
           ? 'bottom-8 right-1/2 translate-x-1/2 w-[90vw] max-w-xl max-h-[75vh] overflow-y-auto ring-2 ring-sky-400'
-          : `bottom-6 w-80 max-w-[calc(100vw-32px)] ${activeDrawer ? 'right-[460px]' : 'right-6'}`
+          : `bottom-6 left-4 right-4 sm:left-auto sm:right-6 w-auto sm:w-80 max-w-[calc(100vw-32px)] ${activeDrawer ? 'lg:right-[480px]' : 'lg:right-6'}`
       }`}
     >
       <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">

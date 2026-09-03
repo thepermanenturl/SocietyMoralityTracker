@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { MoralityNode, VizParadigm } from '../types/morality';
+import { MoralityNode, VizParadigm, TreeLens } from '../types/morality';
 import { MORALITY_NODES } from '../data/moralityData';
 
 export interface CardQueueItem {
@@ -27,6 +27,7 @@ interface MoralityState {
   nodes: MoralityNode[];
   selectedNode: MoralityNode | null;
   activeParadigm: VizParadigm;
+  treeLens: TreeLens;
   isDarkMode: boolean;
   activeDrawer: 'inspector' | 'news' | 'electorate' | 'condorcet' | null;
   searchQuery: string;
@@ -35,15 +36,23 @@ interface MoralityState {
   isChatOpen: boolean;
   isSettingsOpen: boolean;
   chatInputPrompt: string;
+  isPhoneSimulatorOpen: boolean;
   isEpochTimelineMinimized: boolean;
   isPulseNotificationDismissed: boolean;
   cardQueue: CardQueueItem[];
   chatMessages: ChatMessage[];
 
+  connectionMode: 'local' | 'cloud' | 'offline';
+  cloudApiKey: string;
+
   // Actions
+  setConnectionMode: (mode: 'local' | 'cloud' | 'offline') => void;
+  setCloudApiKey: (key: string) => void;
   setSelectedNode: (node: MoralityNode | null) => void;
   setActiveParadigm: (paradigm: VizParadigm) => void;
+  setTreeLens: (lens: TreeLens) => void;
   toggleDarkMode: () => void;
+  togglePhoneSimulator: (open?: boolean) => void;
   setActiveDrawer: (drawer: 'inspector' | 'news' | 'electorate' | 'condorcet' | null) => void;
   setSearchQuery: (query: string) => void;
   setAiMatchedNodeIds: (nodeIds: string[]) => void;
@@ -65,7 +74,9 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   nodes: MORALITY_NODES,
   selectedNode: null,
   activeParadigm: 'tree',
+  treeLens: 'moral',
   isDarkMode: true,
+  isPhoneSimulatorOpen: false,
   activeDrawer: null,
   searchQuery: '',
   aiMatchedNodeIds: [],
@@ -75,7 +86,6 @@ export const useMoralityStore = create<MoralityState>((set) => ({
   chatInputPrompt: '',
   isEpochTimelineMinimized: true,
   isPulseNotificationDismissed: false,
-  cardQueue: [],
   chatMessages: [
     {
       id: 'welcome',
@@ -84,6 +94,11 @@ export const useMoralityStore = create<MoralityState>((set) => ({
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ],
+  cardQueue: [],
+  connectionMode: 'local',
+  cloudApiKey: '',
+  setConnectionMode: (mode) => set({ connectionMode: mode }),
+  setCloudApiKey: (key) => set({ cloudApiKey: key }),
 
   setSelectedNode: (nodeOrPartial) => set((state) => {
     let resolvedNode: MoralityNode | null = null;
@@ -104,8 +119,18 @@ export const useMoralityStore = create<MoralityState>((set) => ({
     };
   }),
 
-  setActiveParadigm: (paradigm) => set({ activeParadigm: paradigm }),
+  setActiveParadigm: (paradigm) => set((state) => {
+    if (paradigm === 'action_tree') {
+      return { activeParadigm: 'tree', treeLens: 'action' };
+    }
+    if (paradigm === 'psychology_tree') {
+      return { activeParadigm: 'tree', treeLens: 'psychology' };
+    }
+    return { activeParadigm: paradigm };
+  }),
+  setTreeLens: (lens) => set({ treeLens: lens, activeParadigm: 'tree' }),
   toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+  togglePhoneSimulator: (open) => set((state) => ({ isPhoneSimulatorOpen: open !== undefined ? open : !state.isPhoneSimulatorOpen })),
   setActiveDrawer: (drawer) => set((state) => ({
     activeDrawer: state.activeDrawer === drawer ? null : drawer,
     selectedNode: drawer === null ? null : state.selectedNode

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMoralityStore } from '../../store/useMoralityStore';
 import { VizParadigm } from '../../types/morality';
-import { Sparkles, Moon, Sun, Newspaper, Bot, Settings, Vote, HelpCircle } from 'lucide-react';
+import { Sparkles, Moon, Sun, Newspaper, Bot, Settings, Vote, HelpCircle, Building2, Smartphone } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const {
@@ -9,6 +9,8 @@ export const Navbar: React.FC = () => {
     setActiveParadigm,
     isDarkMode,
     toggleDarkMode,
+    isPhoneSimulatorOpen,
+    togglePhoneSimulator,
     searchQuery,
     setSearchQuery,
     activeDrawer,
@@ -20,141 +22,177 @@ export const Navbar: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    toggleChat(true);
+    if (searchQuery.trim()) {
+      toggleChat(true);
+    }
   };
 
   const triggerGuidedTour = () => {
-    window.dispatchEvent(new CustomEvent('start-morality-tour'));
+    if ((window as any).startGuidedTour) {
+      (window as any).startGuidedTour();
+    }
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 h-16 ${isDarkMode ? 'bg-slate-900/90 border-slate-800 text-white' : 'bg-[#d8d5ca]/95 border-amber-900/20 text-slate-900'} backdrop-blur-md border-b z-50 px-4 flex items-center justify-between shadow-lg`}>
-      {/* Brand Logo & Reset */}
+    <header className={`fixed top-0 left-0 right-0 h-16 ${isDarkMode ? 'bg-stone-900/95 text-stone-100 border-amber-900/40' : 'bg-[#f0ece4]/95 text-stone-900 border-orange-900/25'} backdrop-blur-md border-b z-40 px-3 sm:px-6 flex items-center justify-between shadow-sm`}>
+      {/* Brand Logo & Reset Button */}
       <div 
-        id="tour-brand"
         onClick={resetAll}
-        className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0"
+        title="Click to Reset All Views & Selections"
       >
-        <span className="text-2xl">🌿</span>
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-orange-600 to-amber-800 flex items-center justify-center text-white font-extrabold text-base sm:text-lg shadow-md group-hover:scale-105 transition-transform border border-amber-500/50">
+          ⚖️
+        </div>
         <div>
-          <h1 className="text-base font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-sky-600 bg-clip-text text-transparent">
+          <h1 className="text-xs sm:text-base font-black tracking-tight bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300 bg-clip-text text-transparent truncate max-w-[140px] sm:max-w-none font-serif-axiom">
             Society Morality Tracker
           </h1>
-          <p className={`text-[10px] ${isDarkMode ? 'text-slate-400' : 'text-slate-700'} font-semibold`}>6 Moral Foundations & Ground Reality Engine</p>
+          <p className={`text-[9px] sm:text-[10px] ${isDarkMode ? 'text-stone-400' : 'text-stone-700'} font-semibold hidden sm:block`}>6 Moral Foundations & Ground Reality Engine</p>
         </div>
       </div>
 
-      {/* Global AI Search Bar */}
-      <form id="tour-search" onSubmit={handleSearchSubmit} className="flex-1 max-w-md mx-6 relative">
+      {/* Global AI Search Bar (Desktop) */}
+      <form id="tour-search" onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-md mx-6 relative">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Ask AI or search moral axioms (e.g. healthcare, consent)..."
-          className={`w-full ${isDarkMode ? 'bg-slate-800/80 border-slate-700 text-slate-200' : 'bg-[#e6e4dd] border-slate-400 text-slate-900 font-semibold'} border rounded-full py-1.5 pl-4 pr-10 text-xs placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-all`}
+          className={`w-full ${isDarkMode ? 'bg-stone-950/80 border-amber-900/40 text-stone-200' : 'bg-[#faf8f5] border-amber-900/30 text-stone-900 font-semibold'} border rounded-full py-1.5 pl-4 pr-10 text-xs placeholder-stone-500 focus:outline-none focus:border-amber-500 transition-all`}
         />
-        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-sky-600">
-          <Sparkles className="w-4 h-4" />
+        <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-500 hover:text-amber-500">
+          <Sparkles className="w-4 h-4 text-amber-400" />
         </button>
       </form>
 
-      {/* Navigation & Controls */}
-      <div className="flex items-center gap-2.5">
-        {/* Paradigm Selector */}
+      {/* Navigation & Controls (Desktop & Mobile Compact) */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        {/* View / Paradigm Selector (Desktop) */}
         <select
           id="tour-paradigm-selector"
           value={activeParadigm}
           onChange={(e) => setActiveParadigm(e.target.value as VizParadigm)}
-          className={`${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-white border-amber-300 text-slate-800'} border text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer`}
+          className={`hidden sm:block ${isDarkMode ? 'bg-stone-800 border-amber-900/40 text-stone-200' : 'bg-white border-amber-300 text-stone-800'} border text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer`}
         >
-          <option value="tree">🌿 Hierarchical Morality Tree</option>
-          <option value="action_tree">⚡ Action Imperatives Tree</option>
-          <option value="psychology_tree">🧠 Hierarchical Behavioral Psychology Tree</option>
-          <option value="prism">🌈 Refractive Prism Spectrum</option>
+          <option value="tree">🌿 Axiomatic Morality Tree</option>
+          <option value="prism">💎 Refractive Prism & Scheme Engine</option>
+          <option value="schemes">🏛️ Scheme Audit Table</option>
         </select>
 
         {/* Theme Toggle */}
         <button
           id="tour-theme-toggle"
           onClick={toggleDarkMode}
-          className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-white border-amber-300 text-amber-900'} border hover:border-slate-500 transition-colors`}
-          title={isDarkMode ? 'Switch to Parchment Light Mode' : 'Switch to Dark Mode'}
+          className={`p-2 rounded-lg ${isDarkMode ? 'bg-stone-800 border-amber-900/40 text-stone-300' : 'bg-white border-amber-300 text-amber-900'} border hover:border-amber-500 transition-colors`}
+          title={isDarkMode ? 'Switch to Sandalwood Parchment Light Mode' : 'Switch to Dark Mode'}
         >
-          {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+          {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-stone-700" />}
         </button>
 
         {/* Settings Button */}
         <button
           id="tour-settings"
           onClick={() => toggleSettings(true)}
-          className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-white border-amber-300 text-slate-800'} border hover:text-sky-400 transition-colors`}
+          className={`p-2 rounded-lg ${isDarkMode ? 'bg-stone-800 border-amber-900/40 text-stone-300' : 'bg-white border-amber-300 text-stone-800'} border hover:text-amber-400 transition-colors`}
           title="Agent Connection Details & Portable Morality Context"
         >
           <Settings className="w-4 h-4" />
         </button>
 
-        {/* Guided Tour Replay Button */}
+        {/* Guided Tour Replay Button (Desktop) */}
         <button
           id="tour-help"
           onClick={triggerGuidedTour}
-          className={`p-2 rounded-lg ${isDarkMode ? 'bg-indigo-950/80 border-indigo-700/80 text-indigo-300 hover:bg-indigo-900' : 'bg-indigo-100 border-indigo-300 text-indigo-900 hover:bg-indigo-200'} border transition-all`}
+          className={`hidden md:block p-2 rounded-lg ${isDarkMode ? 'bg-stone-800 border-amber-900/40 text-amber-300 hover:bg-stone-700' : 'bg-amber-100 border-amber-300 text-amber-900 hover:bg-amber-200'} border transition-all`}
           title="Start Guided Tour & Feature Overview"
         >
-          <HelpCircle className="w-4 h-4 text-indigo-400" />
+          <HelpCircle className="w-4 h-4 text-amber-400" />
+        </button>
+
+        {/* Phone Preview / Mobile Dimension Debugger Button */}
+        <button
+          onClick={() => togglePhoneSimulator(!isPhoneSimulatorOpen)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black transition-all border cursor-pointer ${
+            isPhoneSimulatorOpen
+              ? 'bg-purple-600 border-purple-400 text-white shadow-md shadow-purple-950/50 animate-pulse'
+              : isDarkMode
+                ? 'bg-purple-950/60 border-purple-800/80 text-purple-300 hover:bg-purple-900/60'
+                : 'bg-purple-100 border-purple-300 text-purple-900 hover:bg-purple-200'
+          }`}
+          title="Open Mobile Dimension Debugger & Phone Simulator"
+        >
+          <Smartphone className="w-4 h-4 text-purple-400" />
+          <span className="hidden sm:inline">📱 Phone Preview</span>
         </button>
 
         {/* AI Agent Chat Button */}
         <button
           id="tour-ai-agent"
           onClick={() => toggleChat(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600/80 hover:bg-emerald-600 border border-emerald-500/80 text-white shadow-md transition-all cursor-pointer"
+          className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 border border-amber-400/80 text-white shadow-md transition-all cursor-pointer shadow-amber-950/40"
         >
-          <Bot className="w-4 h-4" />
-          <span>AI Agent</span>
+          <Bot className="w-4 h-4 text-amber-200" />
+          <span className="hidden sm:inline">AI Agent</span>
         </button>
 
-        {/* News Feed Button */}
-        <button
-          id="tour-news-feed"
-          onClick={() => setActiveDrawer('news')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-            activeDrawer === 'news'
-              ? 'bg-sky-600 border-sky-400 text-white shadow-md shadow-sky-600/30'
-              : 'bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-600'
-          }`}
-        >
-          <Newspaper className="w-4 h-4" />
-          <span>News Feed</span>
-        </button>
+        {/* Desktop-Only Feature Buttons */}
+        <div className="hidden lg:flex items-center gap-1.5">
+          {/* Scheme Tracker Button */}
+          <button
+            onClick={() => setActiveParadigm('schemes')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              activeParadigm === 'schemes'
+                ? 'bg-amber-700 border-amber-400 text-white shadow-md shadow-amber-900/40'
+                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
+            }`}
+          >
+            <Building2 className="w-4 h-4 text-amber-400" />
+            <span>Scheme Tracker</span>
+          </button>
 
-        {/* Electorate & Parliament Button */}
-        <button
-          id="tour-electorate"
-          onClick={() => setActiveDrawer('electorate')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-            activeDrawer === 'electorate'
-              ? 'bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-600/30'
-              : 'bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-600'
-          }`}
-        >
-          <Vote className="w-4 h-4 text-emerald-400" />
-          <span>Electorate & Bills</span>
-        </button>
+          {/* News Feed Button */}
+          <button
+            id="tour-news-feed"
+            onClick={() => setActiveDrawer('news')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              activeDrawer === 'news'
+                ? 'bg-amber-700 border-amber-400 text-white shadow-md shadow-amber-900/40'
+                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
+            }`}
+          >
+            <Newspaper className="w-4 h-4 text-amber-300" />
+            <span>News Feed</span>
+          </button>
 
-        {/* Condorcet Paradox Button */}
-        <button
-          id="tour-condorcet"
-          onClick={() => setActiveDrawer('condorcet')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-            activeDrawer === 'condorcet'
-              ? 'bg-amber-600 border-amber-400 text-white shadow-md shadow-amber-600/30'
-              : 'bg-slate-800 border-slate-700 text-slate-200 hover:border-slate-600'
-          }`}
-        >
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Condorcet Paradox</span>
-        </button>
+          {/* Electorate & Parliament Button */}
+          <button
+            id="tour-electorate"
+            onClick={() => setActiveDrawer('electorate')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              activeDrawer === 'electorate'
+                ? 'bg-emerald-700 border-emerald-400 text-white shadow-md shadow-emerald-900/40'
+                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
+            }`}
+          >
+            <Vote className="w-4 h-4 text-emerald-400" />
+            <span>Electorate</span>
+          </button>
+
+          {/* Condorcet Paradox Button */}
+          <button
+            id="tour-condorcet"
+            onClick={() => setActiveDrawer('condorcet')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              activeDrawer === 'condorcet'
+                ? 'bg-orange-700 border-orange-400 text-white shadow-md shadow-orange-900/40'
+                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Condorcet</span>
+          </button>
+        </div>
       </div>
     </header>
   );

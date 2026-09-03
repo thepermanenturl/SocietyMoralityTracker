@@ -6,11 +6,15 @@ Thumbs.db
 # Environment & Credentials
 .env
 .env.local
+.dev.vars
 *.log
+dna.json
 
-# Dependencies & Editor Settings
+# Dependencies & Build Artifacts
 node_modules/
 dist/
 build/
+.wrangler/
+legacy/
 .vscode/
 .idea/

@@ -1,0 +1,17 @@
+{
+  "short_name": "MoralityTracker",
+  "name": "Society Morality & Government Scheme Accountability Tracker",
+  "description": "Ground-truth institutional audit analysis, 34-node Morality Tree, and real-time civic intelligence platform.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "display": "standalone",
+  "orientation": "portrait"
+}

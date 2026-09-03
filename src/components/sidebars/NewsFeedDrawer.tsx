@@ -112,16 +112,16 @@ export const NewsFeedDrawer: React.FC = () => {
     : (selectedGenre === 'all' ? liveNews : liveNews.filter(n => n.category === selectedGenre));
 
   return (
-    <aside className="fixed top-16 right-0 w-[440px] max-w-[calc(100vw-32px)] h-[calc(100vh-64px)] bg-slate-900/95 backdrop-blur-xl border-l border-slate-800 text-white z-50 flex flex-col shadow-2xl overflow-y-auto">
+    <aside className="fixed top-16 right-0 w-full max-w-full sm:w-[440px] h-[calc(100vh-64px)] bg-stone-900/95 backdrop-blur-xl border-l border-amber-900/40 text-stone-100 z-50 flex flex-col shadow-2xl overflow-y-auto">
       {/* Drawer Header */}
-      <div className="p-4 border-b border-slate-800 space-y-3 sticky top-0 bg-slate-900/95 z-10">
+      <div className="p-4 border-b border-amber-900/30 space-y-3 sticky top-0 bg-stone-900/95 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-base">📰</span>
             <div>
-              <h2 className="text-sm font-extrabold text-white">Governance & Policy Feed</h2>
+              <h2 className="text-sm font-extrabold text-white font-serif-axiom">Governance & Policy Feed</h2>
               {selectedNode && (
-                <p className="text-[10px] text-cyan-400 font-medium">
+                <p className="text-[10px] text-amber-400 font-medium">
                   Context lock: <span className="font-bold">[{selectedNode.id}] {selectedNode.title}</span>
                 </p>
               )}
@@ -129,7 +129,7 @@ export const NewsFeedDrawer: React.FC = () => {
           </div>
           <button
             onClick={() => setActiveDrawer(null)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -152,16 +152,16 @@ export const NewsFeedDrawer: React.FC = () => {
         )}
 
         {/* 2 Main Navigation Tabs */}
-        <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold">
+        <div className="grid grid-cols-2 p-1 bg-stone-950 rounded-xl border border-amber-900/40 text-xs font-bold">
           <button
             onClick={() => setActiveTab('historical')}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'historical'
-                ? 'bg-amber-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-600 text-white shadow-md shadow-amber-950/50'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
-            <History className="w-3.5 h-3.5" />
+            <History className="w-3.5 h-3.5 text-amber-200" />
             <span>30-Yr Major Events</span>
           </button>
 
@@ -172,8 +172,8 @@ export const NewsFeedDrawer: React.FC = () => {
             }}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'live'
-                ? 'bg-sky-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-orange-600 text-white shadow-md shadow-orange-950/50'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-amber-300" />
@@ -181,14 +181,91 @@ export const NewsFeedDrawer: React.FC = () => {
           </button>
         </div>
 
+        {/* Multi-Tier Ingestion Activation Controls */}
+        <div className="space-y-1.5 pt-1">
+          <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider flex justify-between items-center">
+            <span>Ingestion Activation Levels</span>
+            <span className="text-[9px] text-emerald-400 font-mono">Rate-Limited</span>
+          </div>
+          <div className="grid grid-cols-5 gap-1 text-[10px]">
+            <button
+              onClick={() => handleRefreshLiveNews()}
+              className="p-1 bg-stone-950 hover:bg-stone-800 border border-amber-800/80 rounded text-amber-300 font-bold transition text-center"
+              title="Tier 1: News RSS & GDELT (<15m)"
+            >
+              L1 News
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const saved = localStorage.getItem('morality_agent_connection_settings_v1');
+                  let u = 'http://127.0.0.1:8000';
+                  if (saved) { try { u = JSON.parse(saved).localPortConfig?.url || u; } catch (e) {} }
+                  await axios.post(`${u.replace(/\/$/, '')}/api/news/refresh`, { genre: 'economics' });
+                  handleRefreshLiveNews();
+                } catch (e) {}
+              }}
+              className="p-1 bg-stone-950 hover:bg-stone-800 border border-amber-800/80 rounded text-amber-300 font-bold transition text-center"
+              title="Tier 2: Economic Data & Markets"
+            >
+              L2 Econ
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const saved = localStorage.getItem('morality_agent_connection_settings_v1');
+                  let u = 'http://127.0.0.1:8000';
+                  if (saved) { try { u = JSON.parse(saved).localPortConfig?.url || u; } catch (e) {} }
+                  await axios.post(`${u.replace(/\/$/, '')}/api/news/refresh`, { genre: 'governance' });
+                  handleRefreshLiveNews();
+                } catch (e) {}
+              }}
+              className="p-1 bg-stone-950 hover:bg-stone-800 border border-amber-800/80 rounded text-amber-300 font-bold transition text-center"
+              title="Tier 3: Parliamentary & Electoral"
+            >
+              L3 Elect
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const saved = localStorage.getItem('morality_agent_connection_settings_v1');
+                  let u = 'http://127.0.0.1:8000';
+                  if (saved) { try { u = JSON.parse(saved).localPortConfig?.url || u; } catch (e) {} }
+                  await axios.post(`${u.replace(/\/$/, '')}/api/news/refresh`, { genre: 'health' });
+                  handleRefreshLiveNews();
+                } catch (e) {}
+              }}
+              className="p-1 bg-stone-950 hover:bg-stone-800 border border-amber-800/80 rounded text-amber-300 font-bold transition text-center"
+              title="Tier 4: Public Health & WHO"
+            >
+              L4 Health
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const saved = localStorage.getItem('morality_agent_connection_settings_v1');
+                  let u = 'http://127.0.0.1:8000';
+                  if (saved) { try { u = JSON.parse(saved).localPortConfig?.url || u; } catch (e) {} }
+                  await axios.post(`${u.replace(/\/$/, '')}/api/news/refresh`, { genre: 'crime' });
+                  handleRefreshLiveNews();
+                } catch (e) {}
+              }}
+              className="p-1 bg-stone-950 hover:bg-stone-800 border border-amber-800/80 rounded text-amber-300 font-bold transition text-center"
+              title="Tier 5: Legal & Crime Blotters"
+            >
+              L5 Legal
+            </button>
+          </div>
+        </div>
+
         {/* Genre Selector & Refresh Button (ONLY Active on Live News Tab) */}
-        <div className="flex items-center gap-2 pt-1 border-t border-slate-800/80">
-          <div className="flex items-center gap-1.5 flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1">
+        <div className="flex items-center gap-2 pt-1 border-t border-amber-900/30">
+          <div className="flex items-center gap-1.5 flex-1 bg-stone-950 border border-amber-900/40 rounded-lg px-2.5 py-1">
             <Filter className="w-3.5 h-3.5 text-amber-400" />
             <select
               value={selectedGenre}
               onChange={(e) => setSelectedGenre(e.target.value)}
-              className="bg-transparent text-xs font-bold text-slate-200 focus:outline-none cursor-pointer w-full"
+              className="bg-transparent text-xs font-bold text-stone-200 focus:outline-none cursor-pointer w-full"
             >
               <option value="all">🌐 All News Genres</option>
               <option value="governance">🏛️ Governance & Bills</option>
@@ -206,8 +283,8 @@ export const NewsFeedDrawer: React.FC = () => {
               disabled={isRefreshing || isBackendOffline}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-md ${
                 isBackendOffline
-                  ? 'bg-slate-800 text-slate-500 opacity-40 cursor-not-allowed'
-                  : 'bg-sky-600 hover:bg-sky-500 text-white cursor-pointer'
+                  ? 'bg-stone-800 text-stone-500 opacity-40 cursor-not-allowed'
+                  : 'bg-amber-600 hover:bg-amber-500 text-white cursor-pointer shadow-amber-950/50'
               }`}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -220,12 +297,12 @@ export const NewsFeedDrawer: React.FC = () => {
       {/* News Cards List */}
       <div className="p-4 space-y-4">
         {currentDisplayedNews.length === 0 ? (
-          <div className="text-center py-10 space-y-2 text-slate-400">
+          <div className="text-center py-10 space-y-2 text-stone-400">
             <p className="text-xs">No news cards currently loaded for this tab.</p>
             {activeTab === 'live' && !isBackendOffline && (
               <button
                 onClick={handleRefreshLiveNews}
-                className="px-3 py-1.5 bg-sky-600 text-white rounded-lg text-xs font-bold"
+                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-bold"
               >
                 Fetch Live News
               </button>
@@ -244,15 +321,15 @@ export const NewsFeedDrawer: React.FC = () => {
                 onClick={() => handleSelectNewsCard(item)}
                 className={`rounded-xl p-4 space-y-3 cursor-pointer transition-all duration-300 border ${
                   isShadedOut
-                    ? 'opacity-25 grayscale border-slate-900 bg-slate-950/60 shadow-none scale-98 hover:opacity-100 hover:scale-100 hover:grayscale-0'
+                    ? 'opacity-25 grayscale border-stone-900 bg-stone-950/60 shadow-none scale-98 hover:opacity-100 hover:scale-100 hover:grayscale-0'
                     : selectedNode && isRelatedToSelectedNode
-                    ? 'bg-slate-900 border-cyan-400/90 ring-2 ring-cyan-400/80 shadow-lg shadow-cyan-500/30 scale-[1.01]'
-                    : 'bg-slate-950/80 border-slate-800 hover:border-sky-500/60 hover:scale-[1.01]'
+                    ? 'bg-stone-900 border-amber-400/90 ring-2 ring-amber-400/80 shadow-lg shadow-amber-950/60 scale-[1.01]'
+                    : 'bg-stone-950/80 border-amber-900/40 hover:border-amber-500/60 hover:scale-[1.01]'
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-bold text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800 uppercase">
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 uppercase">
                       {item.category || 'General'}
                     </span>
                     {(item as any).trust_meter?.trust_percent && (
@@ -269,25 +346,25 @@ export const NewsFeedDrawer: React.FC = () => {
                   <span className="text-[10px] text-amber-400 font-semibold">{item.date || ''}</span>
                 </div>
 
-                <h3 className="text-xs font-extrabold text-white leading-snug">{item.title || 'Untitled'}</h3>
-                <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">{item.summary || ''}</p>
+                <h3 className="text-xs font-extrabold text-white leading-snug font-serif-axiom">{item.title || 'Untitled'}</h3>
+                <p className="text-xs text-stone-300 line-clamp-3 leading-relaxed">{item.summary || ''}</p>
 
                 <div className="flex flex-wrap gap-1 pt-1">
                   {violatedNodeTitles.map((tag: string, idx: number) => (
-                    <span key={`tag-${idx}`} className="text-[10px] font-semibold bg-rose-950/80 border border-rose-800 text-rose-300 px-2 py-0.5 rounded">
+                    <span key={`tag-${idx}`} className="text-[10px] font-semibold bg-red-950/80 border border-red-800 text-red-300 px-2 py-0.5 rounded">
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-[10px] text-slate-400">
+                <div className="pt-2 border-t border-amber-900/30 flex justify-between items-center text-[10px] text-stone-400">
                   <span>Source: {item.newsPublisher || (item as any).source || 'Wire'}</span>
                   <a
                     href={item.newsUrl}
                     target="_blank"
                     rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-sky-400 hover:underline flex items-center gap-0.5"
+                    className="text-amber-400 hover:underline flex items-center gap-0.5"
                   >
                     <span>Read Original</span>
                     <ExternalLink className="w-3 h-3" />

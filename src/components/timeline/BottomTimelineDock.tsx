@@ -43,11 +43,11 @@ export const BottomTimelineDock: React.FC = () => {
 
   if (isEpochTimelineMinimized) {
     return (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-full px-4 py-1.5 shadow-2xl flex items-center gap-3">
-        <span className="text-xs font-extrabold text-sky-400">⏳ Epoch Timeline: {activeEpoch.name}</span>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 backdrop-blur-xl border border-amber-900/40 rounded-full px-4 py-1.5 shadow-2xl flex items-center gap-3">
+        <span className="text-xs font-extrabold text-amber-400 font-serif-axiom">⏳ Epoch Timeline: {activeEpoch.name}</span>
         <button
           onClick={toggleEpochTimelineMinimized}
-          className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="p-1 rounded-full text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
           title="Expand Epoch History Bar"
         >
           <ChevronUp className="w-4 h-4" />
@@ -57,28 +57,28 @@ export const BottomTimelineDock: React.FC = () => {
   }
 
   return (
-    <div id="tour-timeline" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 transition-all">
+    <div id="tour-timeline" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90vw] max-w-4xl bg-stone-900/95 backdrop-blur-xl border border-amber-900/40 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 transition-all">
       {/* Epoch Info Header */}
-      <div className="flex items-center justify-between px-2 text-xs font-extrabold border-b border-slate-800 pb-2">
-        <div className="flex items-center gap-2 text-sky-400">
+      <div className="flex items-center justify-between px-2 text-xs font-extrabold border-b border-amber-900/30 pb-2">
+        <div className="flex items-center gap-2 text-amber-400 font-serif-axiom">
           <span className="text-sm">⏳</span>
-          <span className="text-white">{activeEpoch.name}</span>
+          <span className="text-white font-serif-axiom">{activeEpoch.name}</span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-[11px] font-bold text-slate-400">Unrest Index:</span>
+          <span className="text-[11px] font-bold text-stone-400">Unrest Index:</span>
           <span className={`px-2 py-0.5 rounded text-[11px] font-extrabold ${
             activeEpoch.unrestScore >= 75
-              ? 'bg-rose-950 text-rose-400 border border-rose-800'
+              ? 'bg-rose-950 text-rose-300 border border-rose-800'
               : activeEpoch.unrestScore >= 60
-              ? 'bg-amber-950 text-amber-400 border border-amber-800'
-              : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+              ? 'bg-amber-950 text-amber-300 border border-amber-800'
+              : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
           }`}>
             {activeEpoch.unrestScore}%
           </span>
           <button
             onClick={toggleEpochTimelineMinimized}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-2"
+            className="p-1 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition-colors ml-2"
             title="Minimize Epoch Bar"
           >
             <ChevronDown className="w-4 h-4" />
@@ -87,7 +87,7 @@ export const BottomTimelineDock: React.FC = () => {
       </div>
 
       {/* Epoch Summary Line */}
-      <p className="text-xs text-slate-300 px-2 line-clamp-2 leading-relaxed">
+      <p className="text-xs text-stone-300 px-2 line-clamp-2 leading-relaxed">
         {activeEpoch.summary}
       </p>
 
@@ -99,8 +99,8 @@ export const BottomTimelineDock: React.FC = () => {
             onClick={() => handleEpochSelect(idx)}
             className={`flex-1 py-1.5 px-2 rounded-xl text-[11px] font-extrabold transition-all cursor-pointer border ${
               activeIdx === idx
-                ? 'bg-sky-600 border-sky-400 text-white shadow-lg shadow-sky-600/40 scale-105'
-                : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                ? 'bg-amber-600 border-amber-400 text-white shadow-lg shadow-amber-950/60 scale-105'
+                : 'bg-stone-950/80 border-amber-900/40 text-stone-400 hover:text-stone-200 hover:border-amber-700'
             }`}
           >
             {epoch.years.split('–')[0].trim()}
