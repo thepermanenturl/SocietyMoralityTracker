@@ -126,35 +126,12 @@ export const Navbar: React.FC = () => {
           <span className="hidden sm:inline">📱 Phone Preview</span>
         </button>
 
-        {/* AI Agent Chat Button */}
-        <button
-          id="tour-ai-agent"
-          onClick={() => toggleChat(true)}
-          className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 border border-amber-400/80 text-white shadow-md transition-all cursor-pointer shadow-amber-950/40"
-        >
-          <Bot className="w-4 h-4 text-amber-200" />
-          <span className="hidden sm:inline">AI Agent</span>
-        </button>
-
         {/* Desktop-Only Feature Buttons */}
         <div className="hidden lg:flex items-center gap-1.5">
-          {/* Scheme Tracker Button */}
-          <button
-            onClick={() => setActiveParadigm('schemes')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-              activeParadigm === 'schemes'
-                ? 'bg-amber-700 border-amber-400 text-white shadow-md shadow-amber-900/40'
-                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
-            }`}
-          >
-            <Building2 className="w-4 h-4 text-amber-400" />
-            <span>Scheme Tracker</span>
-          </button>
-
           {/* News Feed Button */}
           <button
             id="tour-news-feed"
-            onClick={() => setActiveDrawer('news')}
+            onClick={() => setActiveDrawer(activeDrawer === 'news' ? null : 'news')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
               activeDrawer === 'news'
                 ? 'bg-amber-700 border-amber-400 text-white shadow-md shadow-amber-900/40'
@@ -165,32 +142,19 @@ export const Navbar: React.FC = () => {
             <span>News Feed</span>
           </button>
 
-          {/* Electorate & Parliament Button */}
+          {/* Unified Democracy & Voting Button (Electorate, Bills & Condorcet Engine) */}
           <button
             id="tour-electorate"
-            onClick={() => setActiveDrawer('electorate')}
+            onClick={() => setActiveDrawer(activeDrawer === 'electorate' || activeDrawer === 'condorcet' ? null : 'electorate')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-              activeDrawer === 'electorate'
+              activeDrawer === 'electorate' || activeDrawer === 'condorcet'
                 ? 'bg-emerald-700 border-emerald-400 text-white shadow-md shadow-emerald-900/40'
                 : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
             }`}
+            title="Electorate Demographics, Parliamentary Bills & Condorcet Voting Simulation"
           >
             <Vote className="w-4 h-4 text-emerald-400" />
-            <span>Electorate</span>
-          </button>
-
-          {/* Condorcet Paradox Button */}
-          <button
-            id="tour-condorcet"
-            onClick={() => setActiveDrawer('condorcet')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-              activeDrawer === 'condorcet'
-                ? 'bg-orange-700 border-orange-400 text-white shadow-md shadow-orange-900/40'
-                : 'bg-stone-800 border-amber-900/40 text-stone-200 hover:border-amber-600'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Condorcet</span>
+            <span>Democracy &amp; Voting</span>
           </button>
         </div>
       </div>

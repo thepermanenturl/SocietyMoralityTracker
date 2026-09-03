@@ -420,12 +420,12 @@ const TreeViewContent: React.FC = () => {
       className={`relative w-full h-full pt-28 ${isDarkMode ? 'bg-stone-950' : 'bg-[#faf8f5]'}`}
     >
       {/* Top Unified Floating Control Dock (Lens Switcher + Primitives) */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 bg-stone-900/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-amber-900/40 shadow-2xl max-w-[95vw] overflow-x-auto scrollbar-none">
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 flex flex-wrap items-center justify-center gap-2 bg-stone-900/95 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-amber-900/40 shadow-2xl max-w-[95vw] pointer-events-auto">
         {/* 3-Lens Mode Segmented Switcher */}
-        <div className="flex items-center gap-1 bg-stone-950/60 p-1 rounded-xl border border-stone-800/80 shrink-0">
+        <div className="flex items-center gap-1 bg-stone-950/70 p-1 rounded-xl border border-stone-800/80 shrink-0">
           <button
             onClick={() => setTreeLens('moral')}
-            className={`px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
               treeLens === 'moral'
                 ? 'bg-amber-500 text-stone-950 font-bold shadow-md'
                 : 'text-stone-300 hover:text-white hover:bg-stone-800/60 font-medium'
@@ -436,7 +436,7 @@ const TreeViewContent: React.FC = () => {
           </button>
           <button
             onClick={() => setTreeLens('action')}
-            className={`px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
               treeLens === 'action'
                 ? 'bg-amber-600 text-white font-bold shadow-md'
                 : 'text-stone-300 hover:text-white hover:bg-stone-800/60 font-medium'
@@ -447,7 +447,7 @@ const TreeViewContent: React.FC = () => {
           </button>
           <button
             onClick={() => setTreeLens('psychology')}
-            className={`px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 ${
               treeLens === 'psychology'
                 ? 'bg-purple-600 text-white font-bold shadow-md'
                 : 'text-stone-300 hover:text-white hover:bg-stone-800/60 font-medium'
@@ -459,25 +459,25 @@ const TreeViewContent: React.FC = () => {
         </div>
 
         {/* Divider */}
-        <div className="h-5 w-px bg-amber-900/40 shrink-0" />
+        <div className="hidden sm:block h-5 w-px bg-amber-900/50 shrink-0" />
 
         {/* 3 Foundation Primitives for Active Lens */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 flex-wrap justify-center">
           {FOUNDATION_PRIMITIVES[treeLens].map((p) => {
             const isSelected = selectedNode?.id === p.id || (safeAiMatched.length === 1 && safeAiMatched.includes(p.id));
             return (
               <button
                 key={p.id}
                 onClick={() => handlePrimitiveClick(p)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold transition-all border shrink-0 ${
                   isSelected
                     ? 'bg-amber-500/25 border-amber-400 text-amber-200 shadow-md ring-1 ring-amber-400/50'
-                    : 'bg-stone-800/60 hover:bg-stone-800 border-stone-700/60 text-stone-300 hover:text-white'
+                    : 'bg-stone-800/70 hover:bg-stone-800 border-stone-700/60 text-stone-300 hover:text-white'
                 }`}
                 title={`Focus on ${p.title}`}
               >
                 <span>{p.icon}</span>
-                <span className="truncate max-w-[170px]">{p.title}</span>
+                <span className="whitespace-nowrap">{p.title}</span>
               </button>
             );
           })}
