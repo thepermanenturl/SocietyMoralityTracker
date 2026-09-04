@@ -73,6 +73,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
   const [isChatSubmitting, setIsChatSubmitting] = useState<boolean>(false);
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [isInspectorDismissed, setIsInspectorDismissed] = useState<boolean>(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -124,17 +125,38 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
   // Fetch live news on mount
   useEffect(() => {
     const fetchLiveFeed = async () => {
-      if (!CONFIG.SENSE_API_URL) {
-        setLiveNews(NEWS_FEED_DATA);
-        setIsLoadingNews(false);
-        return;
-      }
-
       setIsLoadingNews(true);
       try {
-        const res = await axios.get(`${CONFIG.SENSE_API_URL}/api/feed?limit=10`, { timeout: 3500 });
-        if (res.data?.stories && res.data.stories.length > 0) {
-          setLiveNews(res.data.stories);
+        const primaryUrl = (CONFIG.BRAIN_API_URL || CONFIG.SENSE_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+        let res: any = null;
+        try {
+          res = await axios.get(`${primaryUrl}/api/feed?limit=10`, { timeout: 4500 });
+        } catch {
+          res = await axios.post(`${primaryUrl}/api/news/refresh`, { genre: 'all' }, { timeout: 4500 });
+        }
+
+        const rawStories = res?.data?.stories || res?.data?.news || [];
+        if (rawStories.length > 0) {
+          const formatted: NewsTaskCard[] = rawStories.map((s: any) => ({
+            id: s.id || `news-${Math.random()}`,
+            title: s.title || 'Untitled Breaking Story',
+            date: s.date && !s.date.includes('Just now') ? s.date : new Date().toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            category: s.category || 'Live News',
+            summary: s.summary || '',
+            newsPublisher: s.newsPublisher || s.source || 'News Wire',
+            newsUrl: s.newsUrl || s.link || '#',
+            violatedNodes: s.violatedNodes || s.violated_nodes || s.linked_morality_nodes || [],
+            violatedNodeTitles: s.violatedNodeTitles || s.violated_node_titles || [],
+            upholderStance: s.upholderStance || s.upholder_stance || {
+              headline: '🛡️ Rights Upholder',
+              analysis: 'Safeguards fundamental human welfare and voluntary consent against unconsented policy harm.'
+            },
+            devilsAdvocateStance: s.devilsAdvocateStance || s.devilsStance || s.devils_stance || {
+              headline: '😈 Policy Pragmatist',
+              analysis: 'Considers short-term administrative feasibility and trade-offs in public execution.'
+            }
+          }));
+          setLiveNews(formatted);
         } else {
           setLiveNews(NEWS_FEED_DATA);
         }
@@ -653,45 +675,49 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
             {/* Interactive Graph Canvas */}
             <div className="w-full">
               <MobileGraphCanvas
+                isInspectorDismissed={isInspectorDismissed}
                 onNodeSelect={(node) => {
                   setSelectedNode(node);
+                  setIsInspectorDismissed(false);
                 }}
               />
             </div>
 
             {/* Compact Selected Node Inspector Card */}
             {enrichedSelectedNode ? (
-              <div className="rounded-2xl bg-stone-900/90 border border-amber-900/50 p-3.5 shadow-xl space-y-3">
-                {/* Node Header */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span
-                        className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border ${getNodeColorClass(
-                          enrichedSelectedNode.layer
-                        )}`}
-                      >
-                        [{enrichedSelectedNode.id}]
-                      </span>
-                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                        {enrichedSelectedNode.layer === -1
-                          ? '🌟 Minimal Origin Primitive'
-                          : `Layer ${enrichedSelectedNode.layer} Axiom`}
-                      </span>
+              !isInspectorDismissed ? (
+                <div className="rounded-2xl bg-stone-900/90 border border-amber-900/50 p-3.5 shadow-xl space-y-3">
+                  {/* Node Header */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span
+                          className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border ${getNodeColorClass(
+                            enrichedSelectedNode.layer
+                          )}`}
+                        >
+                          [{enrichedSelectedNode.id}]
+                        </span>
+                        <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                          {enrichedSelectedNode.layer === -1
+                            ? '🌟 Minimal Origin Primitive'
+                            : `Layer ${enrichedSelectedNode.layer} Axiom`}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-extrabold text-stone-100 leading-snug">
+                        {enrichedSelectedNode.title}
+                      </h3>
                     </div>
-                    <h3 className="text-sm font-extrabold text-stone-100 leading-snug">
-                      {enrichedSelectedNode.title}
-                    </h3>
-                  </div>
 
-                  <button
-                    onClick={() => setSelectedNode(null)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-white bg-stone-800 hover:bg-stone-700 text-xs"
-                    title="Clear node selection"
-                  >
-                    ×
-                  </button>
-                </div>
+                    <button
+                      onClick={() => setIsInspectorDismissed(true)}
+                      className="px-2 py-1 rounded-lg text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 text-xs flex items-center gap-1 font-bold border border-stone-700 shadow transition active:scale-95"
+                      title="Dismiss description to view centered node and highlighted cluster on graph"
+                    >
+                      <span className="text-[10px]">Close</span>
+                      <span className="text-sm leading-none">×</span>
+                    </button>
+                  </div>
 
                 {/* Active Lens Statement */}
                 <div className="p-2.5 rounded-xl bg-stone-950/70 border border-amber-900/30">
@@ -786,7 +812,10 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                   </button>
 
                   <button
-                    onClick={() => setSelectedNode(null)}
+                    onClick={() => {
+                      setSelectedNode(null);
+                      setIsInspectorDismissed(false);
+                    }}
                     className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold transition-all"
                   >
                     Reset Focus
@@ -794,6 +823,49 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 </div>
               </div>
             ) : (
+              /* Compact Floating Bar when Description is Dismissed: Graph Stays Centered, Zoomed Out, and Highlighted! */
+              <div className="rounded-2xl bg-stone-900/95 border border-amber-900/50 p-2.5 px-3.5 shadow-xl flex items-center justify-between gap-2 backdrop-blur-md">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span
+                    className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border shrink-0 ${getNodeColorClass(
+                      enrichedSelectedNode.layer
+                    )}`}
+                  >
+                    [{enrichedSelectedNode.id}]
+                  </span>
+                  <div className="truncate">
+                    <p className="text-xs font-bold text-stone-100 truncate">
+                      {enrichedSelectedNode.title}
+                    </p>
+                    <p className="text-[10px] text-emerald-400 font-semibold truncate">
+                      ✦ Centered &amp; all related derivation nodes highlighted
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={() => setIsInspectorDismissed(false)}
+                    className="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-xs shadow transition active:scale-95 flex items-center gap-1 cursor-pointer"
+                    title="View full description and Panchatantra parable"
+                  >
+                    <span>📖</span>
+                    <span>Details</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedNode(null);
+                      setIsInspectorDismissed(false);
+                    }}
+                    className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white text-xs transition cursor-pointer"
+                    title="Reset focus to overview"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )
+          ) : (
               /* Starter Prompt & 3-Primitives Selector */
               <div className="rounded-2xl bg-stone-900/70 border border-stone-800 p-3.5 text-center space-y-2.5">
                 <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300">
@@ -1208,13 +1280,16 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
 
                       <button
                         onClick={() => {
-                          const newsPrompt = `Analyze the moral foundations and conflicting democratic perspectives in the news story: '${newsItem.title}'.`;
+                          const newsPrompt = `Socrates, let's debate the ethical implications of this breaking news: '${newsItem.title}'. Summary: ${newsItem.summary}. Which fundamental moral axioms and constitutional rights are in conflict?`;
+                          if (newsItem.violatedNodes && newsItem.violatedNodes.length > 0) {
+                            setAiMatchedNodeIds(newsItem.violatedNodes);
+                          }
                           executeChatInquiry(newsPrompt);
                         }}
-                        className="px-2.5 py-1.5 rounded-xl bg-amber-600/90 hover:bg-amber-500 text-stone-950 font-black text-[11px] flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                        className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-[11px] flex items-center gap-1 shadow-sm active:scale-95 transition-all"
                       >
                         <Bot className="w-3 h-3" />
-                        <span>Analyze with Socrates</span>
+                        <span>⚔️ Debate with Socrates</span>
                       </button>
                     </div>
                   </div>

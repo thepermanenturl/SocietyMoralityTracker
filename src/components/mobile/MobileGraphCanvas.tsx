@@ -112,9 +112,10 @@ const nodeTypes = {
 
 export interface MobileGraphCanvasProps {
   onNodeSelect?: (node: EnrichedMoralityNode) => void;
+  isInspectorDismissed?: boolean;
 }
 
-const MobileGraphCanvasInner: React.FC<MobileGraphCanvasProps> = ({ onNodeSelect }) => {
+const MobileGraphCanvasInner: React.FC<MobileGraphCanvasProps> = ({ onNodeSelect, isInspectorDismissed }) => {
   const {
     treeLens,
     setTreeLens,
@@ -223,11 +224,25 @@ const MobileGraphCanvasInner: React.FC<MobileGraphCanvasProps> = ({ onNodeSelect
     if (!flowInstance) return;
     const timer = setTimeout(() => {
       if (selectedNode) {
-        flowInstance.fitView({
-          nodes: [{ id: selectedNode.id }],
-          duration: 400,
-          padding: 0.8
-        });
+        if (isInspectorDismissed) {
+          // Centrally focus on selected node, zoom out slightly to fit all related nodes, keeping highlights active
+          const targetNodes = [
+            { id: selectedNode.id },
+            ...Array.from(activeRelations).map((id) => ({ id }))
+          ];
+          flowInstance.fitView({
+            nodes: targetNodes,
+            duration: 500,
+            padding: 0.35
+          });
+        } else {
+          // Focus in on the selected node while description card is active
+          flowInstance.fitView({
+            nodes: [{ id: selectedNode.id }],
+            duration: 400,
+            padding: 0.75
+          });
+        }
       } else {
         flowInstance.fitView({
           nodes: Array.from(ROOT_PRIMITIVE_IDS).map((id) => ({ id })),
@@ -237,7 +252,7 @@ const MobileGraphCanvasInner: React.FC<MobileGraphCanvasProps> = ({ onNodeSelect
       }
     }, 100);
     return () => clearTimeout(timer);
-  }, [flowInstance, selectedNode]);
+  }, [flowInstance, selectedNode, isInspectorDismissed, activeRelations]);
 
   return (
     <div className="relative w-full h-[360px] sm:h-[420px] bg-stone-950 rounded-2xl border border-amber-900/40 overflow-hidden shadow-inner flex flex-col">
