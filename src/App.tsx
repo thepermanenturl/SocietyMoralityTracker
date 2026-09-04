@@ -18,23 +18,36 @@ import { GuidedTour } from './components/onboarding/GuidedTour';
 
 import { ReactFlowProvider } from '@xyflow/react';
 
+const detectMobile = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const isSmallScreen = window.innerWidth < 800;
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const ua = navigator.userAgent || '';
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  return isSmallScreen || (isTouch && window.innerWidth < 1024) || isMobileUA;
+};
+
 export const App: React.FC = () => {
   const { activeParadigm, isDarkMode, isPhoneSimulatorOpen, togglePhoneSimulator } = useMoralityStore();
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(detectMobile);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(detectMobile());
     };
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-[#e6e4dd] text-slate-900'} font-sans selection:bg-sky-500 selection:text-white transition-colors duration-300`}>
-      {/* Top Navbar & Search */}
-      <Navbar />
+      {/* Top Navbar & Search (Desktop Only - Mobile has its own dedicated header) */}
+      {!isMobile && <Navbar />}
 
       {/* Render Mobile View or Desktop Canvas */}
       {isMobile ? (
@@ -45,41 +58,35 @@ export const App: React.FC = () => {
           <FloatingChatBubble />
 
           {/* Main Multi-Paradigm Canvas */}
-          <main className="relative w-full h-screen">
+          <main className="relative w-full h-[calc(100vh-64px)] mt-16 overflow-hidden">
             <ReactFlowProvider>
               {activeParadigm === 'tree' && <TreeView />}
               {activeParadigm === 'prism' && <PrismView />}
               {activeParadigm === 'schemes' && <SchemeTrackerPage />}
             </ReactFlowProvider>
           </main>
+
+          {/* Desktop-Only Sidebars & Overlays */}
+          <NodeDetailDrawer />
+          <NewsFeedDrawer />
+          <ElectorateLegislatureDrawer />
+          <HighlightRationaleCard />
+          <BottomTimelineDock />
+          <GuidedTour />
+
+          {/* Mobile Dimension Phone Simulator & Debugger Workbench */}
+          <PhoneSimulatorWorkbench
+            isOpen={isPhoneSimulatorOpen}
+            onClose={() => togglePhoneSimulator(false)}
+          />
         </>
       )}
-
-      {/* Sidebars */}
-      <NodeDetailDrawer />
-      <NewsFeedDrawer />
-      <ElectorateLegislatureDrawer />
 
       {/* Socrates AI Chatbot Modal */}
       <AIChatbotModal />
 
       {/* Settings & Portable Context Modal */}
       <SettingsModal />
-
-      {/* Floating Highlight Rationale Card */}
-      <HighlightRationaleCard />
-
-      {/* Bottom Horizontal Timeline Dock (Desktop only to prevent mobile navigation overlap) */}
-      {!isMobile && <BottomTimelineDock />}
-
-      {/* First-Time Guided Onboarding Tour */}
-      <GuidedTour />
-
-      {/* Mobile Dimension Phone Simulator & Debugger Workbench */}
-      <PhoneSimulatorWorkbench
-        isOpen={isPhoneSimulatorOpen}
-        onClose={() => togglePhoneSimulator(false)}
-      />
     </div>
   );
 };

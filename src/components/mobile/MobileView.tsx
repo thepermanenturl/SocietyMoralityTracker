@@ -17,6 +17,7 @@ import {
   Bot,
   Compass,
   Newspaper,
+  Zap,
   Sparkles,
   Send,
   Search,
@@ -51,14 +52,14 @@ interface MobileViewProps {
   onExit?: () => void;
 }
 
-type FeedFilterType = 'all' | 'bills' | 'schemes' | 'news';
+type FeedFilterType = 'news' | 'bills' | 'schemes' | 'all';
 
 export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
   // 3 Dedicated Screens: 'chat' | 'graph' | 'feed'
   const [activeTab, setActiveTab] = useState<'chat' | 'graph' | 'feed'>('graph');
 
-  // Feed State
-  const [feedFilter, setFeedFilter] = useState<FeedFilterType>('all');
+  // Feed State: Default to High-Impact News!
+  const [feedFilter, setFeedFilter] = useState<FeedFilterType>('news');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedBillId, setExpandedBillId] = useState<string | null>(null);
   const [expandedSchemeId, setExpandedSchemeId] = useState<string | null>(null);
@@ -73,8 +74,8 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
   const [isChatSubmitting, setIsChatSubmitting] = useState<boolean>(false);
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
-  const [isInspectorDismissed, setIsInspectorDismissed] = useState<boolean>(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const nodeDetailRef = useRef<HTMLDivElement>(null);
 
   const {
     selectedNode,
@@ -120,6 +121,15 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
         criticBody: 'Potential trade-offs and structural constraints.'
       }
     };
+  }, [selectedNode]);
+
+  // Auto-scroll to node detail below graph & explorer when a node is selected
+  useEffect(() => {
+    if (selectedNode && nodeDetailRef.current) {
+      setTimeout(() => {
+        nodeDetailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
   }, [selectedNode]);
 
   // Fetch live news on mount
@@ -438,7 +448,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
   ];
 
   return (
-    <div className="w-full h-full min-h-screen bg-stone-950 text-stone-100 flex flex-col justify-between font-sans select-none overflow-x-hidden">
+    <div className="w-full min-h-screen bg-stone-950 text-stone-100 flex flex-col font-sans overflow-y-auto overscroll-y-contain pb-28 touch-pan-y">
       {/* ========================================================================= */}
       {/* TOP STATUS BAR & HEADER */}
       {/* ========================================================================= */}
@@ -457,7 +467,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
             <p className="text-[10px] text-stone-400 font-medium">
               {activeTab === 'chat' && '🤖 Socrates Philosophical Dialogue'}
               {activeTab === 'graph' && '🗺️ 34-Node Multilayer Axiomatic Graph'}
-              {activeTab === 'feed' && '📰 26 Bills, Civic Schemes & Live Feed'}
+              {activeTab === 'feed' && '⚡ High-Impact Current News & Civic Archive'}
             </p>
           </div>
         </div>
@@ -668,56 +678,118 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
         )}
 
         {/* --------------------------------------------------------------------- */}
-        {/* SCREEN 2: 'graph' (Interactive Graph & Compact Inspector) */}
+        {/* SCREEN 2: 'graph' (Interactive Graph & Node Explorer & Detailed Inspector) */}
         {/* --------------------------------------------------------------------- */}
         {activeTab === 'graph' && (
           <div className="flex-1 flex flex-col px-3 pt-2.5 space-y-3">
             {/* Interactive Graph Canvas */}
             <div className="w-full">
               <MobileGraphCanvas
-                isInspectorDismissed={isInspectorDismissed}
                 onNodeSelect={(node) => {
                   setSelectedNode(node);
-                  setIsInspectorDismissed(false);
                 }}
               />
             </div>
 
-            {/* Compact Selected Node Inspector Card */}
-            {enrichedSelectedNode ? (
-              !isInspectorDismissed ? (
-                <div className="rounded-2xl bg-stone-900/90 border border-amber-900/50 p-3.5 shadow-xl space-y-3">
-                  {/* Node Header */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span
-                          className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border ${getNodeColorClass(
-                            enrichedSelectedNode.layer
-                          )}`}
-                        >
-                          [{enrichedSelectedNode.id}]
-                        </span>
-                        <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                          {enrichedSelectedNode.layer === -1
-                            ? '🌟 Minimal Origin Primitive'
-                            : `Layer ${enrichedSelectedNode.layer} Axiom`}
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-extrabold text-stone-100 leading-snug">
-                        {enrichedSelectedNode.title}
-                      </h3>
-                    </div>
+            {/* Interactive Node Explorer (ALWAYS visible below graph!) */}
+            <div className="rounded-2xl bg-stone-900/80 border border-stone-800 p-3.5 space-y-2.5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                  <Compass className="w-4 h-4 text-amber-400" />
+                  <span>Interactive Node Explorer</span>
+                </div>
+                {selectedNode && (
+                  <button
+                    onClick={() => setSelectedNode(null)}
+                    className="text-[10px] text-amber-400 hover:text-white font-bold"
+                  >
+                    Reset to 3 Roots
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-stone-400 leading-relaxed">
+                {selectedNode
+                  ? `Selected: [${selectedNode.id}] ${selectedNode.title}. Scroll down for details.`
+                  : 'Tap any node in the graph above, or choose an origin primitive below:'}
+              </p>
 
-                    <button
-                      onClick={() => setIsInspectorDismissed(true)}
-                      className="px-2 py-1 rounded-lg text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 text-xs flex items-center gap-1 font-bold border border-stone-700 shadow transition active:scale-95"
-                      title="Dismiss description to view centered node and highlighted cluster on graph"
-                    >
-                      <span className="text-[10px]">Close</span>
-                      <span className="text-sm leading-none">×</span>
-                    </button>
+              {/* 3 Primitives Quick Access */}
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  onClick={() => handleSelectNodeAndNavigate('P1_HARM')}
+                  className={`p-2 rounded-xl text-left transition-all active:scale-95 border ${
+                    selectedNode?.id === 'P1_HARM'
+                      ? 'bg-emerald-900/80 border-emerald-400 text-emerald-100 ring-2 ring-emerald-500/50 shadow-md'
+                      : 'bg-emerald-950/60 border-emerald-800/70 hover:bg-emerald-900/60 text-emerald-200'
+                  }`}
+                >
+                  <span className="text-[9px] font-mono font-bold text-emerald-400">[P1]</span>
+                  <h5 className="text-[11px] font-extrabold truncate">Non-Harm</h5>
+                  <p className="text-[9px] text-emerald-400/80 truncate">Suffering avoidance</p>
+                </button>
+
+                <button
+                  onClick={() => handleSelectNodeAndNavigate('P2_AGENCY')}
+                  className={`p-2 rounded-xl text-left transition-all active:scale-95 border ${
+                    selectedNode?.id === 'P2_AGENCY'
+                      ? 'bg-sky-900/80 border-sky-400 text-sky-100 ring-2 ring-sky-500/50 shadow-md'
+                      : 'bg-sky-950/60 border-sky-800/70 hover:bg-sky-900/60 text-sky-200'
+                  }`}
+                >
+                  <span className="text-[9px] font-mono font-bold text-sky-400">[P2]</span>
+                  <h5 className="text-[11px] font-extrabold truncate">Agency</h5>
+                  <p className="text-[9px] text-sky-400/80 truncate">Consent & liberty</p>
+                </button>
+
+                <button
+                  onClick={() => handleSelectNodeAndNavigate('P3_EQUITY')}
+                  className={`p-2 rounded-xl text-left transition-all active:scale-95 border ${
+                    selectedNode?.id === 'P3_EQUITY'
+                      ? 'bg-amber-900/80 border-amber-400 text-amber-100 ring-2 ring-amber-500/50 shadow-md'
+                      : 'bg-amber-950/60 border-amber-800/70 hover:bg-amber-900/60 text-amber-200'
+                  }`}
+                >
+                  <span className="text-[9px] font-mono font-bold text-amber-400">[P3]</span>
+                  <h5 className="text-[11px] font-extrabold truncate">Equity</h5>
+                  <p className="text-[9px] text-amber-400/80 truncate">Impartial justice</p>
+                </button>
+              </div>
+            </div>
+
+            {/* Selected Node Inspector Card (Opens smoothly BELOW the node explorer!) */}
+            {enrichedSelectedNode && (
+              <div ref={nodeDetailRef} className="rounded-2xl bg-stone-900/95 border border-amber-900/50 p-3.5 shadow-xl space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                {/* Node Header with Clean Close Button */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span
+                        className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border ${getNodeColorClass(
+                          enrichedSelectedNode.layer
+                        )}`}
+                      >
+                        [{enrichedSelectedNode.id}]
+                      </span>
+                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                        {enrichedSelectedNode.layer === -1
+                          ? '🌟 Minimal Origin Primitive'
+                          : `Layer ${enrichedSelectedNode.layer} Axiom`}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-extrabold text-stone-100 leading-snug">
+                      {enrichedSelectedNode.title}
+                    </h3>
                   </div>
+
+                  <button
+                    onClick={() => setSelectedNode(null)}
+                    className="px-2.5 py-1 rounded-lg text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 text-xs flex items-center gap-1 font-bold border border-stone-700 shadow transition active:scale-95 cursor-pointer"
+                    title="Close description"
+                  >
+                    <span className="text-[11px]">Close</span>
+                    <span className="text-sm leading-none">×</span>
+                  </button>
+                </div>
 
                 {/* Active Lens Statement */}
                 <div className="p-2.5 rounded-xl bg-stone-950/70 border border-amber-900/30">
@@ -798,7 +870,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                   </div>
                 )}
 
-                {/* Action Buttons: Ask Socrates & Related */}
+                {/* Action Buttons: Ask Socrates & Close */}
                 <div className="pt-1 flex items-center gap-2">
                   <button
                     onClick={() => {
@@ -812,98 +884,10 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                   </button>
 
                   <button
-                    onClick={() => {
-                      setSelectedNode(null);
-                      setIsInspectorDismissed(false);
-                    }}
+                    onClick={() => setSelectedNode(null)}
                     className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold transition-all"
                   >
-                    Reset Focus
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Compact Floating Bar when Description is Dismissed: Graph Stays Centered, Zoomed Out, and Highlighted! */
-              <div className="rounded-2xl bg-stone-900/95 border border-amber-900/50 p-2.5 px-3.5 shadow-xl flex items-center justify-between gap-2 backdrop-blur-md">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <span
-                    className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded border shrink-0 ${getNodeColorClass(
-                      enrichedSelectedNode.layer
-                    )}`}
-                  >
-                    [{enrichedSelectedNode.id}]
-                  </span>
-                  <div className="truncate">
-                    <p className="text-xs font-bold text-stone-100 truncate">
-                      {enrichedSelectedNode.title}
-                    </p>
-                    <p className="text-[10px] text-emerald-400 font-semibold truncate">
-                      ✦ Centered &amp; all related derivation nodes highlighted
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={() => setIsInspectorDismissed(false)}
-                    className="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-xs shadow transition active:scale-95 flex items-center gap-1 cursor-pointer"
-                    title="View full description and Panchatantra parable"
-                  >
-                    <span>📖</span>
-                    <span>Details</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedNode(null);
-                      setIsInspectorDismissed(false);
-                    }}
-                    className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white text-xs transition cursor-pointer"
-                    title="Reset focus to overview"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )
-          ) : (
-              /* Starter Prompt & 3-Primitives Selector */
-              <div className="rounded-2xl bg-stone-900/70 border border-stone-800 p-3.5 text-center space-y-2.5">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300">
-                  <Compass className="w-4 h-4 text-amber-400" />
-                  <span>Interactive Node Explorer</span>
-                </div>
-                <p className="text-xs text-stone-400 leading-relaxed">
-                  Tap any node in the graph above to inspect its 3 lenses, Panchatantra parable, and
-                  constitutional derivations.
-                </p>
-
-                {/* 3 Primitives Quick Access */}
-                <div className="pt-1 grid grid-cols-3 gap-1.5">
-                  <button
-                    onClick={() => handleSelectNodeAndNavigate('P1_HARM')}
-                    className="p-2 rounded-xl bg-emerald-950/60 border border-emerald-800/70 hover:bg-emerald-900/60 text-left transition-all active:scale-95"
-                  >
-                    <span className="text-[9px] font-mono font-bold text-emerald-400">[P1]</span>
-                    <h5 className="text-[11px] font-extrabold text-emerald-200 truncate">Non-Harm</h5>
-                    <p className="text-[9px] text-emerald-400/80 truncate">Suffering avoidance</p>
-                  </button>
-
-                  <button
-                    onClick={() => handleSelectNodeAndNavigate('P2_AGENCY')}
-                    className="p-2 rounded-xl bg-sky-950/60 border border-sky-800/70 hover:bg-sky-900/60 text-left transition-all active:scale-95"
-                  >
-                    <span className="text-[9px] font-mono font-bold text-sky-400">[P2]</span>
-                    <h5 className="text-[11px] font-extrabold text-sky-200 truncate">Agency</h5>
-                    <p className="text-[9px] text-sky-400/80 truncate">Consent & liberty</p>
-                  </button>
-
-                  <button
-                    onClick={() => handleSelectNodeAndNavigate('P3_EQUITY')}
-                    className="p-2 rounded-xl bg-amber-950/60 border border-amber-800/70 hover:bg-amber-900/60 text-left transition-all active:scale-95"
-                  >
-                    <span className="text-[9px] font-mono font-bold text-amber-400">[P3]</span>
-                    <h5 className="text-[11px] font-extrabold text-amber-200 truncate">Equity</h5>
-                    <p className="text-[9px] text-amber-400/80 truncate">Impartial justice</p>
+                    Close
                   </button>
                 </div>
               </div>
@@ -939,14 +923,15 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
             {/* Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               <button
-                onClick={() => setFeedFilter('all')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                  feedFilter === 'all'
+                onClick={() => setFeedFilter('news')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1 transition-all ${
+                  feedFilter === 'news'
                     ? 'bg-amber-600 text-stone-950 shadow'
                     : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800'
                 }`}
               >
-                All ({filteredFeedData.totalCount})
+                <span>⚡</span>
+                <span>Current News ({filteredFeedData.news.length})</span>
               </button>
               <button
                 onClick={() => setFeedFilter('bills')}
@@ -957,7 +942,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 }`}
               >
                 <span>📜</span>
-                <span>Bills ({filteredFeedData.bills.length})</span>
+                <span>Historical Bills ({filteredFeedData.bills.length})</span>
               </button>
               <button
                 onClick={() => setFeedFilter('schemes')}
@@ -968,24 +953,122 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 }`}
               >
                 <span>🌾</span>
-                <span>Schemes ({filteredFeedData.schemes.length})</span>
+                <span>Civic Schemes ({filteredFeedData.schemes.length})</span>
               </button>
               <button
-                onClick={() => setFeedFilter('news')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap flex items-center gap-1 transition-all ${
-                  feedFilter === 'news'
+                onClick={() => setFeedFilter('all')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  feedFilter === 'all'
                     ? 'bg-amber-600 text-stone-950 shadow'
                     : 'bg-stone-900 text-stone-400 hover:text-stone-200 border border-stone-800'
                 }`}
               >
-                <span>⚡</span>
-                <span>News ({filteredFeedData.news.length})</span>
+                All ({filteredFeedData.totalCount})
               </button>
             </div>
 
-            {/* Unified Feed Stream */}
+            {/* Unified Feed Stream (High-Impact News First, then Bills, then Schemes) */}
             <div className="space-y-3">
-              {/* 1. Parliamentary Bills */}
+              {/* 1. Live High-Impact News Feed */}
+              {filteredFeedData.news.map((newsItem) => {
+                const isExpanded = expandedNewsId === newsItem.id;
+                return (
+                  <div
+                    key={newsItem.id}
+                    className="p-3 rounded-2xl bg-stone-900/90 border border-purple-900/40 hover:border-purple-700/60 shadow-md space-y-2 transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-800">
+                            {newsItem.category || 'Live News'}
+                          </span>
+                          <span className="text-[9px] text-stone-400 font-mono">{newsItem.date}</span>
+                        </div>
+                        <h4 className="text-xs font-extrabold text-stone-100 leading-snug">
+                          {newsItem.title}
+                        </h4>
+                        <p className="text-[10px] text-stone-400">{newsItem.newsPublisher}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-stone-300 leading-relaxed">{newsItem.summary}</p>
+
+                    {/* Stances */}
+                    {isExpanded && (
+                      <div className="pt-2 border-t border-stone-800 space-y-2 text-xs">
+                        {newsItem.upholderStance && (
+                          <div className="p-2 rounded-xl bg-emerald-950/30 border border-emerald-900/40">
+                            <span className="text-[10px] font-bold text-emerald-400">
+                              {newsItem.upholderStance.headline}
+                            </span>
+                            <p className="text-stone-300 text-[11px] mt-0.5">
+                              {newsItem.upholderStance.analysis}
+                            </p>
+                          </div>
+                        )}
+                        {newsItem.devilsAdvocateStance && (
+                          <div className="p-2 rounded-xl bg-amber-950/30 border border-amber-900/40">
+                            <span className="text-[10px] font-bold text-amber-400">
+                              {newsItem.devilsAdvocateStance.headline}
+                            </span>
+                            <p className="text-stone-300 text-[11px] mt-0.5">
+                              {newsItem.devilsAdvocateStance.analysis}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Violated Nodes */}
+                    {newsItem.violatedNodes && newsItem.violatedNodes.length > 0 && (
+                      <div className="flex items-center gap-1 flex-wrap pt-1">
+                        <span className="text-[9px] text-stone-500 font-bold uppercase">Nodes:</span>
+                        {newsItem.violatedNodes.map((v) => (
+                          <button
+                            key={v}
+                            onClick={() => handleSelectNodeAndNavigate(v)}
+                            className="px-1.5 py-0.5 rounded bg-stone-950 hover:bg-purple-950 text-[9px] font-mono font-bold text-purple-300 border border-purple-900/40"
+                          >
+                            [{v}]
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Actions: Analyze with Socrates */}
+                    <div className="pt-1 flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => setExpandedNewsId(isExpanded ? null : newsItem.id)}
+                        className="text-[11px] font-bold text-stone-400 hover:text-stone-200 flex items-center gap-1"
+                      >
+                        <span>{isExpanded ? 'Less' : 'View Stances'}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const newsPrompt = `Socrates, let's debate the ethical implications of this breaking news: '${newsItem.title}'. Summary: ${newsItem.summary}. Which fundamental moral axioms and constitutional rights are in conflict?`;
+                          if (newsItem.violatedNodes && newsItem.violatedNodes.length > 0) {
+                            setAiMatchedNodeIds(newsItem.violatedNodes);
+                          }
+                          executeChatInquiry(newsPrompt);
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-[11px] flex items-center gap-1 shadow-sm active:scale-95 transition-all"
+                      >
+                        <Bot className="w-3 h-3" />
+                        <span>⚔️ Debate with Socrates</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* 2. Parliamentary Bills */}
               {filteredFeedData.bills.map((bill) => {
                 const isExpanded = expandedBillId === bill.id;
                 return (
@@ -1106,7 +1189,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 );
               })}
 
-              {/* 2. Civic Schemes & CAG Audits */}
+              {/* 3. Civic Schemes & CAG Audits */}
               {filteredFeedData.schemes.map((scheme) => {
                 const isExpanded = expandedSchemeId === scheme.id;
                 const topAudit = scheme.cagAuditFindings?.[0];
@@ -1197,108 +1280,9 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 );
               })}
 
-              {/* 3. Live News Feed */}
-              {filteredFeedData.news.map((newsItem) => {
-                const isExpanded = expandedNewsId === newsItem.id;
-                return (
-                  <div
-                    key={newsItem.id}
-                    className="p-3 rounded-2xl bg-stone-900/90 border border-purple-900/40 hover:border-purple-700/60 shadow-md space-y-2 transition-all"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-950 text-purple-400 border border-purple-800">
-                            {newsItem.category || 'Live News'}
-                          </span>
-                          <span className="text-[9px] text-stone-400 font-mono">{newsItem.date}</span>
-                        </div>
-                        <h4 className="text-xs font-extrabold text-stone-100 leading-snug">
-                          {newsItem.title}
-                        </h4>
-                        <p className="text-[10px] text-stone-400">{newsItem.newsPublisher}</p>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-stone-300 leading-relaxed">{newsItem.summary}</p>
-
-                    {/* Stances */}
-                    {isExpanded && (
-                      <div className="pt-2 border-t border-stone-800 space-y-2 text-xs">
-                        {newsItem.upholderStance && (
-                          <div className="p-2 rounded-xl bg-emerald-950/30 border border-emerald-900/40">
-                            <span className="text-[10px] font-bold text-emerald-400">
-                              {newsItem.upholderStance.headline}
-                            </span>
-                            <p className="text-stone-300 text-[11px] mt-0.5">
-                              {newsItem.upholderStance.analysis}
-                            </p>
-                          </div>
-                        )}
-                        {newsItem.devilsAdvocateStance && (
-                          <div className="p-2 rounded-xl bg-amber-950/30 border border-amber-900/40">
-                            <span className="text-[10px] font-bold text-amber-400">
-                              {newsItem.devilsAdvocateStance.headline}
-                            </span>
-                            <p className="text-stone-300 text-[11px] mt-0.5">
-                              {newsItem.devilsAdvocateStance.analysis}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Violated Nodes */}
-                    {newsItem.violatedNodes && newsItem.violatedNodes.length > 0 && (
-                      <div className="flex items-center gap-1 flex-wrap pt-1">
-                        <span className="text-[9px] text-stone-500 font-bold uppercase">Nodes:</span>
-                        {newsItem.violatedNodes.map((v) => (
-                          <button
-                            key={v}
-                            onClick={() => handleSelectNodeAndNavigate(v)}
-                            className="px-1.5 py-0.5 rounded bg-stone-950 hover:bg-purple-950 text-[9px] font-mono font-bold text-purple-300 border border-purple-900/40"
-                          >
-                            [{v}]
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Actions: Analyze with Socrates */}
-                    <div className="pt-1 flex items-center justify-between gap-2">
-                      <button
-                        onClick={() => setExpandedNewsId(isExpanded ? null : newsItem.id)}
-                        className="text-[11px] font-bold text-stone-400 hover:text-stone-200 flex items-center gap-1"
-                      >
-                        <span>{isExpanded ? 'Less' : 'View Stances'}</span>
-                        {isExpanded ? (
-                          <ChevronUp className="w-3 h-3" />
-                        ) : (
-                          <ChevronDown className="w-3 h-3" />
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          const newsPrompt = `Socrates, let's debate the ethical implications of this breaking news: '${newsItem.title}'. Summary: ${newsItem.summary}. Which fundamental moral axioms and constitutional rights are in conflict?`;
-                          if (newsItem.violatedNodes && newsItem.violatedNodes.length > 0) {
-                            setAiMatchedNodeIds(newsItem.violatedNodes);
-                          }
-                          executeChatInquiry(newsPrompt);
-                        }}
-                        className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-[11px] flex items-center gap-1 shadow-sm active:scale-95 transition-all"
-                      >
-                        <Bot className="w-3 h-3" />
-                        <span>⚔️ Debate with Socrates</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-
               {filteredFeedData.totalCount === 0 && (
                 <div className="py-12 text-center">
-                  <p className="text-xs text-stone-400">No matching bills, schemes, or news found.</p>
+                  <p className="text-xs text-stone-400">No matching news, bills, or schemes found.</p>
                 </div>
               )}
             </div>
@@ -1349,7 +1333,7 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
             <span className="text-[11px] tracking-tight">Graph & Inspect</span>
           </button>
 
-          {/* Tab 3: Civic Feed */}
+          {/* Tab 3: Live News */}
           <button
             onClick={() => setActiveTab('feed')}
             className={`min-h-[48px] flex flex-col items-center justify-center gap-1 transition-all select-none cursor-pointer ${
@@ -1358,10 +1342,15 @@ export const MobileView: React.FC<MobileViewProps> = ({ onExit }) => {
                 : 'text-stone-400 hover:text-stone-200 font-semibold'
             }`}
           >
-            <Newspaper
-              className={`w-5 h-5 ${activeTab === 'feed' ? 'text-amber-400 scale-110' : ''}`}
-            />
-            <span className="text-[11px] tracking-tight">Civic Feed</span>
+            <div className="relative">
+              <Zap
+                className={`w-5 h-5 ${activeTab === 'feed' ? 'text-amber-400 scale-110' : ''}`}
+              />
+              {liveNews.length > 0 && (
+                <span className="absolute -top-1 -right-2 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              )}
+            </div>
+            <span className="text-[11px] tracking-tight">Live News</span>
           </button>
         </div>
       </nav>
